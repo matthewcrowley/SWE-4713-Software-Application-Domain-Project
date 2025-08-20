@@ -1,2 +1,8 @@
-# SWE_4713_Software_Application_Domain_Project
-Repository housing our semester web-based accounting project for SWE 4713 - Software Application Domain
+WORK IN PROGRESS - CURRENT STAGE: REQUIREMENTS PLANNING
+
+**Group Members:**<br>
+Devin Perry - Project Lead<br>
+Matthew Crowley<br>
+Kendal Elison<br>
+Kahmin Keller<br>
+Connor Oberlin<br>
