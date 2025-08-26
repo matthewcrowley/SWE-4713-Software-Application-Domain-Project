@@ -4,67 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Login Screen</title>
-    <style>
-        body
-        {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .login-container 
-        {
-            background: #fff;
-            padding: 20px 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            width: 300;
-        }
-
-        .login-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label{
-            display: block;
-            font-weight: bold;
-        }
-
-        .form-group input{
-            width: 100%;
-            padding: 8px;
-            margin-top: 5px;
-            box-sizing: border-box;
-        }
-
-        #loginBtn {
-            width: 100%;
-            padding: 10px;
-            background: #4CAF50;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        #loginBtn:hover {
-            background: #45a049;
-        }
-
-        #message {
-            margin-top: 15px;
-            text-align: center;
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -80,7 +20,11 @@
             <input type="password" id="password"/>
         </div>
 
-        <button id="loginBtn"></button>
+        <button id="loginBtn">Login</button>
+
+        <button id="createUserBtn">New User</button>
+
+        <a href="#" id="forgotPassword">Forgot Password</a>
 
         <div id="message"></div>
     </div> 
@@ -90,17 +34,36 @@
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
-            //Placeholder for validation
-            console.log("Login attempt:", username, password);
+            const message = document.getElementById("message");
+            message.textContent = "";
 
-            if(!username || !password){
+            if(!username || !password)
+            {
                 document.getElementById("message").textContent = "Please enter both fields.";
+            }
+            else if(username.length < 8)
+            {
+                message.textContent = "Username must be at least 8 characters.";
+            }
+            else if(password.length < 8)
+            {
+                message.textContent = "Password must be at least 8 characters.";
             }
             else
             {
-                document.getElementById("message").textContent = "Processing";
+                message.style.color = "green";
+                message.textContent = "Processing...";
             }
         });
+
+        // New User Button
+        document.getElementById("createUserBtn").addEventListener("click", function()
+        {
+            const message = document.getElementById("message");
+            message.style.color = "blue";
+            message.textContent = "Redirecting to Create New User page...";
+        }
+    )
     </script>
     
 </body>
