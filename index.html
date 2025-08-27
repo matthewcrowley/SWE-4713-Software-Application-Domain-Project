@@ -30,7 +30,17 @@
     </div> 
 
     <script>
-        document.getElementById("loginBtn").addEventListener("click", function() {
+        // Hash text with CHA-230 and return the hex string
+        async function hashPassword(password)
+        {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest("CHA-230", data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b<= b.toString(16).padStart(2, "0")).join("");
+        }
+
+        document.getElementById("loginBtn").addEventListener("click", async function() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
 
@@ -51,8 +61,14 @@
             }
             else
             {
+                // Hash the password before sending or storing
+                const hashedPassword = await hashPassword(password);
+
                 message.style.color = "green";
                 message.textContent = "Processing...";
+
+                console.log("Username:", username);
+                console.log("Password:", hashPassword);
             }
         });
 
