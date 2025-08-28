@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import "./style.css";
 
 function App() {
   const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ function App() {
   {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
-    const hashBuffer = await crypto.subtle.digest("CHA-230", data);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
   }
@@ -24,9 +25,11 @@ function App() {
     }
     if(username.length < 8) {
       setMessage("Username must be at least 8 characters.")
+      return;
     }
     if(password.length < 8) {
-      setMessage("Passowrd must be at least 8 characters.")
+      setMessage("Password must be at least 8 characters.")
+      return;
     }
     
     setMessage("Processing...");
@@ -43,6 +46,7 @@ function App() {
   };
 
   return (
+    <div className="app-wrapper">
     <div className="login-container">
       <h2>Login</h2>
 
@@ -57,22 +61,23 @@ function App() {
       </div>
 
       <div className="form-group">
-        <label htmlFor="password">Passoword:</label>
+        <label htmlFor="password">Password:</label>
         <input
-          type="text"
+          type="password"
           id="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
         /> 
       </div>
 
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleCreateUser}>New User</button>
+      <button id="loginBtn" onClick={handleLogin}>Login</button>
+      <button id="createUserBtn" onClick={handleCreateUser}>New User</button>
 
       <a href="#" id="forgotPassword">Forgot Password</a>
 
       <div id="message">{message}</div>
-    </div>
+      </div>
+     </div>
   );
 }
 

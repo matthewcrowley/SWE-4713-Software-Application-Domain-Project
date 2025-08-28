@@ -1,0 +1,110 @@
+
+
+html,body,#root {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background: #f4f4f4;
+}
+.app-wrapper
+{
+    font-family: Arial, sans-serif;
+    width:100%;
+    height:100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container 
+{
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 300px;
+}
+
+.login-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 22px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label{
+    display: block;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color:#333;
+}
+
+.form-group input{
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#loginBtn,
+#createUserBtn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+    margin-top: 10px;
+}
+
+/*Login button */
+#loginBtn{
+    background: #4CAF50;
+    color: white;
+}
+
+#loginBtn:hover {
+    background: #45a049;
+}
+
+/* Create new user button*/
+#createUserBtn {
+    background: #2196F3;
+    color: white;
+}
+
+#createUserBtn:hover {
+    background: #1976D2;
+}
+
+#forgotPassword 
+{
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #007BFF;
+    text-decoration: none;
+    font-size: 14px;
+    }
+
+#forgotPassword:hover 
+{
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#message 
+{
+    margin-top: 15px;
+    text-align: center;
+    color: red;
+}
