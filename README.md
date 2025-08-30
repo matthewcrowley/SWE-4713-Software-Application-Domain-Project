@@ -1,4 +1,4 @@
-WORK IN PROGRESS - CURRENT STAGE: REQUIREMENTS PLANNING - Sprint 1
+WORK IN PROGRESS - CURRENT STAGE: Sprint 1 - Login and Database
 
 **Group Members:**<br>
 Devin Perry - Project Lead<br>
