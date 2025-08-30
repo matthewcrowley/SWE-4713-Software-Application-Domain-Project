@@ -1,0 +1,6 @@
+@SweetLedger_HostAddress = http://localhost:5190
+
+GET {{SweetLedger_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
