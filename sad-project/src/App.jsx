@@ -1,10 +1,18 @@
+
+import {BrowserRouter as Router, Routes, Route, useNavigate, Navigate} from "react-router-dom";
 import { useState } from 'react'
 import "./style.css";
+import NewUser from './NewUser';
+import ForgotPassword from "./ForgotPassword";
+import { Link } from "react-router-dom"; 
 
-function App() {
+// Login Page
+function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
 
   //Hash password with SHA-256
   async function hashedPassword(password)
@@ -31,6 +39,14 @@ function App() {
       setMessage("Password must be at least 8 characters.")
       return;
     }
+    if(!/^[A-Za-z]/.test(password)) {
+      setMessage("Password must start with a letter.")
+      return;
+    }
+    if(!/(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-])/.test(password)) {
+      setMessage("Password must contain at least one letter, one number, and one special character.")
+      return;
+    }
     
     setMessage("Processing...");
 
@@ -42,7 +58,7 @@ function App() {
   };
 
   const handleCreateUser = () => {
-    setMessage("Redirecting to New User page...")
+    navigate("/new-user");
   };
 
   return (
@@ -73,11 +89,25 @@ function App() {
       <button id="loginBtn" onClick={handleLogin}>Login</button>
       <button id="createUserBtn" onClick={handleCreateUser}>New User</button>
 
-      <a href="#" id="forgotPassword">Forgot Password</a>
+      <Link to="/forgot-password" id="forgotPassword">
+        Forgot Password?
+      </Link>
 
       <div id="message">{message}</div>
       </div>
      </div>
+  );
+}
+
+function App(){
+  return(
+    <Router>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/new-user" element={<NewUser />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Routes>
+    </Router>
   );
 }
 
