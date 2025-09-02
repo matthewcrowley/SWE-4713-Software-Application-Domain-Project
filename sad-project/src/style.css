@@ -138,3 +138,11 @@ html,body,#root {
 #forgotPasswordBtn:hover {
     background: #8e24aa;
 }
+
+/* logo*/
+.logo {
+    display: block;
+    margin: 0 auto 20px;
+    width: 200px;
+    height: auto;
+}
