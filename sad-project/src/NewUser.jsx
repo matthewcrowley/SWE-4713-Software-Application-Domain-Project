@@ -1,5 +1,6 @@
 import {useState} from "react";
 import"./style.css";
+import { useNavigate } from "react-router-dom";
 
 function NewUser() {
     const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ function NewUser() {
     })
 
     const [message, setMessage] = useState("");
+    const navigate = useNavigate(); // navigate hook
 
      //Hash password with SHA-256
   async function hashedPassword(password)
@@ -54,6 +56,12 @@ function NewUser() {
         }
 
         if(!validatePassword(password)) return;
+
+        if(password === "Administrator#01") {
+          setMessage("Administrator login created!");
+          navigate("/administrator"); // sends user admin dashboard
+          return;
+        }
 
         const hashed = await hashedPassword(password);
 

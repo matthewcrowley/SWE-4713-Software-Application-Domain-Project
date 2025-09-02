@@ -6,6 +6,7 @@ import NewUser from './NewUser';
 import ForgotPassword from "./ForgotPassword";
 import { Link } from "react-router-dom"; 
 import logo from "./assets/sweetledger.jpeg";
+import Administrator from "./Pages/administrator";
 
 // Login Page
 function LoginPage() {
@@ -107,6 +108,7 @@ function App(){
         <Route path="/" element={<LoginPage />} />
         <Route path="/new-user" element={<NewUser />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/administrator" element={<Administrator />} />
       </Routes>
     </Router>
   );
