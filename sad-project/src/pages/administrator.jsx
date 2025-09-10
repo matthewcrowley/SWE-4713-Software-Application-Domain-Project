@@ -1,8 +1,22 @@
+import React from "react";
+import defaultProfile from"../assets/defaultprofile.png";
+import "./Admin.css";
+
 export default function Administrator() {
   return (
-    <div>
-      <h1>Administrator Dashboard</h1>
-      <p>You have full access to manage users, settings, and reports.</p>
+    <div className="admin-container">
+      {/* Header with Porfile */}
+      <header className="admin-header">
+
+        <h1 className="admin-title">Administrator Dashboard</h1>
+
+        <img
+          src={defaultProfile} alt="Profile" className="profile-pic"/> 
+      </header>
+
+      {/* Page Content*/}
+
+      
     </div>
   );
 }
