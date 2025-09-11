@@ -167,7 +167,9 @@ export default function Administrator() {
                           u.role
                         )}
                     </td>
-                    <td>{u.active ? "Active" : "Inactive"}</td> {/*Status Column*/}
+                    <td className= {u.active ? "status-active" : "status-inactive"}>
+                        {u.active ? "Active" : "Inactive"}
+                    </td> {/*Status Column*/}
                     <td>
                       {editingUser === u.id ? (
                         <>
@@ -177,7 +179,7 @@ export default function Administrator() {
                       ) : (
                         <>
                           <button className="btn" onClick={() => startEdit(u)}>Edit</button>
-                          <button className="btn" onClick={() => toggleUserStatus(u)}>
+                          <button className= {`btn ${u.active ? "deactivate" : "activate"}`} onClick={() => toggleUserStatus(u)}>
                             {u.active ? "Deactivate" : "Activate"}
                           </button>
                         </>
