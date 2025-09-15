@@ -6,10 +6,15 @@ import NewUser from './NewUser';
 import ForgotPassword from "./ForgotPassword";
 import { Link } from "react-router-dom"; 
 import logo from "./assets/sweetledger.jpeg";
-import Administrator from "./Pages/administrator";
+import Administrator from "./pages/administrator";
+import Manager from "./pages/manager";
+import Regularaccountuser from "./pages/regularaccountuser";
+
+function App() {
+const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 // Login Page
-function LoginPage() {
+function LoginPage({setIsLoggedIn}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -56,7 +61,25 @@ function LoginPage() {
     console.log("Username:", username);
     console.log("Hashed password:", hashed);
 
-    setMessage("Login successful.");
+    // Mark user as logged in
+    setIsLoggedIn(true);
+
+    if(password === "Administrator#01") {
+      navigate("/administrator");
+    }
+    else if(password === "Manageruser#02") {
+      navigate("/manager");
+    }
+    else if(password === "Accountuser#03") {
+      navigate("/regularaccountuser");
+    }
+    else {
+      // fallback
+      navigate("/");
+      setMessage("Invalid input for role based login.");
+      return;
+    }
+
   };
 
   const handleCreateUser = () => {
@@ -101,14 +124,17 @@ function LoginPage() {
   );
 }
 
-function App(){
+
   return(
     <Router>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/new-user" element={<NewUser />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/administrator" element={<Administrator />} />
+        {/* Protected Route*/}
+        <Route path="/administrator" element={ isLoggedIn ? <Administrator /> : <Navigate to="/" replace /> } />
+        <Route path="/manager" element={ isLoggedIn ? <Manager /> : <Navigate to="/" replace /> } />
+        <Route path="/regularaccountuser" element={ isLoggedIn ? <Regularaccountuser /> : <Navigate to="/" replace /> } />
       </Routes>
     </Router>
   );

@@ -1,0 +1,134 @@
+.admin-container {
+    min-height: 100vh;
+    background-color: white;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: black;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.admin-content {
+    padding: 24px;
+    color: black;
+    font-size: 16px;
+}
+
+/* Table Styles*/
+.user-table{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.user-table th,
+.user-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.user-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+/*Buttons*/
+.btn {
+    padding: 6px 12px;
+    margin: 2px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn:hover {
+    opacity: 0.85;
+}
+
+.btn.cancel {
+    background-color: white;
+    color: #333;
+}
+
+.btn.cancel:hover {
+    background-color: white;
+}
+
+/* Activate/ Deactivate button */
+.btn.activate {
+    background-color: green;
+    color: white;
+}
+
+.btn.deactivate {
+    background-color: red;
+    color: white;
+}
+
+/* Status Text*/
+.status-active {
+    color: green;
+    font-weight: bold;
+}
+
+.status.inactive {
+    color: red;
+    font-weight: bold;
+}
+
+/* Message under table*/
+.status.message {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background: white;
+    color: #333;
+    font-size: 0.95rem;
+
+}
+
+/* Create User Form*/
+.create-user-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.create-user-form input,
+.create-user-form select {
+    padding: 8px 10px;
+    border: 1px solid #d4a01c;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.create-user-form button {
+    background-color: #eaa340;
+    color: white;
+    font-weight: bold;
+}

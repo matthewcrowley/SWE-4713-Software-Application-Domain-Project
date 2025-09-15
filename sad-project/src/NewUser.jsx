@@ -36,7 +36,7 @@ function NewUser() {
       return false;
     }
     if(password.length < 8) {
-      setMessage("Username must be at least 8 characters.")
+      setMessage("Password must be at least 8 characters.")
       return false;
     }
         return true;
@@ -59,8 +59,18 @@ function NewUser() {
 
         if(password === "Administrator#01") {
           setMessage("Administrator login created!");
-          navigate("/administrator"); // sends user admin dashboard
+          navigate("/administrator"); // sends user to admin dashboard
           return;
+        }
+
+        if(password === "Manageruser#02") {
+          setMessage("Manager login created!");
+          navigate("/manager"); // sends user to manager dashboard
+        }
+
+        if(password === "Accountuser#03") {
+          setMessage("Regular account user login created!");
+          navigate("/regularaccountuser"); // sends user to account user dashboard
         }
 
         const hashed = await hashedPassword(password);
@@ -193,7 +203,7 @@ function NewUser() {
 
         <div
           id="message"
-          className={message.includes("submitted") ? "success" : ""}
+          className={message.toLowerCase().includes("successful") ? "success" : ""}
         >
           {message}
         </div>
