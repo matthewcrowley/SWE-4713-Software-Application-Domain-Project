@@ -160,3 +160,19 @@ back-btn {
 .back-btn:hover {
   opacity: 0.85;
 }
+
+/* Clear button */
+clear-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  margin-left: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.clear-btn:hover {
+  background-color: #e0e0e0;
+}

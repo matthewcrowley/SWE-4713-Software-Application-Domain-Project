@@ -13,6 +13,14 @@ function ForgotPassword() {
 
     const navigate = useNavigate();
 
+    const handleClear = () => {
+        setUsername("");
+        setEmail("");
+        setSecurityAnswer("");
+        setNewPassword("");
+        setMessage("");
+};
+
     // validate password rules
     const validatePassword = (password) => {
     if(!/^[A-Za-z]/.test(password)) {
@@ -89,6 +97,9 @@ function ForgotPassword() {
                     <button className="btn back-btn" onClick={() => navigate("/")}>
                         Back
                     </button>
+                    <button className="btn clear-btn" onClick={handleClear}>
+                        Clear
+                    </button>
                     <button id="forgotPasswordBtn" onClick={handleStep1}>Next</button>
                     </div>
                 </>
@@ -104,6 +115,9 @@ function ForgotPassword() {
                     <button className="btn back-btn" onClick={() => navigate("/")}>
                         Back
                     </button>
+                    <button className="btn clear-btn" onClick={handleClear}>
+                        Clear
+                    </button>
                     <button id="forgotPasswordBtn" onClick={handleStep2} >Next</button>
                     </div>
                 </>
@@ -118,6 +132,9 @@ function ForgotPassword() {
                     <div className="form-group">
                     <button className="btn back-btn" onClick={() => navigate("/")}>
                         Back
+                    </button>
+                    <button className="btn clear-btn" onClick={handleClear}>
+                        Clear
                     </button>
                     <button id="forgotPasswordBtn" onClick={handleStep3}>Reset Password</button>
                     </div>

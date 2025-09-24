@@ -86,6 +86,12 @@ function LoginPage({setIsLoggedIn}) {
     navigate("/new-user");
   };
 
+  const handleClear = () => {
+    setUsername("");
+    setPassword("");
+    setMessage("");
+  }
+
   return (
     <div className="app-wrapper">
     <div className="login-container">
@@ -113,6 +119,7 @@ function LoginPage({setIsLoggedIn}) {
 
       <button id="loginBtn" onClick={handleLogin}>Login</button>
       <button id="createUserBtn" onClick={handleCreateUser}>New User</button>
+      <button className="btn clear-btn" onClick={handleClear}>Clear</button>
 
       <Link to="/forgot-password" id="forgotPassword">
         Forgot Password?

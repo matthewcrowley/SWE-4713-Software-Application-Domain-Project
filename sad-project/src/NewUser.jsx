@@ -75,6 +75,7 @@ function NewUser() {
         }
 
         const hashed = await hashedPassword(password);
+        
 
         try {
             // Send to backend
@@ -122,6 +123,19 @@ function NewUser() {
         [e.target.name]: e.target.value,
     });
   };
+
+  const handleClear = () => {
+  setFormData({
+    firstName: "",
+    lastName: "",
+    address: "",
+    dob: "",
+    email: "",
+    username: "",
+    password: "",
+  });
+  setMessage("");
+};
 
   return (
     <div className="app-wrapper">
@@ -204,6 +218,12 @@ function NewUser() {
           onClick={() => navigate("/")}
         >
           Back
+        </button>
+
+        <button
+          className="btn clear-btn"
+          onClick={handleClear}>
+          Clear
         </button>
 
         <button id="createAccountBtn" onClick={handleCreateAccount}>
