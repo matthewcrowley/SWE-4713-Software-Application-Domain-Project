@@ -1,6 +1,7 @@
 import {useState} from "react";
 import"./style.css";
 import logo from "./assets/sweetledger.jpeg";
+import { useNavigate } from "react-router-dom";
 
 function ForgotPassword() {
     const [username, setUsername] = useState("");
@@ -9,6 +10,8 @@ function ForgotPassword() {
     const [newPassword, setNewPassword] = useState("");
     const [step, setStep] = useState(1);
     const [message, setMessage] = useState("");
+
+    const navigate = useNavigate();
 
     // validate password rules
     const validatePassword = (password) => {
@@ -33,8 +36,6 @@ function ForgotPassword() {
     setMessage("");
     setStep(2);
   }
-
-  
 
   const handleStep2 = async () => {
     if(!securityAnswer) {
@@ -84,7 +85,12 @@ function ForgotPassword() {
                         <label>Email:</label>
                         <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
                     </div>
+                    <div className="form-group">
+                    <button className="btn back-btn" onClick={() => navigate("/")}>
+                        Back
+                    </button>
                     <button id="forgotPasswordBtn" onClick={handleStep1}>Next</button>
+                    </div>
                 </>
             )}
 
@@ -94,7 +100,12 @@ function ForgotPassword() {
                     <label>Security Question: What is your favorite color?</label>
                     <input type="text" value={securityAnswer} onChange={e => setSecurityAnswer(e.target.value)} />
                     </div>
+                    <div className="form-group">
+                    <button className="btn back-btn" onClick={() => navigate("/")}>
+                        Back
+                    </button>
                     <button id="forgotPasswordBtn" onClick={handleStep2} >Next</button>
+                    </div>
                 </>
             )}
 
@@ -104,7 +115,12 @@ function ForgotPassword() {
                         <label>New Password:</label>
                         <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} />
                     </div>
+                    <div className="form-group">
+                    <button className="btn back-btn" onClick={() => navigate("/")}>
+                        Back
+                    </button>
                     <button id="forgotPasswordBtn" onClick={handleStep3}>Reset Password</button>
+                    </div>
                 </>
             )}
 

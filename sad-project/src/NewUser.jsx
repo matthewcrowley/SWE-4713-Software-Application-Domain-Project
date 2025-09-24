@@ -199,6 +199,13 @@ function NewUser() {
           />
         </div>
 
+        <button
+          className="btn back-btn"
+          onClick={() => navigate("/")}
+        >
+          Back
+        </button>
+
         <button id="createAccountBtn" onClick={handleCreateAccount}>
           Submit Request
         </button>

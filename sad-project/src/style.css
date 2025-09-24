@@ -132,7 +132,8 @@ html,body,#root {
     cursor: pointer;
     border-radius: 5px;
     margin-top: 10px;
-    background: #aab807;
+    background: 
+    #cb9e0a;
     color: white;
 }
 #forgotPasswordBtn:hover {
@@ -145,4 +146,17 @@ html,body,#root {
     margin: 0 auto 20px;
     width: 250px;
     height: auto;
+}
+
+back-btn {
+  background-color: #e99415;
+  color: white;
+  padding: 6px 12px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  opacity: 0.85;
 }
