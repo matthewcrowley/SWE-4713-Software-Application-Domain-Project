@@ -1,6 +1,7 @@
 import {useState} from "react";
 import"./style.css";
 import { useNavigate } from "react-router-dom";
+import logo from "./assets/sweetledger.jpeg";
 
 function NewUser() {
     const [formData, setFormData] = useState({
@@ -128,6 +129,7 @@ function NewUser() {
         <h2>Create New User</h2>
 
         <div className="form-group">
+          <img src={logo} alt="Logo" className="logo" />
           <label>First Name:</label>
           <input
             type="text"

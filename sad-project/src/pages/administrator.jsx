@@ -1,13 +1,30 @@
 import React, { useState, useEffect } from "react";
 import defaultProfile from"../assets/defaultprofile.png";
 import "./Admin.css";
+import sweetledger from"../assets/sweetledger.jpeg";
+import { useNavigate } from "react-router-dom";
 
-export default function Administrator() {
+
+export default function Administrator({setIsLoggedIn}) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [editingUser, setEditingUser] = useState(null); // user being edited
   const [editForm, setEditForm] = useState({username: "", email: "", role: "User"});
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Remove authentication data (adjust depending on your setup)
+    localStorage.removeItem("token");
+    sessionStorage.clear();
+
+    // Reset login state
+    setIsLoggedIn(false);
+
+    // Redirect to login page
+    navigate("/");
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -103,8 +120,9 @@ export default function Administrator() {
 
         <h1 className="admin-title">Administrator Dashboard</h1>
 
-        <img
-          src={defaultProfile} alt="Profile" className="profile-pic"/> 
+        <img src={sweetledger} alt="Logo" className="logo-pic" />
+        <img src={defaultProfile} alt="Profile" className="profile-pic"/>
+        <button className="logout-btn" onClick={handleLogout}>Logout</button>
       </header>
 
       <main className="admin-content">

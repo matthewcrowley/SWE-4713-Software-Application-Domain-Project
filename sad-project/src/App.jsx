@@ -132,7 +132,7 @@ function LoginPage({setIsLoggedIn}) {
         <Route path="/new-user" element={<NewUser />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         {/* Protected Route*/}
-        <Route path="/administrator" element={ isLoggedIn ? <Administrator /> : <Navigate to="/" replace /> } />
+        <Route path="/administrator" element={ isLoggedIn ? <Administrator setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/" replace /> } />
         <Route path="/manager" element={ isLoggedIn ? <Manager /> : <Navigate to="/" replace /> } />
         <Route path="/regularaccountuser" element={ isLoggedIn ? <Regularaccountuser /> : <Navigate to="/" replace /> } />
       </Routes>

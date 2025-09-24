@@ -1,5 +1,6 @@
 import {useState} from "react";
 import"./style.css";
+import logo from "./assets/sweetledger.jpeg";
 
 function ForgotPassword() {
     const [username, setUsername] = useState("");
@@ -75,6 +76,7 @@ function ForgotPassword() {
             {step === 1 &&  (
                 <>
                     <div className="form-group">
+                        <img src={logo} alt="Logo" className="logo" />
                         <label>Username:</label>
                         <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
                     </div>
