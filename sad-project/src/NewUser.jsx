@@ -77,10 +77,10 @@ function NewUser() {
 
         try {
             // Send to backend
-            const response = await fetch("http://localhost:5000/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            const response = await fetch('http://localhost:3000/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
                 firstName,
                 lastName,
                 address,
@@ -88,15 +88,14 @@ function NewUser() {
                 email,
                 username,
                 passwordHash: hashed,
-            }),
+              }),
             });
-
             const data = await response.json();
 
             if (data.success) {
-            setMessage("Registration successful! Await admin approval.");
+              setMessage('Registration successful! Await admin approval.');
             } else {
-            setMessage("Registration failed: " + data.message);
+              setMessage('Registration failed: ' + data.message);
             }
         } catch (error) {
             console.error("Error registering user:", error);

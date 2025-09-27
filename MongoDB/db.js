@@ -1,24 +1,19 @@
 const { MongoClient } = require('mongodb');
 
-const uri = 'your-mongodb-connection-string-here';
+const uri = 'mongodb+srv://dbUserMatthew:sweetledgerKSU@sweetledgercluster.jl1drsf.mongodb.net/sweetledgerdb?retryWrites=true&w=majority';
+
 const client = new MongoClient(uri);
 
 let db;
 
 async function connectToDB() {
-  try {
-    await client.connect();
-    db = client.db('sweetledgerdb');
-    console.log('✅ Connected to MongoDB Atlas');
-  } catch (err) {
-    console.error('❌ MongoDB connection error:', err);
-  }
+  await client.connect();
+  db = client.db('sweetledgerdb'); // your DB name here
+  console.log('Connected to MongoDB Atlas');
 }
 
 function getDB() {
-  if (!db) {
-    throw new Error('❌ Database not initialized. Call connectToDB first.');
-  }
+  if (!db) throw new Error('Database not connected');
   return db;
 }
 
