@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const { MongoClient } = require('mongodb');
 
-const uri = "mongodb+srv://<db_username>:<db_password>@sweetledgercluster.jl1drsf.mongodb.net/";
+const uri = "mongodb+srv://dbUserMatthew:KSUappdomain@sweetledgercluster.jl1drsf.mongodb.net/sweetledgerdb?retryWrites=true&w=majority";
 
 const client = new MongoClient(uri);
 

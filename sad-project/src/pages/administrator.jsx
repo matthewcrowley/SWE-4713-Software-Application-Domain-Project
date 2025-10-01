@@ -12,7 +12,7 @@ export default function Administrator() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/users")
+        const response = await fetch("http://localhost:3000/api/users")
         const data = await response.json();
         setUsers(data.users || []);
       }
@@ -41,7 +41,7 @@ export default function Administrator() {
   // Save user updates
   const saveUserUpdate = async () => {
     try{
-      const response = await fetch(`http://localhost:5000/api/users/${editingUser}`, {
+      const response = await fetch(`http://localhost:3000/api/users/${editingUser}`, {
          method: "PUT",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(editForm), // Send fields directly
@@ -72,7 +72,7 @@ export default function Administrator() {
   // Activate / Deactivate user
   const toggleUserStatus = async (user) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/users/${user.id}/status`, {
+      const response = await fetch(`http://localhost:3000/api/users/${user.id}/status`, {
         method: "PUT",
         headers: {"Content-Type" : "application/json"},
         body: JSON.stringify({active: !user.active}),
