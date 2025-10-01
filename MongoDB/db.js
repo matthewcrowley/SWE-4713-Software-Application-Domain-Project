@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const { MongoClient } = require('mongodb');
 
-const uri = process.env.MONGODB_URI;
+const uri = "mongodb+srv://<db_username>:<db_password>@sweetledgercluster.jl1drsf.mongodb.net/";
 
 const client = new MongoClient(uri);
 
@@ -10,7 +10,7 @@ let db;
 
 async function connectToDB() {
   await client.connect();
-  db = client.db('sweetledgerdb'); // your DB name here
+  db = client.db('sweetledgerdb');
   console.log('Connected to MongoDB Atlas');
 }
 
