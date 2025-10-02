@@ -104,6 +104,8 @@ function LoginPage({setIsLoggedIn}) {
           id="username"
           value={username}
           onChange={e => setUsername(e.target.value)}
+          data-testid="userinput"
+
         /> 
       </div>
 
@@ -114,11 +116,12 @@ function LoginPage({setIsLoggedIn}) {
           id="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
+          data-testid="passinput"
         /> 
       </div>
 
-      <button id="loginBtn" onClick={handleLogin}>Login</button>
-      <button id="createUserBtn" onClick={handleCreateUser}>New User</button>
+      <button data-testid="loginbtn" id="loginBtn" onClick={handleLogin}>Login</button>
+      <button id="createUserBtn" data-testid="Newuserbtn" onClick={handleCreateUser}>New User</button>
       <button className="btn clear-btn" onClick={handleClear}>Clear</button>
 
       <Link to="/forgot-password" id="forgotPassword">
