@@ -1,14 +1,16 @@
 const express = require('express');
-const router = express.Router();
-const { getDB } = require('../db');
 
-router.post('/', async (req, res) => {
+const dbRoute = express.Router();
+
+const {getDB} = require('../db');
+
+dbRoute.post('/', async (q, r) => {
   try {
-    const db = getDB();
-    const { firstName, lastName, address, dob, email, username, passwordHash } = req.body;
+    const mongoDB = getDB();
+    const {firstName, lastName, address, dob, email, username, passwordHash} = q.body;
 
     if (!firstName || !lastName || !email || !username || !passwordHash) {
-      return res.status(400).json({ success: false, message: 'Missing required fields' });
+      return r.status(400).json({success: false, message: 'Missing the required inputs'});
     }
 
     const newUser = {
@@ -23,12 +25,13 @@ router.post('/', async (req, res) => {
       approved: false,
     };
 
-    const result = await db.collection('users').insertOne(newUser);
-    res.json({ success: true, insertedId: result.insertedId });
+    const databaseResult = await mongoDB.collection('users').insertOne(newUser);
+
+    r.json({ success: true, insertedId: databaseResult.insertedId });
   } catch (error) {
     console.error('Error inserting user:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    r.status(500).json({success: false, message: 'There was an error with the server.'});
   }
 });
 
-module.exports = router;
+module.exports = dbRoute;

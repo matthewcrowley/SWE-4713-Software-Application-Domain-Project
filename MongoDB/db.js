@@ -1,22 +1,22 @@
 require('dotenv').config();
 
-const { MongoClient } = require('mongodb');
+const {MongoClient} = require('mongodb');
 
 const uri = "mongodb+srv://dbUserMatthew:KSUappdomain@sweetledgercluster.jl1drsf.mongodb.net/sweetledgerdb?retryWrites=true&w=majority";
 
-const client = new MongoClient(uri);
+const mongoDBClient = new MongoClient(uri);
 
-let db;
+let database;
 
 async function connectToDB() {
-  await client.connect();
-  db = client.db('sweetledgerdb');
-  console.log('Connected to MongoDB Atlas');
+  await mongoDBClient.connect();
+  database = mongoDBClient.db('sweetledgerdb');
+  console.log('MongoDB connection established.');
 }
 
 function getDB() {
-  if (!db) throw new Error('Database not connected');
-  return db;
+  if (!database) throw new Error('The database was not connected.');
+  return database;
 }
 
-module.exports = { connectToDB, getDB };
+module.exports = {connectToDB, getDB};

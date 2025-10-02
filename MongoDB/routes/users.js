@@ -1,25 +1,27 @@
 const express = require('express');
-const router = express.Router();
+
+const dbRoute = express.Router();
+
 const { getDB } = require('../db');
 
-router.post('/', async (req, res) => {
+dbRoute.post('/', async (q, r) => {
   try {
     const db = getDB();
-    const result = await db.collection('users').insertOne(req.body);
-    res.status(201).json({ id: result.insertedId });
+    const databaseResults = await db.collection('users').insertOne(q.body);
+    r.status(201).json({ id: databaseResults.insertedId });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    r.status(500).json({ error: err.message });
   }
 });
 
-router.get('/', async (req, res) => {
+dbRoute.get('/', async (q, r) => {
   try {
     const db = getDB();
-    const users = await db.collection('users').find().toArray();
-    res.json(users);
+    const sweetledgerUsers = await db.collection('users').find().toArray();
+    r.json(sweetledgerUsers);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    r.status(500).json({ error: err.message });
   }
 });
 
-module.exports = router;
+module.exports = dbRoute;

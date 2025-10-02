@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const nodemailer = require('nodemailer');
 
-const transporter = nodemailer.createTransport({
+const dbRoute = express.Router();
+
+const mailer = require('nodemailer');
+
+const transport = mailer.createTransport({
   host: 'smtp.sendgrid.net',
   port: 465,
   secure: true,
@@ -12,26 +14,26 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-router.post('/', async (req, res) => {
-  const { email, username } = req.body;
+dbRoute.post('/', async (q, r) => {
+  const {email, username} = q.body;
 
   if (!email) {
-    return res.status(400).json({ success: false, message: "Missing email." });
+    return r.status(400).json({success: false, message: "The email is missing."});
   }
 
   try {
-    await transporter.sendMail({
+    await transport.sendMail({
       from: '"SweetLedger Admin" <matthewcrowley2002@gmail.com>',
       to: email,
       subject: 'Your Boss Needs You',
       text: `Hi ${username}, your admin has pinged you.`
     });
 
-    res.json({ success: true });
+    r.json({success: true});
   } catch (error) {
-    console.error("Email sending error:", error);
-    res.status(500).json({ success: false, message: "Failed to send email." });
+    console.error("Error sending Email:", error);
+    r.status(500).json({success: false, message: "Email failed to send."});
   }
 });
 
-module.exports = router;
+module.exports = dbRoute;

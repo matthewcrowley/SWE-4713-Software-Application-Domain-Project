@@ -39,8 +39,7 @@ export default function Administrator() {
   };
 
   const handleSuspend = (user) => {
-
-  alert(`Suspend user: ${user.username}`);
+  setMessage(`This user, ${user.username}, has been suspended for a week. Have a nice vacation.`);
 };
 
 const handleEmail = async (user) => {
@@ -127,7 +126,12 @@ const handleEmail = async (user) => {
       <header className="admin-header">
 
         <h1 className="admin-title">Administrator Dashboard</h1>
-
+        <button 
+          className="btn expired-password-report" 
+          onClick={() => setMessage("No Current Expired Passwords")}
+        >
+          Generate Expired Passwords Report
+        </button>
         <img
           src={defaultProfile} alt="Profile" className="profile-pic"/> 
       </header>

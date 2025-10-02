@@ -13,6 +13,20 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn.expired-password-report {
+    background-color: black;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn.expired-password-report:hover {
+    opacity: 0.85;
+}
+
 .admin-title {
     font-size: 20px;
     font-weight: bold;
