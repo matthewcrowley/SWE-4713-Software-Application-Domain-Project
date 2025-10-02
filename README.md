@@ -26,4 +26,4 @@ The backbone of Sweetledger is reliable and strong. We use AWS tools like AWS El
 - [Project Proposal](./Documents/Proposalpreparationguidelines1.pdf)
 - [Software Project Management Plan](./Documents/SweetledgerSPMP.pdf)
 - [Software Requirements Specifications](./Documents/SweetledgerSRS.pdf)
-- [Software Design Document]()
+- [Software Design Document](./Documents/Sweetledger-SDD.pdf)
