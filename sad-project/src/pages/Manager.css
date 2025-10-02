@@ -33,3 +33,15 @@
     color: black;
     font-size: 16px;
 }
+
+.header-center {
+    display: flex;
+    align-items: center;
+    gap: 60px; /* space between logo and profile pic */
+}
+
+.logo-pic {
+    width: 60px;   /* make it smaller than profile */
+    height: 60px;
+    object-fit: contain;
+}

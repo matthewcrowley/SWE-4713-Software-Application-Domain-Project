@@ -178,3 +178,36 @@
     color: white;
     font-weight: bold;
 }
+
+.header-center {
+   display: flex;
+   align-items: center;
+   gap: 60px; /* space between logo and profile pic */
+}
+
+.logo-pic {
+    width: 60px;   /* make it smaller than profile */
+    height: 60px;
+    object-fit: contain;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logout-btn {
+  background-color: #e63946;
+  color: white;
+  font-weight: bold;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
