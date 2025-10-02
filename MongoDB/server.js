@@ -3,6 +3,9 @@ const cors = require('cors');
 const app = express();
 const { connectToDB } = require('./db');
 const registerRoutes = require('./routes/register');
+const usersRoutes = require('./routes/users');
+const emailRoutes = require('./routes/email');
+
 app.use(cors({
   origin: 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -10,6 +13,8 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/api/register', registerRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/email', emailRoutes);
 
 connectToDB()
   .then(() => {

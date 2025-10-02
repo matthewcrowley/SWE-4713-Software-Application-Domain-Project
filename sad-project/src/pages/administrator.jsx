@@ -14,7 +14,7 @@ export default function Administrator() {
       try {
         const response = await fetch("http://localhost:3000/api/users")
         const data = await response.json();
-        setUsers(data.users || []);
+        setUsers(data || []);
       }
       catch(error) {
         console.error("Error fetching user:", error);
@@ -37,6 +37,31 @@ export default function Administrator() {
   const handleEditChange = (e) => {
     setEditForm({...editForm, [e.target.name]: e.target.value});
   };
+
+  const handleSuspend = (user) => {
+
+  alert(`Suspend user: ${user.username}`);
+};
+
+const handleEmail = async (user) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, username: user.username }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setMessage(`Email sent to ${user.email}`);
+    } else {
+      setMessage(`Failed to send email: ${data.message}`);
+    }
+  } catch (error) {
+    console.error("Email error:", error);
+    setMessage("Server error while sending email.");
+  }
+};
 
   // Save user updates
   const saveUserUpdate = async () => {
@@ -172,18 +197,35 @@ export default function Administrator() {
                     </td> {/*Status Column*/}
                     <td>
                       {editingUser === u.id ? (
-                        <>
-                          <button className="btn" onClick={saveUserUpdate}>Save</button>
-                          <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button> 
-                        </>
-                      ) : (
-                        <>
-                          <button className="btn" onClick={() => startEdit(u)}>Edit</button>
-                          <button className= {`btn ${u.active ? "deactivate" : "activate"}`} onClick={() => toggleUserStatus(u)}>
-                            {u.active ? "Deactivate" : "Activate"}
-                          </button>
-                        </>
-                      )}
+                                <>
+                                  <button className="btn" onClick={saveUserUpdate}>Save</button>
+                                  <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button> 
+                                </>
+                              ) : (
+                                <>
+                                  <button className="btn" onClick={() => startEdit(u)}>Edit</button>
+                                  <button 
+                                    className={`btn ${u.active ? "deactivate" : "activate"}`} 
+                                    onClick={() => toggleUserStatus(u)}
+                                  >
+                                    {u.active ? "Deactivate" : "Activate"}
+                                  </button>
+
+                                  <button 
+                                    className="btn suspend"
+                                    onClick={() => handleSuspend(u)}
+                                  >
+                                    Suspend
+                                  </button>
+
+                                  <button 
+                                    className="btn email"
+                                    onClick={() => handleEmail(u)}
+                                  >
+                                    Email
+                                  </button>
+                                </>
+                              )}
                     </td>
                   </tr>
                 ))}
