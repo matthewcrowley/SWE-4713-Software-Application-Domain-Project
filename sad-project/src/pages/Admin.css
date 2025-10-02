@@ -13,6 +13,20 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.btn.expired-password-report {
+    background-color: black;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.btn.expired-password-report:hover {
+    opacity: 0.85;
+}
+
 .admin-title {
     font-size: 20px;
     font-weight: bold;
@@ -86,6 +100,38 @@
 .btn.deactivate {
     background-color: red;
     color: white;
+}
+
+.btn.suspend {
+    background-color: #e74c3c;
+    color: white;
+    padding: 6px 12px;
+    margin-left: 6px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn.suspend:hover {
+    background-color: #c0392b;
+}
+
+.btn.email {
+    background-color: #3498db;
+    color: white;
+    padding: 6px 12px;
+    margin-left: 6px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn.email:hover {
+    background-color: #2980b9;
 }
 
 /* Status Text*/
