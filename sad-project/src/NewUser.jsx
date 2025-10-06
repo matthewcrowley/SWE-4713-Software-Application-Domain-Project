@@ -1,7 +1,6 @@
 import {useState} from "react";
 import"./style.css";
 import { useNavigate } from "react-router-dom";
-import logo from "./assets/sweetledger.jpeg";
 
 function NewUser() {
     const [formData, setFormData] = useState({
@@ -75,14 +74,13 @@ function NewUser() {
         }
 
         const hashed = await hashedPassword(password);
-        
 
         try {
             // Send to backend
-            const response = await fetch("http://localhost:3000/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            const response = await fetch('http://localhost:3000/api/register', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
                 firstName,
                 lastName,
                 address,
@@ -90,15 +88,14 @@ function NewUser() {
                 email,
                 username,
                 passwordHash: hashed,
-            }),
+              }),
             });
-
             const data = await response.json();
 
             if (data.success) {
-            setMessage("Registration successful! Await admin approval.");
+              setMessage('Registration successful! Await admin approval.');
             } else {
-            setMessage("Registration failed: " + data.message);
+              setMessage('Registration failed: ' + data.message);
             }
         } catch (error) {
             console.error("Error registering user:", error);
@@ -124,26 +121,12 @@ function NewUser() {
     });
   };
 
-  const handleClear = () => {
-  setFormData({
-    firstName: "",
-    lastName: "",
-    address: "",
-    dob: "",
-    email: "",
-    username: "",
-    password: "",
-  });
-  setMessage("");
-};
-
   return (
     <div className="app-wrapper">
       <div className="login-container">
         <h2>Create New User</h2>
 
         <div className="form-group">
-          <img src={logo} alt="Logo" className="logo" />
           <label>First Name:</label>
           <input
             type="text"
@@ -212,19 +195,6 @@ function NewUser() {
             onChange={handleChange}
           />
         </div>
-
-        <button
-          className="btn back-btn"
-          onClick={() => navigate("/")}
-        >
-          Back
-        </button>
-
-        <button
-          className="btn clear-btn"
-          onClick={handleClear}>
-          Clear
-        </button>
 
         <button id="createAccountBtn" onClick={handleCreateAccount}>
           Submit Request

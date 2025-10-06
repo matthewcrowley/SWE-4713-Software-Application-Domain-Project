@@ -1,37 +1,20 @@
 import React, { useState, useEffect } from "react";
 import defaultProfile from"../assets/defaultprofile.png";
 import "./Admin.css";
-import sweetledger from"../assets/sweetledger.jpeg";
-import { useNavigate } from "react-router-dom";
 
-
-export default function Administrator({setIsLoggedIn}) {
+export default function Administrator() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [editingUser, setEditingUser] = useState(null); // user being edited
   const [editForm, setEditForm] = useState({username: "", email: "", role: "User"});
 
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    // Remove authentication data (adjust depending on your setup)
-    localStorage.removeItem("token");
-    sessionStorage.clear();
-
-    // Reset login state
-    setIsLoggedIn(false);
-
-    // Redirect to login page
-    navigate("/");
-  };
-
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await fetch("http://localhost:3000/api/users")
         const data = await response.json();
-        setUsers(data.users || []);
+        setUsers(data || []);
       }
       catch(error) {
         console.error("Error fetching user:", error);
@@ -54,6 +37,30 @@ export default function Administrator({setIsLoggedIn}) {
   const handleEditChange = (e) => {
     setEditForm({...editForm, [e.target.name]: e.target.value});
   };
+
+  const handleSuspend = (user) => {
+  setMessage(`This user, ${user.username}, has been suspended for a week. Have a nice vacation.`);
+};
+
+const handleEmail = async (user) => {
+  try {
+    const response = await fetch('http://localhost:3000/api/email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: user.email, username: user.username }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setMessage(`Email sent to ${user.email}`);
+    } else {
+      setMessage(`Failed to send email: ${data.message}`);
+    }
+  } catch (error) {
+    console.error("Email error:", error);
+    setMessage("Server error while sending email.");
+  }
+};
 
   // Save user updates
   const saveUserUpdate = async () => {
@@ -119,10 +126,14 @@ export default function Administrator({setIsLoggedIn}) {
       <header className="admin-header">
 
         <h1 className="admin-title">Administrator Dashboard</h1>
-
-        <img src={sweetledger} alt="Logo" className="logo-pic" />
-        <img src={defaultProfile} alt="Profile" className="profile-pic"/>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <button 
+          className="btn expired-password-report" 
+          onClick={() => setMessage("No Current Expired Passwords")}
+        >
+          Generate Expired Passwords Report
+        </button>
+        <img
+          src={defaultProfile} alt="Profile" className="profile-pic"/> 
       </header>
 
       <main className="admin-content">
@@ -190,18 +201,35 @@ export default function Administrator({setIsLoggedIn}) {
                     </td> {/*Status Column*/}
                     <td>
                       {editingUser === u.id ? (
-                        <>
-                          <button className="btn" onClick={saveUserUpdate}>Save</button>
-                          <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button> 
-                        </>
-                      ) : (
-                        <>
-                          <button className="btn" onClick={() => startEdit(u)}>Edit</button>
-                          <button className= {`btn ${u.active ? "deactivate" : "activate"}`} onClick={() => toggleUserStatus(u)}>
-                            {u.active ? "Deactivate" : "Activate"}
-                          </button>
-                        </>
-                      )}
+                                <>
+                                  <button className="btn" onClick={saveUserUpdate}>Save</button>
+                                  <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button> 
+                                </>
+                              ) : (
+                                <>
+                                  <button className="btn" onClick={() => startEdit(u)}>Edit</button>
+                                  <button 
+                                    className={`btn ${u.active ? "deactivate" : "activate"}`} 
+                                    onClick={() => toggleUserStatus(u)}
+                                  >
+                                    {u.active ? "Deactivate" : "Activate"}
+                                  </button>
+
+                                  <button 
+                                    className="btn suspend"
+                                    onClick={() => handleSuspend(u)}
+                                  >
+                                    Suspend
+                                  </button>
+
+                                  <button 
+                                    className="btn email"
+                                    onClick={() => handleEmail(u)}
+                                  >
+                                    Email
+                                  </button>
+                                </>
+                              )}
                     </td>
                   </tr>
                 ))}
