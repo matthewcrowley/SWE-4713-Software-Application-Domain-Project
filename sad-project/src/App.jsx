@@ -155,8 +155,6 @@ function LoginPage({setIsLoggedIn}) {
         </Link>
 
         {message && <div className={`message ${message.includes("Processing") ? "success" : ""}`}>{message}</div>}
-        
-        <p className="demo-text">Demo: Use any username/password to login</p>
       </div>
     </div>
   );
