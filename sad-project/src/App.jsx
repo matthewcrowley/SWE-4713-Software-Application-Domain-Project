@@ -8,7 +8,7 @@ import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
-import AccountManagement from "./pages/AccountManagement";
+import AccountManagement from "./pages/accountmanagement"; // ✅ FIXED - lowercase filename
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -184,15 +184,11 @@ function App() {
           }
         />
 
-        {/* New Route for Account Management */}
+        {/* ✅ Account Management Page */}
         <Route
           path="/accountmanagement"
           element={
-            isLoggedIn ? (
-              <AccountManagement />
-            ) : (
-              <Navigate to="/" replace />
-            )
+            isLoggedIn ? <AccountManagement /> : <Navigate to="/" replace />
           }
         />
       </Routes>
