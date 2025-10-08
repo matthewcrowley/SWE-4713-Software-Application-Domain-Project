@@ -1,14 +1,29 @@
 import React, { useState, useEffect } from "react";
-import defaultProfile from"../assets/defaultprofile.png";
+import {
+  Box,
+  Typography,
+  Button,
+  Avatar,
+  Paper,
+  TextField,
+  MenuItem,
+  Select,
+  Grid,
+} from "@mui/material";
+import defaultProfile from "../assets/defaultprofile.png";
+import "./accountmanagement.css";
 
 export default function Administrator() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
-  const [editingUser, setEditingUser] = useState(null); // user being edited
-  const [editForm, setEditForm] = useState({username: "", email: "", role: "User"});
+  const [editingUser, setEditingUser] = useState(null);
+  const [editForm, setEditForm] = useState({
+    username: "",
+    email: "",
+    role: "User",
+  });
 
-  //Account management states
   const [accounts, setAccounts] = useState([]);
   const [accountForm, setAccountForm] = useState({
     accountName: "",
@@ -25,14 +40,13 @@ export default function Administrator() {
     userId: "",
     order: "",
     statement: "BS",
-    comment: ""
+    comment: "",
   });
 
-  //help method for the 2 deciaml placements
   const formatMoney = (value) => {
     const num = parseFloat(value);
     return isNaN(num) ? "0.00" : num.toFixed(2);
-  }
+  };
 
   // Fetch users
   useEffect(() => {
@@ -65,7 +79,6 @@ export default function Administrator() {
     fetchAccounts();
   }, []);
 
-  // User edit handlers
   const startEdit = (user) => {
     setEditingUser(user.id);
     setEditForm({ username: user.username, email: user.email, role: user.role });
@@ -77,11 +90,14 @@ export default function Administrator() {
 
   const saveUserUpdate = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${editingUser}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editForm),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/users/${editingUser}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(editForm),
+        }
+      );
 
       const data = await response.json();
 
@@ -102,11 +118,14 @@ export default function Administrator() {
 
   const toggleUserStatus = async (user) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/users/${user.id}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ active: !user.active }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/users/${user.id}/status`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ active: !user.active }),
+        }
+      );
 
       const data = await response.json();
 
@@ -114,7 +133,11 @@ export default function Administrator() {
         setUsers((prev) =>
           prev.map((u) => (u.id === user.id ? { ...u, active: !u.active } : u))
         );
-        setMessage(`User ${user.username} is now ${!user.active ? "active" : "inactive"}`);
+        setMessage(
+          `User ${user.username} is now ${
+            !user.active ? "active" : "inactive"
+          }`
+        );
       } else {
         setMessage("Failed to update status: " + data.message);
       }
@@ -124,7 +147,6 @@ export default function Administrator() {
     }
   };
 
-   // Account form handlers with 2-decimal formatting for monetary fields
   const handleAccountChange = (e) => {
     const { name, value } = e.target;
     const moneyFields = ["initialBalance", "debit", "credit", "balance"];
@@ -138,7 +160,6 @@ export default function Administrator() {
     e.preventDefault();
     const newAccount = {
       ...accountForm,
-      // Ensure all monetary values have 2 decimals
       initialBalance: formatMoney(accountForm.initialBalance),
       debit: formatMoney(accountForm.debit),
       credit: formatMoney(accountForm.credit),
@@ -173,7 +194,7 @@ export default function Administrator() {
           userId: "",
           order: "",
           statement: "BS",
-          comment: ""
+          comment: "",
         });
       } else {
         setMessage("Failed to add account: " + data.message);
@@ -185,24 +206,35 @@ export default function Administrator() {
   };
 
   return (
-    <div className="admin-container">
-      {/* Header */}
-      <header className="admin-header">
-        <h1 className="admin-title">Administrator Dashboard</h1>
-        <button className="btn expired-password-report" onClick={() => setMessage("No Current Expired Passwords")}>
-          Generate Expired Passwords Report
-        </button>
-        <img src={defaultProfile} alt="Profile" className="profile-pic" />
-      </header>
+    <Box className="admin-container">
+      {/* ===== Header Section ===== */}
+      <Box className="admin-header">
+        <Typography variant="h5" className="admin-title">
+          Administrator Dashboard
+        </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <Button
+            variant="contained"
+            className="btn"
+            onClick={() => setMessage("No Current Expired Passwords")}
+          >
+            Generate Expired Passwords Report
+          </Button>
+          <Avatar src={defaultProfile} alt="Profile" />
+        </Box>
+      </Box>
 
-      <main className="admin-content">
-        {/* ===================== USER MANAGEMENT ===================== */}
-        <section className="admin-section">
-          <h2>User Management</h2>
+      {/* ===== Main Content ===== */}
+      <Box className="admin-content">
+        {/* ========== USER MANAGEMENT ========== */}
+        <Paper elevation={1} className="admin-section">
+          <Typography variant="h6" gutterBottom>
+            User Management
+          </Typography>
           {loading ? (
-            <p>Loading users...</p>
+            <Typography>Loading users...</Typography>
           ) : users.length === 0 ? (
-            <p>No users found.</p>
+            <Typography>No users found.</Typography>
           ) : (
             <table className="user-table">
               <thead>
@@ -219,47 +251,87 @@ export default function Administrator() {
                   <tr key={u.id}>
                     <td>
                       {editingUser === u.id ? (
-                        <input type="text" name="username" value={editForm.username} onChange={handleEditChange} />
+                        <TextField
+                          size="small"
+                          name="username"
+                          value={editForm.username}
+                          onChange={handleEditChange}
+                        />
                       ) : (
                         u.username
                       )}
                     </td>
                     <td>
                       {editingUser === u.id ? (
-                        <input type="email" name="email" value={editForm.email} onChange={handleEditChange} />
+                        <TextField
+                          size="small"
+                          name="email"
+                          value={editForm.email}
+                          onChange={handleEditChange}
+                        />
                       ) : (
                         u.email
                       )}
                     </td>
                     <td>
                       {editingUser === u.id ? (
-                        <select name="role" value={editForm.role} onChange={handleEditChange}>
-                          <option value="User">User</option>
-                          <option value="Manager">Manager</option>
-                          <option value="Admin">Admin</option>
-                        </select>
+                        <Select
+                          size="small"
+                          name="role"
+                          value={editForm.role}
+                          onChange={handleEditChange}
+                        >
+                          <MenuItem value="User">User</MenuItem>
+                          <MenuItem value="Manager">Manager</MenuItem>
+                          <MenuItem value="Admin">Admin</MenuItem>
+                        </Select>
                       ) : (
                         u.role
                       )}
                     </td>
-                    <td className={u.active ? "status-active" : "status-inactive"}>
+                    <td
+                      className={
+                        u.active ? "status-active" : "status-inactive"
+                      }
+                    >
                       {u.active ? "Active" : "Inactive"}
                     </td>
                     <td>
                       {editingUser === u.id ? (
                         <>
-                          <button className="btn" onClick={saveUserUpdate}>Save</button>
-                          <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button>
+                          <Button
+                            className="btn"
+                            onClick={saveUserUpdate}
+                            size="small"
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            className="btn cancel"
+                            onClick={() => setEditingUser(null)}
+                            size="small"
+                          >
+                            Cancel
+                          </Button>
                         </>
                       ) : (
                         <>
-                          <button className="btn" onClick={() => startEdit(u)}>Edit</button>
-                          <button
-                            className={`btn ${u.active ? "deactivate" : "activate"}`}
+                          <Button
+                            className="btn"
+                            size="small"
+                            onClick={() => startEdit(u)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            className={`btn ${
+                              u.active ? "deactivate" : "activate"
+                            }`}
+                            size="small"
                             onClick={() => toggleUserStatus(u)}
                           >
                             {u.active ? "Deactivate" : "Activate"}
-                          </button>
+                          </Button>
                         </>
                       )}
                     </td>
@@ -268,39 +340,79 @@ export default function Administrator() {
               </tbody>
             </table>
           )}
-        </section>
+        </Paper>
 
-        {/*ACCOUNT MANAGEMENT*/}
-        <section className="admin-section">
-          <h2>Account Management</h2>
+        {/* ========== ACCOUNT MANAGEMENT ========== */}
+        <Paper elevation={1} className="admin-section">
+          <Typography variant="h6" gutterBottom>
+            Account Management
+          </Typography>
           <form className="account-form" onSubmit={handleAddAccount}>
-            <div className="form-grid">
-              <input name="accountName" placeholder="Account Name" value={accountForm.accountName} onChange={handleAccountChange} required />
-              <input name="accountNumber" placeholder="Account Number" value={accountForm.accountNumber} onChange={handleAccountChange} required />
-              <input name="description" placeholder="Description" value={accountForm.description} onChange={handleAccountChange} />
-              <select name="normalSide" value={accountForm.normalSide} onChange={handleAccountChange}>
-                <option value="Debit">Debit</option>
-                <option value="Credit">Credit</option>
-              </select>
-              <input name="category" placeholder="Category (e.g., Asset)" value={accountForm.category} onChange={handleAccountChange} />
-              <input name="subcategory" placeholder="Subcategory (e.g., Current Assets)" value={accountForm.subcategory} onChange={handleAccountChange} />
-              <input type="number" name="initialBalance" placeholder="Initial Balance" value={accountForm.initialBalance} onChange={handleAccountChange} />
-              <input type="number" name="debit" placeholder="Debit" value={accountForm.debit} onChange={handleAccountChange} />
-              <input type="number" name="credit" placeholder="Credit" value={accountForm.credit} onChange={handleAccountChange} />
-              <input type="number" name="balance" placeholder="Balance" value={accountForm.balance} onChange={handleAccountChange} />
-              <input name="userId" placeholder="User ID" value={accountForm.userId} onChange={handleAccountChange} />
-              <input name="order" placeholder="Order (e.g., 01)" value={accountForm.order} onChange={handleAccountChange} />
-              <select name="statement" value={accountForm.statement} onChange={handleAccountChange}>
-                <option value="IS">Income Statement</option>
-                <option value="BS">Balance Sheet</option>
-                <option value="RE">Retained Earnings</option>
-              </select>
-              <input name="comment" placeholder="Comment" value={accountForm.comment} onChange={handleAccountChange} />
-            </div>
-            <button className="btn" type="submit">Add Account</button>
+            <Grid container spacing={2}>
+              {[
+                "accountName",
+                "accountNumber",
+                "description",
+                "category",
+                "subcategory",
+                "initialBalance",
+                "debit",
+                "credit",
+                "balance",
+                "userId",
+                "order",
+                "comment",
+              ].map((field) => (
+                <Grid item xs={12} sm={6} md={4} key={field}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name={field}
+                    label={field.replace(/([A-Z])/g, " $1")}
+                    value={accountForm[field]}
+                    onChange={handleAccountChange}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="normalSide"
+                  value={accountForm.normalSide}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="Debit">Debit</MenuItem>
+                  <MenuItem value="Credit">Credit</MenuItem>
+                </Select>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="statement"
+                  value={accountForm.statement}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="IS">Income Statement</MenuItem>
+                  <MenuItem value="BS">Balance Sheet</MenuItem>
+                  <MenuItem value="RE">Retained Earnings</MenuItem>
+                </Select>
+              </Grid>
+            </Grid>
+
+            <Box mt={2}>
+              <Button className="btn" type="submit">
+                Add Account
+              </Button>
+            </Box>
           </form>
 
-          <h3>Existing Accounts</h3>
+          <Typography variant="h6" mt={3}>
+            Existing Accounts
+          </Typography>
           <table className="account-table">
             <thead>
               <tr>
@@ -323,10 +435,10 @@ export default function Administrator() {
               ))}
             </tbody>
           </table>
-        </section>
+        </Paper>
 
         {message && <p className="status-message">{message}</p>}
-      </main>
-    </div>
+      </Box>
+    </Box>
   );
 }

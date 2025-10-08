@@ -6,7 +6,7 @@ import logo from "../assets/sweetledger.jpeg";
 export default function Administrator({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
-  
+
   // Static stats - replace with API call if you need dynamic data
   const stats = {
     activeAccounts: 25,
@@ -35,6 +35,7 @@ export default function Administrator({ setIsLoggedIn }) {
       title: "Account Management",
       description: "Add, view, edit, or deactivate accounts",
       icon: "👥",
+      path: "/accountmanagement", // Added path for navigation
     },
     {
       title: "Chart of Accounts",
@@ -66,6 +67,15 @@ export default function Administrator({ setIsLoggedIn }) {
   const handleLogout = () => {
     setIsLoggedIn(false);
     navigate("/");
+  };
+
+  // Navigate to a service (only Account Management has a route for now)
+  const handleServiceClick = (service) => {
+    if (service.path) {
+      navigate(service.path);
+    } else {
+      alert(`"${service.title}" service is not available yet.`);
+    }
   };
 
   return (
@@ -118,7 +128,12 @@ export default function Administrator({ setIsLoggedIn }) {
               <div className="service-icon">{service.icon}</div>
               <h3 className="service-title">{service.title}</h3>
               <p className="service-description">{service.description}</p>
-              <button className="access-button">Access Service</button>
+              <button
+                className="access-button"
+                onClick={() => handleServiceClick(service)}
+              >
+                Access Service
+              </button>
             </div>
           ))}
         </div>
