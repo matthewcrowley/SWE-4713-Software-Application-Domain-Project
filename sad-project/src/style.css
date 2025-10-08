@@ -1,179 +1,223 @@
-
-
-html,body,#root {
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    width: 100%;
-    background: #f4f4f4;
-}
-.app-wrapper
-{
-    font-family: Arial, sans-serif;
-    width:100%;
-    min-height:100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px 0;
+/* Base Styles */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  width: 100%;
 }
 
-.login-container 
-{
-    background: #fff;
-    padding: 20px 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    width: 300px;
+/* Login Container */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF8E7;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
 
-.login-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 22px;
-    color: #333;
+/* Login Card */
+.login-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 40px 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+/* Logo Image */
+.login-logo-img {
+  display: block;
+  margin: 0 auto 20px;
+  width: 200px;
+  height: auto;
+  max-width: 100%;
+}
+
+/* Title and Subtitle */
+.login-title {
+  color: #333;
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  text-align: center;
+}
+
+.login-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin: 0 0 30px 0;
+  text-align: center;
+}
+
+/* Form */
+.login-form {
+  text-align: left;
 }
 
 .form-group {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
-.form-group label{
-    display: block;
-    font-weight: bold;
-    margin-bottom: 6px;
-    color:#333;
+.form-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #333;
+  font-size: 14px;
 }
 
-.form-group input{
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    box-sizing: border-box;
-    background-color: white;
-    color: black;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: border-color 0.2s;
 }
 
-#loginBtn,
-#createUserBtn {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
-    margin-top: 10px;
+.form-input::placeholder {
+  color: #999;
 }
 
-/*Login button */
-#loginBtn{
-    background: #b7931e;
-    color: white;
+.form-input:focus {
+  outline: none;
+  border-color: #b7931e;
 }
 
-#loginBtn:hover {
-    background: #b7931e;
+/* Login Button */
+.login-button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  margin-top: 10px;
+  background: #b7931e;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
 }
 
-/* Create new user button*/
-#createUserBtn {
-    background: #d3820a;
-    color: white;
+.login-button:hover {
+  background: #a3821a;
 }
 
-#createUserBtn:hover {
-    background: #d3820a;
+.login-button:active {
+  transform: translateY(1px);
 }
 
-#forgotPassword 
-{
-    display: block;
-    text-align: center;
-    margin-top: 10px;
-    color: #007BFF;
-    text-decoration: none;
-    font-size: 14px;
-    }
-
-#forgotPassword:hover 
-{
-    text-decoration: underline;
-    cursor: pointer;
+/* Demo Text */
+.demo-text {
+  color: #666;
+  font-size: 13px;
+  margin-top: 20px;
+  margin-bottom: 0;
+  text-align: center;
 }
 
-#message 
-{
-    margin-top: 15px;
-    text-align: center;
-    color: red;
+/* Forgot Password Link */
+.forgot-password {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: #007BFF;
+  text-decoration: none;
+  font-size: 14px;
 }
 
-/* New user page button */
-#createAccountBtn {
-    background: #FF9800;
-    color: white;
-}
-#createAccountBtn:hover {
-    background: #FB8C00;
+.forgot-password:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
-/* Success messages */
-#message.success {
-    color: green;
-    font-weight: bold;
+/* Create Account Button */
+.create-account-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+  margin-top: 10px;
+  background: #d3820a;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
 }
 
-/* Forgot Password button */
-#forgotPasswordBtn {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin-top: 10px;
-    background: 
-    #cb9e0a;
-    color: white;
-}
-#forgotPasswordBtn:hover {
-    background: #99ce14;
+.create-account-btn:hover {
+  background: #bc7409;
 }
 
-/* logo*/
-.logo {
-    display: block;
-    margin: 0 auto 20px;
-    width: 250px;
-    height: auto;
+/* Message */
+.message {
+  margin-top: 15px;
+  text-align: center;
+  color: red;
+  font-size: 14px;
 }
 
-back-btn {
+.message.success {
+  color: green;
+  font-weight: bold;
+}
+
+/* Back Button */
+.back-btn {
   background-color: #e99415;
   color: white;
-  padding: 6px 12px;
-  margin-right: 10px;
+  padding: 8px 16px;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
+  transition: opacity 0.2s;
 }
 
 .back-btn:hover {
   opacity: 0.85;
 }
 
-/* Clear button */
-clear-btn {
+/* Clear Button */
+.clear-btn {
   background-color: #f0f0f0;
   color: #333;
   border: 1px solid #ccc;
-  margin-left: 8px;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
   transition: background-color 0.2s ease;
 }
 
 .clear-btn:hover {
   background-color: #e0e0e0;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 30px 20px;
+  }
+
+  .login-logo-img {
+    width: 150px;
+  }
+
+  .login-title {
+    font-size: 24px;
+  }
+
+  .login-subtitle {
+    font-size: 13px;
+  }
 }

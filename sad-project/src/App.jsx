@@ -1,4 +1,3 @@
-
 import {BrowserRouter as Router, Routes, Route, useNavigate, Navigate} from "react-router-dom";
 import { useState } from 'react'
 import "./style.css";
@@ -75,7 +74,7 @@ function LoginPage({setIsLoggedIn}) {
     }
     else {
       // fallback
-      navigate("/");
+      setIsLoggedIn(false); // Set to false if login fails
       setMessage("Invalid input for role based login.");
       return;
     }
@@ -93,44 +92,73 @@ function LoginPage({setIsLoggedIn}) {
   }
 
   return (
-    <div className="app-wrapper">
     <div className="login-container">
-      
-      <div className="form-group">
-        <img src={logo} alt="Logo" className="logo" />
-        <label htmlFor="username">Username:</label>
-        <input
-          type="text"
-          id="username"
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          data-testid="userinput"
+      <div className="login-card">
+        <img src={logo} alt="SweetLedger Logo" className="login-logo-img" />
+        
+        <h1 className="login-title">SweetLedger</h1>
+        <p className="login-subtitle">Accounting Management System</p>
 
-        /> 
+        <div className="login-form">
+          <div className="form-group">
+            <label htmlFor="username" className="form-label">Username</label>
+            <input
+              type="text"
+              id="username"
+              className="form-input"
+              placeholder="Enter your username"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              data-testid="userinput"
+            /> 
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="password" className="form-label">Password</label>
+            <input
+              type="password"
+              id="password"
+              className="form-input"
+              placeholder="Enter your password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              data-testid="passinput"
+            /> 
+          </div>
+
+          <button 
+            data-testid="loginbtn" 
+            className="login-button" 
+            onClick={handleLogin}
+          >
+            Sign In
+          </button>
+
+          <button 
+            className="create-account-btn" 
+            data-testid="Newuserbtn" 
+            onClick={handleCreateUser}
+          >
+            Create New Account
+          </button>
+
+          <button 
+            className="clear-btn" 
+            onClick={handleClear}
+          >
+            Clear
+          </button>
+        </div>
+
+        <Link to="/forgot-password" className="forgot-password">
+          Forgot Password?
+        </Link>
+
+        {message && <div className={`message ${message.includes("Processing") ? "success" : ""}`}>{message}</div>}
+        
+        <p className="demo-text">Demo: Use any username/password to login</p>
       </div>
-
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          data-testid="passinput"
-        /> 
-      </div>
-
-      <button data-testid="loginbtn" id="loginBtn" onClick={handleLogin}>Login</button>
-      <button id="createUserBtn" data-testid="Newuserbtn" onClick={handleCreateUser}>New User</button>
-      <button className="btn clear-btn" onClick={handleClear}>Clear</button>
-
-      <Link to="/forgot-password" id="forgotPassword">
-        Forgot Password?
-      </Link>
-
-      <div id="message">{message}</div>
-      </div>
-     </div>
+    </div>
   );
 }
 
@@ -141,7 +169,7 @@ function LoginPage({setIsLoggedIn}) {
         <Route path="/" element={<LoginPage setIsLoggedIn={setIsLoggedIn} />} />
         <Route path="/new-user" element={<NewUser />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        {/* Protected Route*/}
+        {/* Protected Routes - pass setIsLoggedIn to enable logout */}
         <Route path="/administrator" element={ isLoggedIn ? <Administrator setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/" replace /> } />
         <Route path="/manager" element={ isLoggedIn ? <Manager setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/" replace /> } />
         <Route path="/regularaccountuser" element={ isLoggedIn ? <Regularaccountuser setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/" replace /> } />
