@@ -22,14 +22,6 @@
   margin: 0;
 }
 
-.profile-pic {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 1rem;
-}
-
 /* ===== Section Container ===== */
 .admin-section {
   background-color: #fff;

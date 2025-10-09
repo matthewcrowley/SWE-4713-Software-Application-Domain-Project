@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Accountview.css";
+import logo from "../assets/sweetledger.jpeg";
 
-export default function AccountManagement() {
+export default function Accountview() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -46,9 +47,12 @@ export default function AccountManagement() {
     <div className="admin-container">
       {/* ===== Header Section ===== */}
       <div className="admin-header">
-        <h5 className="admin-title">
-          Administrator Account Management
-        </h5>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img src={logo} alt="SweetLedger Logo" style={{ width: '50px', height: '50px', borderRadius: '8px' }} />
+          <h5 className="admin-title">
+            Account View
+          </h5>
+        </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button
             className="back-btn"
@@ -63,7 +67,6 @@ export default function AccountManagement() {
             Generate Expired Passwords Report
           </button>
           <div className="avatar">
-            <img src="/api/placeholder/40/40" alt="Profile" />
           </div>
         </div>
       </div>
