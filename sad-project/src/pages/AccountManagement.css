@@ -113,3 +113,20 @@ tr:hover {
   color: #444;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+
+/* ===== Back Button ===== */
+.back-btn {
+  border: 2px solid #f7941d !important;
+  color: #f7941d !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  padding: 8px 18px !important;
+  background-color: #fff !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.back-btn:hover {
+  background-color: #f7941d !important;
+  color: #fff !important;
+}

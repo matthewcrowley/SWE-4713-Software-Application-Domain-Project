@@ -12,8 +12,9 @@ import {
 } from "@mui/material";
 import defaultProfile from "../assets/defaultprofile.png";
 import "./accountmanagement.css";
+import { useNavigate } from "react-router-dom";
 
-export default function Administrator() {
+export default function AccountManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -42,6 +43,8 @@ export default function Administrator() {
     statement: "BS",
     comment: "",
   });
+
+  const navigate = useNavigate();
 
   const formatMoney = (value) => {
     const num = parseFloat(value);
@@ -210,9 +213,16 @@ export default function Administrator() {
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
         <Typography variant="h5" className="admin-title">
-          Administrator Dashboard
+          Administrator Account Management
         </Typography>
         <Box display="flex" alignItems="center" gap={2}>
+          <Button
+            variant="outlined"
+            className="back-btn"
+            onClick={() => navigate("/administrator")}
+          >
+            ← Back to Dashboard
+          </Button>
           <Button
             variant="contained"
             className="btn"

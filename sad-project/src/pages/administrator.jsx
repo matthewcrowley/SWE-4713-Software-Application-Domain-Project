@@ -112,7 +112,6 @@ export default function Administrator({ setIsLoggedIn }) {
           <button className="nav-button">📋 Chart</button>
           <button className="nav-button">📝 Event Log</button>
           <button className="nav-button">📖 Journal</button>
-          <div className="date-display">📅 Oct 07, 2025</div>
         </nav>
       </header>
 
