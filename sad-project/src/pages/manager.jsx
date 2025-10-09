@@ -24,6 +24,12 @@ export default function Manager({ setIsLoggedIn }) {
 
   const services = [
     {
+      title: "Account Management",
+      description: "Add, view, edit, or deactivate accounts",
+      icon: "👥",
+      path: "/Accountview", // Added path for navigation
+    },
+    {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
@@ -81,7 +87,7 @@ export default function Manager({ setIsLoggedIn }) {
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
-                {currentUser?.username || "Devinjacksonadmin#08"}
+                {currentUser?.username || "sarahbailey#1234"}
               </div>
               <span className="manager-badge">Manager</span>
             </div>
@@ -93,6 +99,7 @@ export default function Manager({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
+          <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>
           <button className="nav-button">📝 Event Log</button>
