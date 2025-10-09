@@ -1,7 +1,7 @@
 
 import React from 'react';
 import ReactDOMClient from 'react-dom/client';
-import {BrowserRouter as Router, Routes, Route, useNavigate, Navigate, MemoryRouter} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, Navigate, MemoryRouter} from "react-router-dom";
 import '@testing-library/jest-dom/vitest'
 import {render, screen} from '@testing-library/react';
 import App from './App.jsx'
@@ -15,6 +15,7 @@ const wrapper = ({ children }) => {
 
 
 describe("Login", () => {
+
     afterEach(() => {
     vi.clearAllMocks();
   });
@@ -23,6 +24,19 @@ describe("Login", () => {
         render(<App />);
         expect(screen.getByText("Username:")).toBeInTheDocument();
 
+    })
+
+    it("rejects invalid login", async () => {
+        const user = userEvent.setup()
+
+        const userbox = screen.getAllByRole('textbox')[0];
+        const passbox = screen.getAllByRole('textbox')[1];
+        const submitbtn = screen.getAllByTestId("loginbtn")[0];
+
+        await user.type(userbox, 'bad');
+        await user.type(passbox, 'Administrator#01');
+        await user.click(submitbtn);
+        expect(screen.getByText("Username:")).toBeInTheDocument();
     })
 
     it("renders new user page", () => {

@@ -9,6 +9,7 @@ import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
+import Calendar from "./pages/components/Calendar";
 
 function App() {
 const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -117,7 +118,8 @@ function LoginPage({setIsLoggedIn}) {
           value={password}
           onChange={e => setPassword(e.target.value)}
           data-testid="passinput"
-        /> 
+        />
+        <Calendar/>
       </div>
 
       <button data-testid="loginbtn" id="loginBtn" onClick={handleLogin}>Login</button>
