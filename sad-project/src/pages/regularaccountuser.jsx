@@ -1,39 +1,157 @@
-import React from "react";
-import defaultProfile from"../assets/defaultprofile.png";
-import "./Regularaccountuser.css";
-import sweetledger from"../assets/sweetledger.jpeg";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Manager.css";
+import logo from "../assets/sweetledger.jpeg";
 
-export default function Regularaccountuser({setIsLoggedIn}) {
+export default function Regularaccountuser({ setIsLoggedIn }) {
+  const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
+  // Static stats - replace with API call if you need dynamic data
+  const stats = {
+    activeAccounts: 25,
+    totalAssets: 125450.0,
+    journalEntries: 142,
+    recentEvents: 18,
+  };
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await fetch("/api/me");
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data);
+        }
+      } catch (err) {
+        console.warn("Could not fetch /api/me:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  const services = [
+    {
+      title: "Chart of Accounts",
+      description: "View and filter all accounts",
+      icon: "📄",
+    },
+    {
+      title: "Event Logs",
+      description: "View system activity and changes",
+      icon: "📈",
+    },
+    {
+      title: "Reports",
+      description: "Generate financial reports",
+      icon: "📊",
+    },
+    {
+      title: "Journal Entries",
+      description: "Record transactions",
+      icon: "➕",
+    },
+    {
+      title: "Search",
+      description: "Find accounts and transactions",
+      icon: "🔍",
+    },
+  ];
+
   const handleLogout = () => {
-    // Remove authentication data (adjust depending on your setup)
-    localStorage.removeItem("token");
-    sessionStorage.clear();
-
-    // Reset login state
     setIsLoggedIn(false);
-
-    // Redirect to login page
     navigate("/");
   };
 
-   return (
-       <div className="regularaccountuser-container">
-         {/* Header with Porfile */}
-         <header className="regularaccountuser-header">
-   
-           <h1 className="regularaccountuser-title">Account User Dashboard</h1>
-           
-           <img src={sweetledger} alt="Logo" className="logo-pic" />
-           <img src={defaultProfile} alt="Profile" className="profile-pic"/>
-           <button className="logout-btn" onClick={handleLogout}>Logout</button>
-         </header>
-   
-         {/* Page Content*/}
-   
-         
-       </div>
-     );
+  // Navigate to a service (only Account Management has a route for now)
+  const handleServiceClick = (service) => {
+    if (service.path) {
+      navigate(service.path);
+    } else {
+      alert(`"${service.title}" service is not available yet.`);
+    }
+  };
+
+  return (
+    <div className="dashboard-container">
+      {/* Header */}
+      <header className="dashboard-header">
+        <div className="header-top">
+          <div className="logo-section">
+            <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+            <div>
+              <h2 className="company-name">SweetLedger</h2>
+              <p className="company-subtitle">Accounting Management System</p>
+            </div>
+          </div>
+
+          <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.username || "Devinjacksonadmin#08"}
+              </div>
+              <span className="regularuser-badge">RegUser</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="dashboard-nav">
+          <button className="nav-button">🏠 Dashboard</button>
+          <button className="nav-button">📋 Chart</button>
+          <button className="nav-button">📝 Event Log</button>
+          <button className="nav-button">📖 Journal</button>
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main className="dashboard-main">
+        <h1 className="dashboard-title">Manager Dashboard</h1>
+        <p className="dashboard-tagline">Select a service to get started</p>
+
+        {/* Service Cards */}
+        <div className="service-grid">
+          {services.map((service, index) => (
+            <div key={index} className="service-card">
+              <div className="service-icon">{service.icon}</div>
+              <h3 className="service-title">{service.title}</h3>
+              <p className="service-description">{service.description}</p>
+              <button
+                className="access-button"
+                onClick={() => handleServiceClick(service)}
+              >
+                Access Service
+              </button>
+            </div>
+          ))}
+        </div>
+
+        {/* Statistics */}
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-number">{stats.activeAccounts}</div>
+            <div className="stat-label">Active Accounts</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">
+              ${stats.totalAssets.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            </div>
+            <div className="stat-label">Total Assets</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{stats.journalEntries}</div>
+            <div className="stat-label">Journal Entries</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-number">{stats.recentEvents}</div>
+            <div className="stat-label">Recent Events</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }
