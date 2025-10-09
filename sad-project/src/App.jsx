@@ -8,7 +8,8 @@ import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
-import AccountManagement from "./pages/accountmanagement"; // ✅ FIXED - lowercase filename
+import AccountManagement from "./pages/accountmanagement";
+import ViewAccounts from "./pages/Accountview";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -189,6 +190,14 @@ function App() {
           path="/accountmanagement"
           element={
             isLoggedIn ? <AccountManagement /> : <Navigate to="/" replace />
+          }
+        />
+
+        {/* ✅ View Accounts Page (Read-Only for Regular Users) */}
+        <Route
+          path="/Accountview"
+          element={
+            isLoggedIn ? <ViewAccounts /> : <Navigate to="/" replace />
           }
         />
       </Routes>

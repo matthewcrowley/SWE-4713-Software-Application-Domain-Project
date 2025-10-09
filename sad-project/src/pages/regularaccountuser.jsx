@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Manager.css";
+import "./Regularaccountuser.css";
 import logo from "../assets/sweetledger.jpeg";
 
 export default function Regularaccountuser({ setIsLoggedIn }) {
@@ -23,6 +23,12 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   }, []);
 
   const services = [
+    {
+      title: "Account Management",
+      description: "view accounts",
+      icon: "👥",
+      path: "/Accountview", // Added path for navigation
+    },
     {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
@@ -81,7 +87,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
-                {currentUser?.username || "Devinjacksonadmin#08"}
+                {currentUser?.username || "martyjohnson12#"}
               </div>
               <span className="regularuser-badge">RegUser</span>
             </div>
@@ -93,6 +99,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
+          <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>
           <button className="nav-button">📝 Event Log</button>

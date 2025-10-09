@@ -221,7 +221,7 @@ export default function AccountManagement() {
             className="back-btn"
             onClick={() => navigate("/administrator")}
           >
-            ← Back to Dashboard
+            Back to Dashboard
           </Button>
           <Button
             variant="contained"
