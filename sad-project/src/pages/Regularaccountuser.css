@@ -198,33 +198,6 @@
   background-color: #D35400;
 }
 
-/* Statistics Cards */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px;
-}
-
-.stat-card {
-  background-color: white;
-  border-radius: 8px;
-  padding: 32px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.stat-number {
-  color: #E67E22;
-  font-size: 36px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  color: #7F8C8D;
-  font-size: 14px;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-top {

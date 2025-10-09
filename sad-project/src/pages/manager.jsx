@@ -7,14 +7,6 @@ export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
-  // Static stats - replace with API call if you need dynamic data
-  const stats = {
-    activeAccounts: 25,
-    totalAssets: 125450.0,
-    journalEntries: 142,
-    recentEvents: 18,
-  };
-
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -128,28 +120,6 @@ export default function Manager({ setIsLoggedIn }) {
               </button>
             </div>
           ))}
-        </div>
-
-        {/* Statistics */}
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-number">{stats.activeAccounts}</div>
-            <div className="stat-label">Active Accounts</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">
-              ${stats.totalAssets.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-            </div>
-            <div className="stat-label">Total Assets</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.journalEntries}</div>
-            <div className="stat-label">Journal Entries</div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-number">{stats.recentEvents}</div>
-            <div className="stat-label">Recent Events</div>
-          </div>
         </div>
       </main>
     </div>
