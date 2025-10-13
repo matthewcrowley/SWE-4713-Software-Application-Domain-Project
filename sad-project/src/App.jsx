@@ -10,6 +10,8 @@ import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
 import AccountManagement from "./pages/accountmanagement";
 import ViewAccounts from "./pages/Accountview";
+import Eventlog from "./pages/Eventlog";
+import Chartofaccounts from "./pages/Chartofaccounts";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -193,11 +195,25 @@ function App() {
           }
         />
 
-        {/* ✅ View Accounts Page (Read-Only for Regular Users) */}
+        {/* View Accounts Page (Read-Only for Regular Users) */}
         <Route
           path="/Accountview"
           element={
             isLoggedIn ? <ViewAccounts /> : <Navigate to="/" replace />
+          }
+        />
+
+         <Route
+          path="/eventlog"
+          element={
+            isLoggedIn ? <Eventlog /> : <Navigate to="/" replace />
+          }
+        />
+
+        <Route
+          path="/chartofaccounts"
+          element={
+            isLoggedIn ? <Chartofaccounts /> : <Navigate to="/" replace />
           }
         />
       </Routes>
