@@ -27,17 +27,19 @@ export default function Administrator({ setIsLoggedIn }) {
       title: "Account Management",
       description: "Add, view, edit, or deactivate accounts",
       icon: "👥",
-      path: "/accountmanagement", // Added path for navigation
+      path: "/accountmanagement", 
     },
     {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
+      path: "/chartofaccounts",
     },
     {
       title: "Event Logs",
       description: "View system activity and changes",
       icon: "📈",
+      path: "/eventlog",
     },
     {
       title: "Reports",
