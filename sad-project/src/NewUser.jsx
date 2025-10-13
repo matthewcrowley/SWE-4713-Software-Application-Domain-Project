@@ -1,6 +1,7 @@
 import {useState} from "react";
 import"./style.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import logo from "./assets/sweetledger.jpeg";
 
 function NewUser() {
     const [formData, setFormData] = useState({
@@ -121,94 +122,132 @@ function NewUser() {
     });
   };
 
+  const handleClear = () => {
+    setFormData({
+      firstName: "",
+      lastName: "",
+      address: "",
+      dob: "",
+      email: "",
+      username: "",
+      password: "",
+    });
+    setMessage("");
+  };
+
   return (
-    <div className="app-wrapper">
-      <div className="login-container">
-        <h2>Create New User</h2>
+    <div className="login-container">
+      <div className="login-card">
+        <img src={logo} alt="SweetLedger Logo" className="login-logo-img" />
+        
+        <h1 className="login-title">SweetLedger</h1>
+        <p className="login-subtitle">Create New Account</p>
 
-        <div className="form-group">
-          <label>First Name:</label>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-          />
+        <div className="login-form">
+          <div className="form-group">
+            <label className="form-label">First Name</label>
+            <input
+              type="text"
+              name="firstName"
+              className="form-input"
+              placeholder="Enter your first name"
+              value={formData.firstName}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Last Name</label>
+            <input
+              type="text"
+              name="lastName"
+              className="form-input"
+              placeholder="Enter your last name"
+              value={formData.lastName}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Address</label>
+            <input
+              type="text"
+              name="address"
+              className="form-input"
+              placeholder="Enter your address"
+              value={formData.address}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Date of Birth</label>
+            <input
+              type="date"
+              name="dob"
+              className="form-input"
+              value={formData.dob}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              className="form-input"
+              placeholder="Enter your email"
+              value={formData.email}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Username</label>
+            <input
+              type="text"
+              name="username"
+              className="form-input"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              placeholder="Enter your password"
+              value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
+
+          <button className="login-button" onClick={handleCreateAccount}>
+            Submit Request
+          </button>
+
+          <button className="clear-btn" onClick={handleClear}>
+            Clear
+          </button>
         </div>
 
-        <div className="form-group">
-          <label>Last Name:</label>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-          />
-        </div>
+        <Link to="/" className="forgot-password">
+          Back to Login
+        </Link>
 
-        <div className="form-group">
-          <label>Address:</label>
-          <input
-            type="text"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Date of Birth:</label>
-          <input
-            type="date"
-            name="dob"
-            value={formData.dob}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Email Address:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-          />
-        </div>
-
-        <button id="createAccountBtn" onClick={handleCreateAccount}>
-          Submit Request
-        </button>
-
-        <div
-          id="message"
-          className={message.toLowerCase().includes("successful") ? "success" : ""}
-        >
-          {message}
-        </div>
+        {message && (
+          <div className={`message ${message.toLowerCase().includes("successful") ? "success" : ""}`}>
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-export default NewUser
+export default NewUser;
