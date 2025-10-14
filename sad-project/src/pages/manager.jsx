@@ -33,11 +33,13 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
+      path: "/chartofaccounts",
     },
     {
       title: "Event Logs",
       description: "View system activity and changes",
       icon: "📈",
+      path: "/eventlog",
     },
     {
       title: "Reports",

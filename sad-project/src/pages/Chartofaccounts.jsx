@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import './eventlog.css';
+import logo from "../assets/sweetledger.jpeg";
 
 import { useNavigate } from 'react-router-dom';
 
@@ -20,6 +21,7 @@ const Chartofaccounts = () => {
     <div className="admin-container">
       <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img src={logo} alt="Sweet Ledger Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
           <h1 className="admin-title">Chart of Accounts</h1>
         </div>
         

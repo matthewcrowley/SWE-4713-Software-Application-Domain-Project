@@ -8,7 +8,20 @@ const Eventlog = () => {
   const navigate = useNavigate();
 
   const handleBackToDashboard = () => {
-    navigate('/administrator');
+    // Get the user role from sessionStorage
+    const userRole = sessionStorage.getItem('userRole');
+    
+    // Navigate based on role
+    if (userRole === 'administrator') {
+      navigate('/administrator');
+    } else if (userRole === 'manager') {
+      navigate('/manager');
+    } else if (userRole === 'regularuser') {
+      navigate('/regularaccountuser');
+    } else {
+      // Default fallback to administrator if no role found
+      navigate('/administrator');
+    }
   };
 
   const handleGenerateReport = () => {
