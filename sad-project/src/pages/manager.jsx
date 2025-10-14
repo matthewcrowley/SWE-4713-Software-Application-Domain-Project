@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -101,6 +102,7 @@ export default function Manager({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
+          <Calendar/>
           <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>

@@ -4,6 +4,7 @@ import './eventlog.css';
 
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
 
 const Eventlog = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const Eventlog = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
+        <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Event Log</h1>
         </div>

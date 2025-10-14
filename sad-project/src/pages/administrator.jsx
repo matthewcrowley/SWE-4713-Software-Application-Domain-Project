@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Admin.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function Administrator({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -80,6 +81,7 @@ export default function Administrator({ setIsLoggedIn }) {
       <header className="dashboard-header">
         <div className="header-top">
           <div className="logo-section">
+          <Calendar />
             <img src={logo} alt="SweetLedger Logo" className="header-logo" />
             <div>
               <h2 className="company-name">SweetLedger</h2>
@@ -103,6 +105,7 @@ export default function Administrator({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
+          <Calendar/>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">📋 Chart</button>

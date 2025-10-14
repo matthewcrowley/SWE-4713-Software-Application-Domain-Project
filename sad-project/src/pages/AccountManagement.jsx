@@ -14,6 +14,7 @@ import defaultProfile from "../assets/defaultprofile.png";
 import "./accountmanagement.css";
 import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function AccountManagement() {
   const [users, setUsers] = useState([]);
@@ -214,6 +215,7 @@ export default function AccountManagement() {
       <HelpButton />
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
+        <Calendar />
         <Typography variant="h5" className="admin-title">
           Administrator Account Management
         </Typography>

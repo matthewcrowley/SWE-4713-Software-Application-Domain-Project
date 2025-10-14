@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Accountview.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function Accountview() {
   const [users, setUsers] = useState([]);
@@ -50,6 +51,7 @@ export default function Accountview() {
       {/* ===== Header Section ===== */}
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Calendar />
           <img src={logo} alt="SweetLedger Logo" style={{ width: '50px', height: '50px', borderRadius: '8px' }} />
           <h5 className="admin-title">
             Account View
