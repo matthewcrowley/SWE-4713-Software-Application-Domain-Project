@@ -81,7 +81,6 @@ export default function Administrator({ setIsLoggedIn }) {
       <header className="dashboard-header">
         <div className="header-top">
           <div className="logo-section">
-          <Calendar />
             <img src={logo} alt="SweetLedger Logo" className="header-logo" />
             <div>
               <h2 className="company-name">SweetLedger</h2>
@@ -105,7 +104,10 @@ export default function Administrator({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
-          <Calendar/>
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">📋 Chart</button>

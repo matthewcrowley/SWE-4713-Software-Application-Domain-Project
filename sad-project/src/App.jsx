@@ -8,7 +8,7 @@ import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
-import AccountManagement from "./pages/accountmanagement";
+import AccountManagement from "./pages/AccountManagement";
 import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
