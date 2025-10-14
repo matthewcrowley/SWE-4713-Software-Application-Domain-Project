@@ -67,10 +67,13 @@ function App() {
       setIsLoggedIn(true);
 
       if (password === "Administrator#01") {
+        sessionStorage.setItem('userRole', 'administrator');
         navigate("/administrator");
       } else if (password === "Manageruser#02") {
+        sessionStorage.setItem('userRole', 'manager');
         navigate("/manager");
       } else if (password === "Accountuser#03") {
+        sessionStorage.setItem('userRole', 'regularuser');
         navigate("/regularaccountuser");
       } else {
         setIsLoggedIn(false);
