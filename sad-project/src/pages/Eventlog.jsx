@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 import './eventlog.css';
 
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
 
 const Eventlog = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Eventlog = () => {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Event Log</h1>

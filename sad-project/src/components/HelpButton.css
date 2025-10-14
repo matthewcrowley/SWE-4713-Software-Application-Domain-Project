@@ -1,0 +1,241 @@
+/* Help Button Container */
+.help-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Help Button Styling */
+.help-button {
+  position: fixed;
+  top: 20px;
+  right: 5px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #00c3ff69;
+  color: white;
+  border: none;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-button:hover {
+  background-color: #a9d3ff;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+}
+
+.help-button:active {
+  transform: scale(0.95);
+}
+
+/* Modal Overlay */
+.help-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+/* Help Modal */
+.help-modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 800px;
+  max-height: 80vh;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Help Header */
+.help-header {
+  background: linear-gradient(135deg, #FFF8E7, #ffe8b3);
+  color: rgb(2, 2, 2);
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.help-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.help-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.help-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Help Content */
+.help-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Help Categories */
+.help-category {
+  margin-bottom: 30px;
+}
+
+.help-category:last-child {
+  margin-bottom: 0;
+}
+
+.help-category-title {
+  color: #0c0c0c;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+/* Help Topics */
+.help-topics {
+  display: grid;
+  gap: 15px;
+}
+
+.help-topic {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 15px;
+  border-left: 4px solid #fddc8f;
+}
+
+.help-topic-title {
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+}
+
+.help-topic-description {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Help Footer */
+.help-footer {
+  background: #f8f9fa;
+  padding: 15px 20px;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.help-footer p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .help-button {
+    top: 15px;
+    right: 15px;
+    width: 35px;
+    height: 35px;
+    font-size: 16px;
+  }
+  
+  .help-modal {
+    max-width: 95%;
+    max-height: 90vh;
+    margin: 10px;
+  }
+  
+  .help-header {
+    padding: 15px;
+  }
+  
+  .help-header h2 {
+    font-size: 20px;
+  }
+  
+  .help-content {
+    padding: 15px;
+  }
+  
+  .help-category-title {
+    font-size: 18px;
+  }
+  
+  .help-topic {
+    padding: 12px;
+  }
+  
+  .help-topic-title {
+    font-size: 15px;
+  }
+  
+  .help-topic-description {
+    font-size: 13px;
+  }
+}
+
+/* Animation for modal appearance */
+.help-modal-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+.help-modal {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

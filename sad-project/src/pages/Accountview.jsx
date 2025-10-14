@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Accountview.css";
 import logo from "../assets/sweetledger.jpeg";
+import HelpButton from "../components/HelpButton";
 
 export default function Accountview() {
   const [users, setUsers] = useState([]);
@@ -45,6 +46,7 @@ export default function Accountview() {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       {/* ===== Header Section ===== */}
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

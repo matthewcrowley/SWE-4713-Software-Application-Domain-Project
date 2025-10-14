@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Regularaccountuser.css";
 import logo from "../assets/sweetledger.jpeg";
+import HelpButton from "../components/HelpButton";
 
 export default function Regularaccountuser({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -72,6 +73,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
   return (
     <div className="dashboard-container">
+      <HelpButton />
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-top">

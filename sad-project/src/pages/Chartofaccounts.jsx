@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 import './eventlog.css';
 
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const Chartofaccounts = () => {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Chart of Accounts</h1>

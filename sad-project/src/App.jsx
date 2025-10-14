@@ -12,6 +12,7 @@ import AccountManagement from "./pages/accountmanagement";
 import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
+import HelpButton from "./components/HelpButton";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -87,6 +88,7 @@ function App() {
 
     return (
       <div className="login-container">
+        <HelpButton />
         <div className="login-card">
           <img src={logo} alt="SweetLedger Logo" className="login-logo-img" />
 
