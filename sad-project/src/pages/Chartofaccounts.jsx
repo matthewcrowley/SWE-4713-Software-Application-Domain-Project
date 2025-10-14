@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button } from '@mui/material';
+import {Button, List, ListItem, ListItemText} from '@mui/material';
 import './eventlog.css';
-
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
+import logo from "../assets/sweetledger.jpeg";
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -12,8 +12,18 @@ const Chartofaccounts = () => {
   };
 
   const handleGenerateReport = () => {
-    // Generate report logic
     console.log('Generating report...');
+  };
+
+  const accounts = [
+    { id: '1001', name: 'Cash' },
+    { id: '2001', name: 'Accounts Receivable' },
+    { id: '3001', name: 'Revenue' },
+    { id: '4001', name: 'Expenses' },
+  ];
+
+  const handleAccountClick = (accountId) => {
+    navigate(`/ledger/${accountId}`);
   };
 
   return (
@@ -44,6 +54,43 @@ const Chartofaccounts = () => {
       <div className="admin-section">
         <h2>Chart of Accounts</h2>
         <p>Manage your accounts here.</p>
+
+        <List>
+          {accounts.map((account) => (
+            <ListItem 
+              key={account.id} 
+              button 
+              onClick={() => handleAccountClick(account.id)}
+              sx={{ 
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                marginBottom: '8px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <ListItemText 
+                primary={<span style={{ color: 'black' }}>{account.name}</span>}
+                secondary={
+                  <>
+                    Account Number:&nbsp;
+                    <span
+                      onClick={() => handleAccountClick(account.id)}
+                      style={{
+                        color: '#1976d2',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {account.id}
+                    </span>
+                  </>
+                }
+              />
+            </ListItem>
+          ))}
+        </List>
       </div>
     </div>
   );
