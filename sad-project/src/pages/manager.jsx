@@ -102,7 +102,10 @@ export default function Manager({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
-          <Calendar/>
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
           <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>

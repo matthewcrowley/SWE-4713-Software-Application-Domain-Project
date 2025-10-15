@@ -102,8 +102,11 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
-          <Calendar/>
-          <button className="nav-button">👤 Accounts</button>
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() =>navigate('/AccountView')}>👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>
           <button className="nav-button">📝 Event Log</button>
@@ -113,7 +116,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
       {/* Main Content */}
       <main className="dashboard-main">
-        <h1 className="dashboard-title">Manager Dashboard</h1>
+        <h1 className="dashboard-title">Accountant Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
 
         {/* Service Cards */}
