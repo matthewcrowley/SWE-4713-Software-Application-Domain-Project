@@ -1,8 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Button, TextField, Dialog, DialogTitle, DialogContent, 
-  DialogActions, Table, TableHead, TableBody, TableRow, TableCell 
-} from '@mui/material';
+import React from 'react';
+import { Button } from '@mui/material';
 import './eventlog.css';
 import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
@@ -37,36 +34,19 @@ const Chartofaccounts = () => {
   };
 
   const handleGenerateReport = () => {
-    setOpenReport(true);
+    // Generate report logic
+    console.log('Generating report...');
   };
 
-  const handleCloseReport = () => {
-    setOpenReport(false);
-  };
+  const accounts = [
+    { id: '1001', name: 'Cash' },
+    { id: '2001', name: 'Accounts Receivable' },
+    { id: '3001', name: 'Revenue' },
+    { id: '4001', name: 'Expenses' },
+  ];
 
-  const handleSearch = () => {
-    const query = searchQuery.trim().toLowerCase();
-    if (!query) {
-      setFilteredAccounts([]);
-      return;
-    }
-
-    const results = accounts.filter(
-      acc =>
-        acc.number.toLowerCase().includes(query) ||
-        acc.name.toLowerCase().includes(query)
-    );
-    setFilteredAccounts(results);
-  };
-
-  const handleViewDetails = (account) => {
-    setSelectedAccount(account);
-    setOpenDetails(true);
-  };
-
-  const handleCloseDetails = () => {
-    setOpenDetails(false);
-    setSelectedAccount(null);
+  const handleAccountClick = (accountId) => {
+    navigate(`/ledger/${accountId}`);
   };
 
   return (
@@ -102,62 +82,8 @@ const Chartofaccounts = () => {
 
       {/* ===== Main Section ===== */}
       <div className="admin-section">
-        <h2>Search Accounts</h2>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-          <TextField 
-            label="Search by Account Number or Name" 
-            variant="outlined" 
-            size="small"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ flex: 1 }}
-          />
-          <Button 
-            variant="contained" 
-            className="btn" 
-            onClick={handleSearch}
-          >
-            Search
-          </Button>
-        </div>
-
-        {/* ===== Search Results ===== */}
-        {filteredAccounts.length > 0 ? (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Account Number</strong></TableCell>
-                <TableCell><strong>Account Name</strong></TableCell>
-                <TableCell><strong>Type</strong></TableCell>
-                <TableCell><strong>Balance</strong></TableCell>
-                <TableCell><strong>Action</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filteredAccounts.map((acc, index) => (
-                <TableRow key={index}>
-                  <TableCell>{acc.number}</TableCell>
-                  <TableCell>{acc.name}</TableCell>
-                  <TableCell>{acc.type}</TableCell>
-                  <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      onClick={() => handleViewDetails(acc)}
-                    >
-                      View Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : searchQuery ? (
-          <p>No accounts found matching "{searchQuery}".</p>
-        ) : (
-          <p>Enter an account name or number to search.</p>
-        )}
+        <h2>Chart of Accounts</h2>
+        <p>Manage your accounts here.</p>
       </div>
 
       {/* ===== All Accounts Report Dialog ===== */}
