@@ -1,0 +1,133 @@
+/* ===== Layout ===== */
+.admin-container {
+  background-color: #f8f7f4;
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+}
+
+/* ===== Header ===== */
+.admin-header {
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid #eee;
+}
+
+.admin-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* ===== Section Container ===== */
+.admin-section {
+  background-color: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem auto;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+  width: 95%;
+  max-width: 1200px;
+}
+
+.admin-section h2 {
+  color: #34495e;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  background-color: #f7941d !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  padding: 8px 18px !important;
+  border: none;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #e6830c !important;
+}
+
+/* ===== Tables ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #555;
+}
+
+tr:hover {
+  background-color: #fafafa;
+}
+
+/* ===== Status Labels ===== */
+.status-active {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.status-inactive {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* ===== Message Box ===== */
+.status-message {
+  background: #fff8e6;
+  border-left: 5px solid #f7941d;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-top: 25px;
+  font-weight: 500;
+  color: #444;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== Back Button ===== */
+.back-btn {
+  border: 2px solid #f7941d !important;
+  color: #f7941d !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  text-transform: none !important;
+  padding: 8px 18px !important;
+  background-color: #fff !important;
+  transition: all 0.2s ease-in-out !important;
+  cursor: pointer;
+}
+
+.back-btn:hover {
+  background-color: #f7941d !important;
+  color: #fff !important;
+}
+
+/* ===== Avatar ===== */
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

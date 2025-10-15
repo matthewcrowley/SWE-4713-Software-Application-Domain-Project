@@ -1,244 +1,135 @@
 import React, { useState, useEffect } from "react";
-import defaultProfile from"../assets/defaultprofile.png";
+import { useNavigate } from "react-router-dom";
 import "./Admin.css";
+import logo from "../assets/sweetledger.jpeg";
 
-export default function Administrator() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [message, setMessage] = useState("");
-  const [editingUser, setEditingUser] = useState(null); // user being edited
-  const [editForm, setEditForm] = useState({username: "", email: "", role: "User"});
+export default function Administrator({ setIsLoggedIn }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users")
-        const data = await response.json();
-        setUsers(data || []);
-      }
-      catch(error) {
-        console.error("Error fetching user:", error);
-        setMessage("Failed to load user.")
-      }
-      finally {
-        setLoading(false);
+        const res = await fetch("/api/me");
+        if (res.ok) {
+          const data = await res.json();
+          setCurrentUser(data);
+        }
+      } catch (err) {
+        console.warn("Could not fetch /api/me:", err);
       }
     };
-      fetchUsers();
+    fetchCurrentUser();
   }, []);
 
-  // Start edit form changes
-  const startEdit = (user) => {
-    setEditingUser(user.id);
-    setEditForm({username: user.username, email: user.email, role: user.role});
+  const services = [
+    {
+      title: "Account Management",
+      description: "Add, view, edit, or deactivate accounts",
+      icon: "👥",
+      path: "/accountmanagement", 
+    },
+    {
+      title: "Chart of Accounts",
+      description: "View and filter all accounts",
+      icon: "📄",
+      path: "/chartofaccounts",
+    },
+    {
+      title: "Event Logs",
+      description: "View system activity and changes",
+      icon: "📈",
+      path: "/eventlog",
+    },
+    {
+      title: "Reports",
+      description: "Generate financial reports",
+      icon: "📊",
+    },
+    {
+      title: "Journal Entries",
+      description: "Record transactions",
+      icon: "➕",
+    },
+    {
+      title: "Search",
+      description: "Find accounts and transactions",
+      icon: "🔍",
+    },
+  ];
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
-  // Handle edit form changes
-  const handleEditChange = (e) => {
-    setEditForm({...editForm, [e.target.name]: e.target.value});
-  };
-
-  const handleSuspend = (user) => {
-  setMessage(`This user, ${user.username}, has been suspended for a week. Have a nice vacation.`);
-};
-
-const handleEmail = async (user) => {
-  try {
-    const response = await fetch('http://localhost:3000/api/email', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: user.email, username: user.username }),
-    });
-
-    const data = await response.json();
-    if (data.success) {
-      setMessage(`Email sent to ${user.email}`);
+  // Navigate to a service (only Account Management has a route for now)
+  const handleServiceClick = (service) => {
+    if (service.path) {
+      navigate(service.path);
     } else {
-      setMessage(`Failed to send email: ${data.message}`);
+      alert(`"${service.title}" service is not available yet.`);
     }
-  } catch (error) {
-    console.error("Email error:", error);
-    setMessage("Server error while sending email.");
-  }
-};
-
-  // Save user updates
-  const saveUserUpdate = async () => {
-    try{
-      const response = await fetch(`http://localhost:3000/api/users/${editingUser}`, {
-         method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(editForm), // Send fields directly
-      })
-    
-
-    const data = await response.json();
-
-     if(data.success) {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === editingUser ? {...u, ...editForm} : u))
-      );
-      setMessage(`User ID ${editingUser} updated successfully`);
-      setEditingUser(null); // Close edit mode
-      }
-      else {
-        setMessage("Failed to update user: " + data.message);
-      }
-    }
-
-    catch(error) {
-      console.error("Error updating role:", error);
-      setMessage("Server error while updating user.")
-    }
-
-  }
-
-  // Activate / Deactivate user
-  const toggleUserStatus = async (user) => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/users/${user.id}/status`, {
-        method: "PUT",
-        headers: {"Content-Type" : "application/json"},
-        body: JSON.stringify({active: !user.active}),
-      });
-
-      const data = await response.json();
-
-      if(data.success) {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === user.id ? {...u, active: !u.active } : u)) 
-        );
-        setMessage(`User ${user.username} is now ${!user.active ? "active" : "inactive"}`);
-      }
-      else{
-        setMessage("Failed to update status: " + data.message);
-      }
-    }
-      catch(error) {
-        console.error("Error updating status:", error);
-        setMessage("Server error while updating status.");
-    }
-};
+  };
 
   return (
-    <div className="admin-container">
-      {/* Header with Porfile */}
-      <header className="admin-header">
+    <div className="dashboard-container">
+      {/* Header */}
+      <header className="dashboard-header">
+        <div className="header-top">
+          <div className="logo-section">
+            <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+            <div>
+              <h2 className="company-name">SweetLedger</h2>
+              <p className="company-subtitle">Accounting Management System</p>
+            </div>
+          </div>
 
-        <h1 className="admin-title">Administrator Dashboard</h1>
-        <button 
-          className="btn expired-password-report" 
-          onClick={() => setMessage("No Current Expired Passwords")}
-        >
-          Generate Expired Passwords Report
-        </button>
-        <img
-          src={defaultProfile} alt="Profile" className="profile-pic"/> 
+          <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.username || "Devinjacksonadmin#08"}
+              </div>
+              <span className="admin-badge">Admin</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="dashboard-nav">
+          <button className="nav-button">🏠 Dashboard</button>
+          <button className="nav-button">👤 Accounts</button>
+          <button className="nav-button">📋 Chart</button>
+          <button className="nav-button">📝 Event Log</button>
+          <button className="nav-button">📖 Journal</button>
+        </nav>
       </header>
 
-      <main className="admin-content">
-        <section className="admin-section">
-          <h2>User Management</h2>
+      {/* Main Content */}
+      <main className="dashboard-main">
+        <h1 className="dashboard-title">Administrator Dashboard</h1>
+        <p className="dashboard-tagline">Select a service to get started</p>
 
-          {loading ? (
-            <p>Loading users...</p>
-          ) : users.length === 0 ? (
-            <p>No users found.</p>
-          ) : (
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td>
-                      {editingUser === u.id ? (
-                        <input
-                          type="text"
-                          name="username"
-                          value={editForm.username}
-                          onChange={handleEditChange}
-                          />
-                      ) : (
-                        u.username
-                      )}
-                    </td>
-                    <td>
-                      {editingUser === u.id ? (
-                        <input
-                          type="email"
-                          name="email"
-                          value={editForm.email}
-                          onChange={handleEditChange}
-                          />
-                      ) : (
-                        u.email
-                      )}
-                    </td>
-                    <td>
-                      {editingUser === u.id ? (
-                      <select
-                        name="role"
-                        value={editForm.role}
-                        onChange={handleEditChange}
-                        >
-                          <option value="User">User</option>
-                          <option value="Manager">Manager</option>
-                          <option value="Admin">Admin</option>
-                        </select>
-                        ) : (
-                          u.role
-                        )}
-                    </td>
-                    <td className= {u.active ? "status-active" : "status-inactive"}>
-                        {u.active ? "Active" : "Inactive"}
-                    </td> {/*Status Column*/}
-                    <td>
-                      {editingUser === u.id ? (
-                                <>
-                                  <button className="btn" onClick={saveUserUpdate}>Save</button>
-                                  <button className="btn cancel" onClick={() => setEditingUser(null)}>Cancel</button> 
-                                </>
-                              ) : (
-                                <>
-                                  <button className="btn" onClick={() => startEdit(u)}>Edit</button>
-                                  <button 
-                                    className={`btn ${u.active ? "deactivate" : "activate"}`} 
-                                    onClick={() => toggleUserStatus(u)}
-                                  >
-                                    {u.active ? "Deactivate" : "Activate"}
-                                  </button>
-
-                                  <button 
-                                    className="btn suspend"
-                                    onClick={() => handleSuspend(u)}
-                                  >
-                                    Suspend
-                                  </button>
-
-                                  <button 
-                                    className="btn email"
-                                    onClick={() => handleEmail(u)}
-                                  >
-                                    Email
-                                  </button>
-                                </>
-                              )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )
-        }
-        </section>
-        {message && <p className="status-message">{message}</p>}
+        {/* Service Cards */}
+        <div className="service-grid">
+          {services.map((service, index) => (
+            <div key={index} className="service-card">
+              <div className="service-icon">{service.icon}</div>
+              <h3 className="service-title">{service.title}</h3>
+              <p className="service-description">{service.description}</p>
+              <button
+                className="access-button"
+                onClick={() => handleServiceClick(service)}
+              >
+                Access Service
+              </button>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );
