@@ -95,6 +95,58 @@
   line-height: 1.6;
 }
 
+/* ===== Account List Items ===== */
+.account-list {
+  margin-top: 2rem;
+}
+
+.account-item {
+  padding: 1.25rem;
+  margin: 0.75rem 0;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #000 !important;
+  font-size: 1rem;
+}
+
+.account-item:hover {
+  background-color: #fff8f0;
+  border-color: #f7941d;
+  box-shadow: 0 4px 12px rgba(247, 148, 29, 0.15);
+  transform: translateY(-2px);
+}
+
+.account-item strong {
+  color: #000 !important;
+  font-size: 1.1rem;
+  margin-right: 0.5rem;
+}
+
+.account-item span {
+  color: #000 !important;
+}
+
+.account-item-info {
+  color: #000 !important;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.account-item-type {
+  color: #000 !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  background-color: #e8e8e8;
+  border-radius: 6px;
+}
+
 /* ===== Buttons ===== */
 .btn {
   background-color: #f7941d !important;
@@ -134,6 +186,42 @@
   color: #fff !important;
 }
 
+/* ===== Dialog Styling ===== */
+.MuiDialog-paper {
+  border-radius: 12px !important;
+}
+
+.MuiDialogTitle-root {
+  background-color: #f7941d;
+  color: #fff;
+  font-weight: 600;
+  padding: 1.25rem 1.5rem;
+}
+
+.MuiDialogContent-root {
+  padding: 1.5rem !important;
+}
+
+.MuiDialogActions-root {
+  padding: 1rem 1.5rem !important;
+}
+
+/* ===== Table Styling ===== */
+.MuiTable-root {
+  margin-top: 1rem;
+}
+
+.MuiTableHead-root {
+  background-color: #f5f5f5;
+}
+
+.MuiTableCell-head {
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+}
+
+.MuiTableRow-root:hover {
+  background-color: #fafafa;
 /* Tooltip container */
 .tooltiptext {
   visibility: hidden; /* Hidden by default */
@@ -150,6 +238,7 @@
   min-width: 50px;
   transform: translateX(-50%); /* Center the tooltip */
   transition: opacity 0.3s; /* Smooth transition for appearance */
+}
 }
 
 .button-container:hover .tooltiptext {
