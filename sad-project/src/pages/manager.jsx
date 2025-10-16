@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
+import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -33,13 +35,11 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
-      path: "/chartofaccounts",
     },
     {
       title: "Event Logs",
       description: "View system activity and changes",
       icon: "📈",
-      path: "/eventlog",
     },
     {
       title: "Reports",
@@ -74,6 +74,7 @@ export default function Manager({ setIsLoggedIn }) {
 
   return (
     <div className="dashboard-container">
+      <HelpButton />
       {/* Header */}
       <header className="dashboard-header">
         <div className="header-top">
@@ -101,6 +102,10 @@ export default function Manager({ setIsLoggedIn }) {
 
         {/* Navigation */}
         <nav className="dashboard-nav">
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
           <button className="nav-button">👤 Accounts</button>
           <button className="nav-button">🏠 Dashboard</button>
           <button className="nav-button">📋 Chart</button>

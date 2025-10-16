@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import "./Accountview.css";
 import logo from "../assets/sweetledger.jpeg";
+import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 
 export default function Accountview() {
   const [users, setUsers] = useState([]);
@@ -45,6 +47,7 @@ export default function Accountview() {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       {/* ===== Header Section ===== */}
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -70,6 +73,20 @@ export default function Accountview() {
           </div>
         </div>
       </div>
+      {/* Navigation */}
+        <nav className="dashboard-nav" style={{ backgroundColor: '#edededff' }}>
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() =>navigate('/AccountView')}>👤 Accounts</button>
+          <button className="nav-button">🏠 Dashboard</button>
+          <button className="nav-button">📋 Chart</button>
+          <button className="nav-button">📝 Event Log</button>
+          <button className="nav-button">📖 Journal</button>
+        </nav>
+
+    
 
       {/* ===== Main Content ===== */}
       <div className="admin-content">

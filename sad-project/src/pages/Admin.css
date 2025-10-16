@@ -111,6 +111,34 @@
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+.tooltiptext {
+  visibility: hidden; /* Hidden by default */
+  opacity: 0;
+  background-color: #d0d0d0bb;
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  padding: 5px 10px;
+  border-radius: 10px;
+  position: absolute;
+  top: 125%;
+  left: 50%;
+  min-width: 50px;
+  transform: translateX(-50%); /* Center the tooltip */
+  transition: opacity 0.3s; /* Smooth transition for appearance */
+}
+
+.button-container:hover .tooltiptext {
+  visibility: visible; /* Show on hover */
+  opacity: 1;
+}
+
+.button-container
+{
+  position: relative; 
+  display: inline-block;
+}
+
 .date-display {
   margin-left: auto;
   color: #7F8C8D;
