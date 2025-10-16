@@ -95,6 +95,23 @@
   line-height: 1.6;
 }
 
+/* ===== Search Bar Styling ===== */
+.MuiTextField-root {
+  background-color: #fff;
+}
+
+.MuiOutlinedInput-root {
+  border-radius: 8px !important;
+}
+
+.MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+  border-color: #f7941d !important;
+}
+
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #f7941d !important;
+}
+
 /* ===== Account List Items ===== */
 .account-list {
   margin-top: 2rem;
@@ -147,6 +164,25 @@
   border-radius: 6px;
 }
 
+/* ===== No Results Message ===== */
+.no-results {
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  background-color: #fafafa;
+  margin-top: 1rem;
+}
+
+/* ===== Results Count ===== */
+.results-count {
+  margin-bottom: 1rem;
+  color: #666;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
 /* ===== Buttons ===== */
 .btn {
   background-color: #f7941d !important;
@@ -155,6 +191,7 @@
   border-radius: 8px !important;
   text-transform: none !important;
   padding: 8px 18px !important;
+  transition: all 0.2s ease-in-out !important;
 }
 
 .btn:hover {
@@ -204,6 +241,7 @@
 
 .MuiDialogActions-root {
   padding: 1rem 1.5rem !important;
+  gap: 0.5rem;
 }
 
 /* ===== Table Styling ===== */
@@ -218,13 +256,53 @@
 .MuiTableCell-head {
   font-weight: 600 !important;
   color: #2c3e50 !important;
+  font-size: 0.95rem !important;
+}
+
+.MuiTableCell-body {
+  color: #333 !important;
+  font-size: 0.9rem !important;
 }
 
 .MuiTableRow-root:hover {
   background-color: #fafafa;
-/* Tooltip container */
+}
+
+/* ===== Details Table Styling ===== */
+.MuiTableBody-root .MuiTableRow-root .MuiTableCell-root:first-child {
+  font-weight: 600;
+  color: #2c3e50;
+  background-color: #f8f9fa;
+  width: 40%;
+}
+
+/* ===== Badge Styling ===== */
+.account-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-category {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-balance {
+  background-color: #f3e5f5;
+  color: #6a1b9a;
+}
+
+.badge-statement {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ===== Tooltip container ===== */
 .tooltiptext {
-  visibility: hidden; /* Hidden by default */
+  visibility: hidden;
   opacity: 0;
   background-color: #d0d0d0bb;
   color: #fff;
@@ -236,18 +314,78 @@
   top: 125%;
   left: 50%;
   min-width: 50px;
-  transform: translateX(-50%); /* Center the tooltip */
-  transition: opacity 0.3s; /* Smooth transition for appearance */
-}
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
+  z-index: 1000;
 }
 
 .button-container:hover .tooltiptext {
-  visibility: visible; /* Show on hover */
+  visibility: visible;
   opacity: 1;
 }
 
-.button-container
-{
-  position: relative; 
+.button-container {
+  position: relative;
   display: inline-block;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-actions button {
+    width: 100%;
+  }
+
+  .admin-section {
+    padding: 1.5rem;
+    width: 98%;
+  }
+
+  .account-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .MuiDialog-paper {
+    margin: 1rem;
+    max-width: calc(100% - 2rem) !important;
+  }
+}
+
+/* ===== Loading State ===== */
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* ===== Error Message ===== */
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #c62828;
+}
+
+/* ===== Success Message ===== */
+.success-message {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border-left: 4px solid #2e7d32;
 }
