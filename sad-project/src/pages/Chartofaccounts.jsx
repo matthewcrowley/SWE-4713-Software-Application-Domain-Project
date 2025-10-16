@@ -3,9 +3,11 @@ import {
   Button, TextField, Dialog, DialogTitle, DialogContent, 
   DialogActions, Table, TableHead, TableBody, TableRow, TableCell 
 } from '@mui/material';
-import './eventlog.css';
+import './chartofaccounts.css';
 import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -73,32 +75,34 @@ const Chartofaccounts = () => {
     <div className="admin-container">
       {/* ===== Header ===== */}
       <header className="admin-header">
-        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
-        <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
-            style={{ height: '50px', width: '50px', objectFit: 'contain' }} 
+            className="header-logo"
           />
           <h1 className="admin-title">Chart of Accounts</h1>
         </div>
 
-        <div className="header-actions">
-          <Button 
-            className="back-to-dashboard-btn" 
-            onClick={handleBackToDashboard}
-            variant="outlined"
-          >
-            Back to Dashboard
-          </Button>
-          <Button 
-            className="generate-report-btn" 
-            onClick={handleGenerateReport}
-            variant="contained"
-          >
-            View All Accounts Report
-          </Button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <Calendar />
+          <div className="header-actions">
+            <Button 
+              className="back-to-dashboard-btn" 
+              onClick={handleBackToDashboard}
+              variant="outlined"
+            >
+              Back to Dashboard
+            </Button>
+            <Button 
+              className="generate-report-btn" 
+              onClick={handleGenerateReport}
+              variant="contained"
+            >
+              View All Accounts Report
+            </Button>
+            <HelpButton />
+          </div>
         </div>
       </header>
 

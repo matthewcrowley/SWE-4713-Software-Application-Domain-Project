@@ -15,6 +15,12 @@
   border-bottom: 2px solid #eee;
 }
 
+.header-logo {
+  height: 50px;
+  width: 50px;
+  object-fit: contain;
+}
+
 .admin-title {
   font-size: 1.75rem;
   font-weight: 700;
@@ -64,14 +70,6 @@
   color: #fff !important;
 }
 
-.profile-pic {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 1rem;
-}
-
 /* ===== Section Container ===== */
 .admin-section {
   background-color: #fff;
@@ -112,77 +110,6 @@
   border-color: #f7941d !important;
 }
 
-/* ===== Account List Items ===== */
-.account-list {
-  margin-top: 2rem;
-}
-
-.account-item {
-  padding: 1.25rem;
-  margin: 0.75rem 0;
-  border: 2px solid #e0e0e0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  background-color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #000 !important;
-  font-size: 1rem;
-}
-
-.account-item:hover {
-  background-color: #fff8f0;
-  border-color: #f7941d;
-  box-shadow: 0 4px 12px rgba(247, 148, 29, 0.15);
-  transform: translateY(-2px);
-}
-
-.account-item strong {
-  color: #000 !important;
-  font-size: 1.1rem;
-  margin-right: 0.5rem;
-}
-
-.account-item span {
-  color: #000 !important;
-}
-
-.account-item-info {
-  color: #000 !important;
-  font-size: 1rem;
-  font-weight: 500;
-}
-
-.account-item-type {
-  color: #000 !important;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0.35rem 0.85rem;
-  background-color: #e8e8e8;
-  border-radius: 6px;
-}
-
-/* ===== No Results Message ===== */
-.no-results {
-  padding: 2rem;
-  text-align: center;
-  color: #666;
-  border: 1px dashed #ddd;
-  border-radius: 8px;
-  background-color: #fafafa;
-  margin-top: 1rem;
-}
-
-/* ===== Results Count ===== */
-.results-count {
-  margin-bottom: 1rem;
-  color: #666;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
 /* ===== Buttons ===== */
 .btn {
   background-color: #f7941d !important;
@@ -204,23 +131,6 @@
 
 .btn.cancel:hover {
   background-color: #7e7e7e !important;
-}
-
-/* ===== Back Button ===== */
-.back-btn {
-  border: 2px solid #f7941d !important;
-  color: #f7941d !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  padding: 8px 18px !important;
-  background-color: #fff !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-.back-btn:hover {
-  background-color: #f7941d !important;
-  color: #fff !important;
 }
 
 /* ===== Dialog Styling ===== */
@@ -268,67 +178,6 @@
   background-color: #fafafa;
 }
 
-/* ===== Details Table Styling ===== */
-.MuiTableBody-root .MuiTableRow-root .MuiTableCell-root:first-child {
-  font-weight: 600;
-  color: #2c3e50;
-  background-color: #f8f9fa;
-  width: 40%;
-}
-
-/* ===== Badge Styling ===== */
-.account-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.badge-category {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-
-.badge-balance {
-  background-color: #f3e5f5;
-  color: #6a1b9a;
-}
-
-.badge-statement {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-/* ===== Tooltip container ===== */
-.tooltiptext {
-  visibility: hidden;
-  opacity: 0;
-  background-color: #d0d0d0bb;
-  color: #fff;
-  font-size: 12px;
-  text-align: center;
-  padding: 5px 10px;
-  border-radius: 10px;
-  position: absolute;
-  top: 125%;
-  left: 50%;
-  min-width: 50px;
-  transform: translateX(-50%);
-  transition: opacity 0.3s;
-  z-index: 1000;
-}
-
-.button-container:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}
-
-.button-container {
-  position: relative;
-  display: inline-block;
-}
-
 /* ===== Responsive Design ===== */
 @media (max-width: 768px) {
   .admin-header {
@@ -348,12 +197,6 @@
   .admin-section {
     padding: 1.5rem;
     width: 98%;
-  }
-
-  .account-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
   }
 
   .MuiDialog-paper {
