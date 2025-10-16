@@ -25,6 +25,8 @@ import {
 import defaultProfile from "../assets/defaultprofile.png";
 import "./accountmanagement.css";
 import { useNavigate } from "react-router-dom";
+import HelpButton from "../components/HelpButton";
+import Calendar from "../components/Calendar";
 import logo from "../assets/sweetledger.jpeg";
 
 export default function AccountManagement() {
@@ -443,12 +445,11 @@ export default function AccountManagement() {
     <Box className="admin-container">
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
-        <Box display="flex" alignItems="center" gap={2}>
-          <img src={logo} alt="Sweet Ledger Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
-          <Typography variant="h5" className="admin-title">
-            Administrator Account Management
-          </Typography>
-        </Box>
+        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+        <Calendar />
+        <Typography variant="h5" className="admin-title">
+          Administrator Account Management
+        </Typography>
         <Box display="flex" alignItems="center" gap={2}>
           <Button
             variant="outlined"

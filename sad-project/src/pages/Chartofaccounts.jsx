@@ -73,6 +73,8 @@ const Chartofaccounts = () => {
     <div className="admin-container">
       {/* ===== Header ===== */}
       <header className="admin-header">
+        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+        <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img 
             src={logo} 
