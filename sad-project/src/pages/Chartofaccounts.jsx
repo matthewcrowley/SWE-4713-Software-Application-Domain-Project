@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import './eventlog.css';
 import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
@@ -8,25 +8,17 @@ const Chartofaccounts = () => {
   const navigate = useNavigate();
 
   // ===== State Variables =====
-  const [accounts, setAccounts] = useState([]);     // Real data from backend
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredAccounts, setFilteredAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [openReport, setOpenReport] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
 
-  // ===== Fetch Accounts from MongoDB Backend =====
-  useEffect(() => {
-    fetch('/api/accounts') // Hopefully this in our backend
-      .then(res => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        return res.json();
-      })
-      .then(data => {
-        setAccounts(data);
-      })
-      .catch(err => console.error('Error loading accounts:', err));
-  }, []);
+  // ===== Hard-coded accounts data =====
+  const accounts = [
+    { id: '1001', number: '1001', name: 'Cash', type: 'Asset', balance: 10000 },
+    { id: '2001', number: '2001', name: 'Accounts Receivable', type: 'Asset', balance: 5000 },
+    { id: '3001', number: '3001', name: 'Revenue', type: 'Income', balance: 15000 },
+    { id: '4001', number: '4001', name: 'Expenses', type: 'Expense', balance: 3000 },
+  ];
 
   // ===== Handlers =====
   const handleBackToDashboard = () => {
@@ -34,19 +26,21 @@ const Chartofaccounts = () => {
   };
 
   const handleGenerateReport = () => {
-    // Generate report logic
+    setOpenReport(true);
     console.log('Generating report...');
   };
 
-  const accounts = [
-    { id: '1001', name: 'Cash' },
-    { id: '2001', name: 'Accounts Receivable' },
-    { id: '3001', name: 'Revenue' },
-    { id: '4001', name: 'Expenses' },
-  ];
+  const handleCloseReport = () => {
+    setOpenReport(false);
+  };
 
-  const handleAccountClick = (accountId) => {
-    navigate(`/ledger/${accountId}`);
+  const handleCloseDetails = () => {
+    setOpenDetails(false);
+  };
+
+  const handleAccountClick = (account) => {
+    setSelectedAccount(account);
+    setOpenDetails(true);
   };
 
   return (
@@ -84,6 +78,29 @@ const Chartofaccounts = () => {
       <div className="admin-section">
         <h2>Chart of Accounts</h2>
         <p>Manage your accounts here.</p>
+        
+        {/* Account List */}
+        <div style={{ marginTop: '2rem' }}>
+          {accounts.map((account) => (
+            <div 
+              key={account.id}
+              style={{
+                padding: '1rem',
+                margin: '0.5rem 0',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s',
+                color: '#000'
+              }}
+              onClick={() => handleAccountClick(account)}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+            >
+              <strong>{account.number}</strong> - {account.name} ({account.type})
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ===== All Accounts Report Dialog ===== */}
