@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import './eventlog.css';
-
+import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
@@ -49,6 +49,7 @@ const Chartofaccounts = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
+        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
         <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Chart of Accounts</h1>
