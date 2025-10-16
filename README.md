@@ -1,7 +1,7 @@
 # Sweetledger - Kennesaw State University - Software Application Domain
 Welcome to our Sweetledger repository for our Software Application Domain semester project at Kennesaw State University. Here you will find all of the source code for Sweetledger, and this README contains information about what Sweetledger is, the group members that created it, along with all of the documentation pertaining to this system.
 
-WORK IN PROGRESS - CURRENT STAGE: Sprint 1 - Chart of Accounts and Event Log Module
+WORK IN PROGRESS - CURRENT STAGE: Sprint 2 - Chart of Accounts and Event Log Module
 
 ## Table of Contents
 - [Team Members](#team-members)
