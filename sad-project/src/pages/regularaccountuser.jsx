@@ -35,11 +35,13 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
+      path: "/ChartofAccounts",
     },
     {
       title: "Event Logs",
       description: "View system activity and changes",
       icon: "📈",
+      path: "/EventLog",
     },
     {
       title: "Reports",

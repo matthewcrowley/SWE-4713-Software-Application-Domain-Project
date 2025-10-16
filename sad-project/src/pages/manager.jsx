@@ -29,17 +29,19 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Account Management",
       description: "Add, view, edit, or deactivate accounts",
       icon: "👥",
-      path: "/Accountview", // Added path for navigation
+      path: "/Accountview",
     },
     {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
+      path: "/ChartofAccounts", 
     },
     {
       title: "Event Logs",
       description: "View system activity and changes",
       icon: "📈",
+      path: "/EventLog",
     },
     {
       title: "Reports",
