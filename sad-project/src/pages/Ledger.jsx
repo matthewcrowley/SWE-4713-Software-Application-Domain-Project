@@ -7,7 +7,7 @@ const Ledger = () => {
   return (
     <div>
       <h1>Ledger for Account: {accountId}</h1>
-      <p>Here you would show the ledger entries for account {accountId}.</p>
+      <p>Here you would show the ledger entries for the account: {accountId}.</p>
     </div>
   );
 };

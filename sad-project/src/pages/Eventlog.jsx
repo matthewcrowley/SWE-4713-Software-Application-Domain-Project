@@ -3,25 +3,14 @@ import { Button } from '@mui/material';
 import './eventlog.css';
 
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
 
 const Eventlog = () => {
   const navigate = useNavigate();
 
   const handleBackToDashboard = () => {
-    // Get the user role from sessionStorage
-    const userRole = sessionStorage.getItem('userRole');
-    
-    // Navigate based on role
-    if (userRole === 'administrator') {
-      navigate('/administrator');
-    } else if (userRole === 'manager') {
-      navigate('/manager');
-    } else if (userRole === 'regularuser') {
-      navigate('/regularaccountuser');
-    } else {
-      // Default fallback to administrator if no role found
-      navigate('/administrator');
-    }
+    navigate('/administrator');
   };
 
   const handleGenerateReport = () => {
@@ -31,7 +20,9 @@ const Eventlog = () => {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       <header className="admin-header">
+        <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Event Log</h1>
         </div>

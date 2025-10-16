@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import './eventlog.css';
-import logo from "../assets/sweetledger.jpeg";
+
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -45,17 +47,13 @@ const Chartofaccounts = () => {
 
   return (
     <div className="admin-container">
-      {/* ===== Header ===== */}
+      <HelpButton />
       <header className="admin-header">
+        <Calendar />
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img 
-            src={logo} 
-            alt="Sweet Ledger Logo" 
-            style={{ height: '50px', width: '50px', objectFit: 'contain' }} 
-          />
           <h1 className="admin-title">Chart of Accounts</h1>
         </div>
-
+        
         <div className="header-actions">
           <Button 
             className="back-to-dashboard-btn" 
@@ -69,12 +67,11 @@ const Chartofaccounts = () => {
             onClick={handleGenerateReport}
             variant="contained"
           >
-            View All Accounts Report
+            Generate Expired Passwords Report
           </Button>
         </div>
       </header>
 
-      {/* ===== Main Section ===== */}
       <div className="admin-section">
         <h2>Chart of Accounts</h2>
         <p>Manage your accounts here.</p>
@@ -102,56 +99,6 @@ const Chartofaccounts = () => {
           ))}
         </div>
       </div>
-
-      {/* ===== All Accounts Report Dialog ===== */}
-      <Dialog open={openReport} onClose={handleCloseReport} maxWidth="md" fullWidth>
-        <DialogTitle>All Accounts Report</DialogTitle>
-        <DialogContent>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell><strong>Account Number</strong></TableCell>
-                <TableCell><strong>Account Name</strong></TableCell>
-                <TableCell><strong>Type</strong></TableCell>
-                <TableCell><strong>Balance</strong></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {accounts.map((acc, index) => (
-                <TableRow key={index}>
-                  <TableCell>{acc.number}</TableCell>
-                  <TableCell>{acc.name}</TableCell>
-                  <TableCell>{acc.type}</TableCell>
-                  <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseReport} className="btn cancel">Close</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* ===== Individual Account Details Dialog ===== */}
-      <Dialog open={openDetails} onClose={handleCloseDetails}>
-        <DialogTitle>Account Details</DialogTitle>
-        <DialogContent>
-          {selectedAccount && (
-            <div style={{ lineHeight: '1.8' }}>
-              <p><strong>Account Number:</strong> {selectedAccount.number}</p>
-              <p><strong>Account Name:</strong> {selectedAccount.name}</p>
-              <p><strong>Type:</strong> {selectedAccount.type}</p>
-              <p><strong>Current Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Status:</strong> Active</p>
-              <p><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
-            </div>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDetails} className="btn cancel">Close</Button>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 };
