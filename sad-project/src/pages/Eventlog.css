@@ -162,3 +162,7 @@
   position: relative; 
   display: inline-block;
 }
+
+.eventlog-table {
+  color: black;
+}
