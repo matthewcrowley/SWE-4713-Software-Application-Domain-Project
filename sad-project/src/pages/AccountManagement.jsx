@@ -9,12 +9,23 @@ import {
   MenuItem,
   Select,
   Grid,
+  Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
 } from "@mui/material";
 import defaultProfile from "../assets/defaultprofile.png";
 import "./accountmanagement.css";
 import { useNavigate } from "react-router-dom";
-import HelpButton from "../components/HelpButton";
-import Calendar from "../components/Calendar";
+import logo from "../assets/sweetledger.jpeg";
 
 export default function AccountManagement() {
   const [users, setUsers] = useState([]);
@@ -25,6 +36,42 @@ export default function AccountManagement() {
     username: "",
     email: "",
     role: "User",
+  });
+
+  // New state for creating users
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [createUserForm, setCreateUserForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    role: "User",
+  });
+
+  // New state for user reports
+  const [showUserReport, setShowUserReport] = useState(false);
+  const [userReportData, setUserReportData] = useState([]);
+
+  // New state for suspension
+  const [showSuspendDialog, setShowSuspendDialog] = useState(false);
+  const [suspendUser, setSuspendUser] = useState(null);
+  const [suspendForm, setSuspendForm] = useState({
+    startDate: "",
+    expiryDate: "",
+    reason: "",
+  });
+
+  // New state for expired passwords report
+  const [showExpiredPasswordsReport, setShowExpiredPasswordsReport] = useState(false);
+  const [expiredPasswordsData, setExpiredPasswordsData] = useState([]);
+
+  // New state for email dialog
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [emailForm, setEmailForm] = useState({
+    userId: "",
+    username: "",
+    email: "",
+    subject: "",
+    message: "",
   });
 
   const [accounts, setAccounts] = useState([]);
@@ -152,6 +199,188 @@ export default function AccountManagement() {
     }
   };
 
+  // Handle create user form changes
+  const handleCreateUserChange = (e) => {
+    setCreateUserForm({ ...createUserForm, [e.target.name]: e.target.value });
+  };
+
+  // Create new user
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+    
+    if (!createUserForm.username || !createUserForm.email || !createUserForm.password) {
+      setMessage("Please fill in all required fields");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...createUserForm,
+          active: true,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers([...users, { ...createUserForm, id: data.userId, active: true }]);
+        setMessage(`User ${createUserForm.username} created successfully with role ${createUserForm.role}`);
+        setCreateUserForm({
+          username: "",
+          email: "",
+          password: "",
+          role: "User",
+        });
+        setShowCreateUser(false);
+      } else {
+        setMessage("Failed to create user: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error creating user:", error);
+      setMessage("Server error while creating user.");
+    }
+  };
+
+  // Generate User Report
+  const generateUserReport = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/users/report");
+      const data = await response.json();
+      
+      if (data.success) {
+        setUserReportData(data.users);
+        setShowUserReport(true);
+      } else {
+        setMessage("Failed to generate user report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setMessage("Server error while generating report.");
+    }
+  };
+
+  // Open suspend dialog
+  const openSuspendDialog = (user) => {
+    setSuspendUser(user);
+    setSuspendForm({
+      startDate: new Date().toISOString().split('T')[0],
+      expiryDate: "",
+      reason: "",
+    });
+    setShowSuspendDialog(true);
+  };
+
+  // Handle suspend user
+  const handleSuspendUser = async () => {
+    if (!suspendForm.expiryDate) {
+      setMessage("Please select an expiry date");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/users/${suspendUser.id}/suspend`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(suspendForm),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u.id === suspendUser.id
+              ? { ...u, suspended: true, suspendedUntil: suspendForm.expiryDate }
+              : u
+          )
+        );
+        setMessage(`User ${suspendUser.username} suspended until ${suspendForm.expiryDate}`);
+        setShowSuspendDialog(false);
+        setSuspendUser(null);
+      } else {
+        setMessage("Failed to suspend user: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error suspending user:", error);
+      setMessage("Server error while suspending user.");
+    }
+  };
+
+  // Generate Expired Passwords Report
+  const generateExpiredPasswordsReport = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/users/expired-passwords");
+      const data = await response.json();
+      
+      if (data.success) {
+        if (data.users.length === 0) {
+          setMessage("No users with expired passwords found");
+        } else {
+          setExpiredPasswordsData(data.users);
+          setShowExpiredPasswordsReport(true);
+        }
+      } else {
+        setMessage("Failed to generate expired passwords report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setMessage("Server error while generating report.");
+    }
+  };
+
+  // Open email dialog
+  const openEmailDialog = (user) => {
+    setEmailForm({
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      subject: "",
+      message: "",
+    });
+    setShowEmailDialog(true);
+  };
+
+  // Send email
+  const handleSendEmail = async () => {
+    if (!emailForm.subject || !emailForm.message) {
+      setMessage("Please fill in subject and message");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailForm),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`Email sent successfully to ${emailForm.username}`);
+        setShowEmailDialog(false);
+        setEmailForm({
+          userId: "",
+          username: "",
+          email: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        setMessage("Failed to send email: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setMessage("Server error while sending email.");
+    }
+  };
+
   const handleAccountChange = (e) => {
     const { name, value } = e.target;
     const moneyFields = ["initialBalance", "debit", "credit", "balance"];
@@ -212,13 +441,14 @@ export default function AccountManagement() {
 
   return (
     <Box className="admin-container">
-      <HelpButton />
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
-        <Calendar />
-        <Typography variant="h5" className="admin-title">
-          Administrator Account Management
-        </Typography>
+        <Box display="flex" alignItems="center" gap={2}>
+          <img src={logo} alt="Sweet Ledger Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
+          <Typography variant="h5" className="admin-title">
+            Administrator Account Management
+          </Typography>
+        </Box>
         <Box display="flex" alignItems="center" gap={2}>
           <Button
             variant="outlined"
@@ -230,9 +460,16 @@ export default function AccountManagement() {
           <Button
             variant="contained"
             className="btn"
-            onClick={() => setMessage("No Current Expired Passwords")}
+            onClick={generateUserReport}
           >
-            Generate Expired Passwords Report
+            View All Users Report
+          </Button>
+          <Button
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}
+          >
+            Expired Passwords Report
           </Button>
           <Avatar src={defaultProfile} alt="Profile" />
         </Box>
@@ -242,9 +479,85 @@ export default function AccountManagement() {
       <Box className="admin-content">
         {/* ========== USER MANAGEMENT ========== */}
         <Paper elevation={1} className="admin-section">
-          <Typography variant="h6" gutterBottom>
-            User Management
-          </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+            <Typography variant="h6">
+              User Management
+            </Typography>
+            <Button
+              className="btn"
+              onClick={() => setShowCreateUser(!showCreateUser)}
+            >
+              {showCreateUser ? "Cancel" : "Create New User"}
+            </Button>
+          </Box>
+
+          {/* Create User Form */}
+          <Collapse in={showCreateUser}>
+            <Paper elevation={2} sx={{ p: 2, mb: 3, backgroundColor: '#f5f5f5' }}>
+              <Typography variant="subtitle1" gutterBottom fontWeight="bold">
+                Create New User
+              </Typography>
+              <form onSubmit={handleCreateUser}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="username"
+                      label="Username *"
+                      value={createUserForm.username}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="email"
+                      label="Email *"
+                      type="email"
+                      value={createUserForm.email}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="password"
+                      label="Password *"
+                      type="password"
+                      value={createUserForm.password}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Select
+                      fullWidth
+                      size="small"
+                      name="role"
+                      value={createUserForm.role}
+                      onChange={handleCreateUserChange}
+                    >
+                      <MenuItem value="User">User</MenuItem>
+                      <MenuItem value="Manager">Manager</MenuItem>
+                      <MenuItem value="Admin">Admin</MenuItem>
+                    </Select>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Button className="btn" type="submit">
+                      Create User
+                    </Button>
+                  </Grid>
+                </Grid>
+              </form>
+            </Paper>
+          </Collapse>
+
+          {/* User List */}
           {loading ? (
             <Typography>Loading users...</Typography>
           ) : users.length === 0 ? (
@@ -303,12 +616,14 @@ export default function AccountManagement() {
                         u.role
                       )}
                     </td>
-                    <td
-                      className={
-                        u.active ? "status-active" : "status-inactive"
-                      }
-                    >
-                      {u.active ? "Active" : "Inactive"}
+                    <td>
+                      {u.suspended ? (
+                        <Chip label="Suspended" color="warning" size="small" />
+                      ) : (
+                        <span className={u.active ? "status-active" : "status-inactive"}>
+                          {u.active ? "Active" : "Inactive"}
+                        </span>
+                      )}
                     </td>
                     <td>
                       {editingUser === u.id ? (
@@ -345,6 +660,22 @@ export default function AccountManagement() {
                             onClick={() => toggleUserStatus(u)}
                           >
                             {u.active ? "Deactivate" : "Activate"}
+                          </Button>
+                          <Button
+                            className="btn"
+                            size="small"
+                            style={{ backgroundColor: '#ff9800' }}
+                            onClick={() => openSuspendDialog(u)}
+                          >
+                            Suspend
+                          </Button>
+                          <Button
+                            className="btn"
+                            size="small"
+                            style={{ backgroundColor: '#2196f3' }}
+                            onClick={() => openEmailDialog(u)}
+                          >
+                            Email
                           </Button>
                         </>
                       )}
@@ -453,6 +784,180 @@ export default function AccountManagement() {
 
         {message && <p className="status-message">{message}</p>}
       </Box>
+
+      {/* ========== USER REPORT DIALOG ========== */}
+      <Dialog open={showUserReport} onClose={() => setShowUserReport(false)} maxWidth="lg" fullWidth>
+        <DialogTitle>All Users Report</DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
+                  <TableCell><strong>Role</strong></TableCell>
+                  <TableCell><strong>Status</strong></TableCell>
+                  <TableCell><strong>Created Date</strong></TableCell>
+                  <TableCell><strong>Last Login</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {userReportData.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>
+                      {user.suspended ? (
+                        <Chip label="Suspended" color="warning" size="small" />
+                      ) : user.active ? (
+                        <Chip label="Active" color="success" size="small" />
+                      ) : (
+                        <Chip label="Inactive" color="error" size="small" />
+                      )}
+                    </TableCell>
+                    <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                    <TableCell>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowUserReport(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== SUSPEND USER DIALOG ========== */}
+      <Dialog open={showSuspendDialog} onClose={() => setShowSuspendDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Suspend User: {suspendUser?.username}</DialogTitle>
+        <DialogContent>
+          <Box mt={2}>
+            <TextField
+              fullWidth
+              label="Start Date"
+              type="date"
+              name="startDate"
+              value={suspendForm.startDate}
+              onChange={(e) => setSuspendForm({ ...suspendForm, startDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Expiry Date *"
+              type="date"
+              name="expiryDate"
+              value={suspendForm.expiryDate}
+              onChange={(e) => setSuspendForm({ ...suspendForm, expiryDate: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Reason"
+              name="reason"
+              value={suspendForm.reason}
+              onChange={(e) => setSuspendForm({ ...suspendForm, reason: e.target.value })}
+              margin="normal"
+              multiline
+              rows={3}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowSuspendDialog(false)} className="btn cancel">
+            Cancel
+          </Button>
+          <Button onClick={handleSuspendUser} className="btn" style={{ backgroundColor: '#ff9800' }}>
+            Suspend User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
+      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Expired Passwords Report</DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
+                  <TableCell><strong>Role</strong></TableCell>
+                  <TableCell><strong>Password Age (Days)</strong></TableCell>
+                  <TableCell><strong>Last Changed</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {expiredPasswordsData.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.passwordAge}</TableCell>
+                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== SEND EMAIL DIALOG ========== */}
+      <Dialog open={showEmailDialog} onClose={() => setShowEmailDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Send Email to {emailForm.username}</DialogTitle>
+        <DialogContent>
+          <Box mt={2}>
+            <TextField
+              fullWidth
+              label="To"
+              value={emailForm.email}
+              margin="normal"
+              disabled
+            />
+            <TextField
+              fullWidth
+              label="Subject *"
+              name="subject"
+              value={emailForm.subject}
+              onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Message *"
+              name="message"
+              value={emailForm.message}
+              onChange={(e) => setEmailForm({ ...emailForm, message: e.target.value })}
+              margin="normal"
+              multiline
+              rows={6}
+              required
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowEmailDialog(false)} className="btn cancel">
+            Cancel
+          </Button>
+          <Button onClick={handleSendEmail} className="btn" style={{ backgroundColor: '#2196f3' }}>
+            Send Email
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

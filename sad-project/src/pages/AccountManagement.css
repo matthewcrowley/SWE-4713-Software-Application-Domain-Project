@@ -22,12 +22,9 @@
   margin: 0;
 }
 
-.profile-pic {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 1rem;
+/* ===== Content Area ===== */
+.admin-content {
+  padding: 1rem 0;
 }
 
 /* ===== Section Container ===== */
@@ -41,12 +38,6 @@
   max-width: 1200px;
 }
 
-.admin-section h2 {
-  color: #34495e;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-}
-
 /* ===== Buttons ===== */
 .btn {
   background-color: #f7941d !important;
@@ -55,63 +46,35 @@
   border-radius: 8px !important;
   text-transform: none !important;
   padding: 8px 18px !important;
+  transition: all 0.2s ease-in-out !important;
+  margin-right: 8px !important;
 }
 
 .btn:hover {
   background-color: #e6830c !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(247, 148, 29, 0.3) !important;
 }
 
 .btn.cancel {
   background-color: #9e9e9e !important;
 }
-
 .btn.cancel:hover {
   background-color: #7e7e7e !important;
 }
 
-/* ===== Tables ===== */
-table {
-  width: 100%;
-  border-collapse: collapse;
+.btn.deactivate {
+  background-color: #e74c3c !important;
+}
+.btn.deactivate:hover {
+  background-color: #c0392b !important;
 }
 
-th, td {
-  padding: 12px 10px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
+.btn.activate {
+  background-color: #2ecc71 !important;
 }
-
-th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-  color: #555;
-}
-
-tr:hover {
-  background-color: #fafafa;
-}
-
-/* ===== Status Labels ===== */
-.status-active {
-  color: #2ecc71;
-  font-weight: 600;
-}
-
-.status-inactive {
-  color: #e74c3c;
-  font-weight: 600;
-}
-
-/* ===== Message Box ===== */
-.status-message {
-  background: #fff8e6;
-  border-left: 5px solid #f7941d;
-  padding: 12px 18px;
-  border-radius: 8px;
-  margin-top: 25px;
-  font-weight: 500;
-  color: #444;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+.btn.activate:hover {
+  background-color: #27ae60 !important;
 }
 
 /* ===== Back Button ===== */
@@ -129,34 +92,170 @@ tr:hover {
 .back-btn:hover {
   background-color: #f7941d !important;
   color: #fff !important;
+  transform: translateY(-1px);
 }
 
-
-/* Tooltip container */
-.tooltiptext {
-  visibility: hidden; /* Hidden by default */
-  opacity: 0;
-  background-color: #d0d0d0bb;
-  color: #fff;
-  font-size: 12px;
-  text-align: center;
-  padding: 5px 10px;
-  border-radius: 10px;
-  position: absolute;
-  top: 125%;
-  left: 50%;
-  min-width: 50px;
-  transform: translateX(-50%); /* Center the tooltip */
-  transition: opacity 0.3s; /* Smooth transition for appearance */
+/* ===== Tables ===== */
+.user-table,
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
 
-.button-container:hover .tooltiptext {
-  visibility: visible; /* Show on hover */
-  opacity: 1;
+.user-table th,
+.user-table td,
+.account-table th,
+.account-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
-.button-container
-{
-  position: relative; 
-  display: inline-block;
+.user-table th,
+.account-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #555;
+  position: sticky;
+  top: 0;
+}
+
+.user-table tr:hover,
+.account-table tr:hover {
+  background-color: #fafafa;
+}
+
+/* ===== Status Labels ===== */
+.status-active {
+  color: #2ecc71;
+  font-weight: 600;
+}
+.status-inactive {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* ===== Forms ===== */
+.account-form {
+  margin: 1.5rem 0;
+}
+
+/* ===== Message Box ===== */
+.status-message {
+  background: #fff8e6;
+  border-left: 5px solid #f7941d;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-top: 25px;
+  font-weight: 500;
+  color: #444;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================
+   REPORT & DIALOG STYLING (Requirements 16–19)
+   ========================================================== */
+
+/* ===== Report Dialogs ===== */
+.MuiDialog-paper {
+  border-radius: 16px !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1) !important;
+}
+
+.MuiDialogTitle-root {
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  border-bottom: 2px solid #f7941d !important;
+  background-color: #fffaf3 !important;
+}
+
+.MuiDialogContent-root {
+  background-color: #fcfcfc !important;
+  padding: 1.5rem !important;
+}
+
+/* ===== User & Password Report Tables ===== */
+.MuiTable-root {
+  border-radius: 8px;
+  overflow: hidden;
+}
+.MuiTableHead-root th {
+  background-color: #f7941d !important;
+  color: white !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  font-size: 0.875rem !important;
+}
+.MuiTableBody-root tr:nth-child(even) {
+  background-color: #fdf6ee !important;
+}
+.MuiTableCell-root {
+  font-size: 0.9rem !important;
+  padding: 10px 12px !important;
+}
+
+/* ===== Suspend User Dialog ===== */
+.MuiDialogTitle-root:has(+ .MuiDialogContent-root input[type="date"]) {
+  background-color: #fff4e8 !important;
+  border-bottom: 2px solid #ff9800 !important;
+}
+.MuiDialogContent-root input[type="date"],
+.MuiDialogContent-root textarea {
+  border-radius: 6px !important;
+}
+.MuiDialogActions-root {
+  padding: 1rem !important;
+  background-color: #fafafa !important;
+  border-top: 1px solid #eee !important;
+}
+
+/* ===== Email Dialog ===== */
+.MuiDialogTitle-root:has(+ .MuiDialogContent-root textarea[name="message"]) {
+  background-color: #e9f4ff !important;
+  border-bottom: 2px solid #2196f3 !important;
+}
+.MuiDialogContent-root textarea {
+  background-color: #fff !important;
+  border: 1px solid #ddd !important;
+}
+.MuiDialogContent-root textarea:focus {
+  outline: none !important;
+  border-color: #2196f3 !important;
+  box-shadow: 0 0 4px rgba(33, 150, 243, 0.3) !important;
+}
+
+/* ===== Dialog Buttons ===== */
+.MuiDialogActions-root .btn {
+  margin-left: 0.5rem !important;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .admin-section {
+    padding: 1.5rem;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  .user-table,
+  .account-table {
+    font-size: 0.875rem;
+  }
+  .btn {
+    padding: 6px 12px !important;
+    font-size: 0.875rem !important;
+  }
+  .MuiDialogContent-root {
+    padding: 1rem !important;
+  }
 }
