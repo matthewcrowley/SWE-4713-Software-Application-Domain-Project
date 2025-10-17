@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 
-async function logEvent({ userId, action, collectionName, documentId, before, after, db }) {
+async function logEvent({userId, action, collectionName, documentId, before, after, db}) {
   const eventLog = {
     userId,
     timestamp: new Date(),
@@ -17,11 +17,8 @@ async function logEvent({ userId, action, collectionName, documentId, before, af
 async function updateAccount(userId, accountIdStr, updateData, db) {
   const accountId = new ObjectId(accountIdStr);
   const collection = db.collection('accounts');
-
   const before = await collection.findOne({ _id: accountId });
-
   await collection.updateOne({ _id: accountId }, { $set: updateData });
-
   const after = await collection.findOne({ _id: accountId });
 
   await logEvent({
@@ -35,4 +32,4 @@ async function updateAccount(userId, accountIdStr, updateData, db) {
   });
 }
 
-module.exports = { logEvent, updateAccount };
+module.exports = {logEvent, updateAccount};

@@ -1,7 +1,5 @@
 const express = require('express');
-
 const dbRoute = express.Router();
-
 const mailer = require('nodemailer');
 
 const transport = mailer.createTransport({

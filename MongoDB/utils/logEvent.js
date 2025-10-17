@@ -1,5 +1,4 @@
-// utils/logEvent.js
-async function logEvent(db, { userId, action, before, after }) {
+async function logEvent(db, {userId, action, before, after}) {
   await db.collection('eventlogs').insertOne({
     userId,
     action,

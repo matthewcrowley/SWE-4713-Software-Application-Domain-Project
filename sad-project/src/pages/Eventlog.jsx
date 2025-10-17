@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@mui/material';
+import React, {useState, useEffect} from 'react';
+import {Button} from '@mui/material';
 import './eventlog.css';
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
@@ -10,10 +10,8 @@ const Eventlog = () => {
   const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [sortOrder, setSortOrder] = useState('desc');
   const [sortedLogs, setSortedLogs] = useState([]);
-
   const handleBackToDashboard = () => {
     const userRole = sessionStorage.getItem('userRole');
     if (userRole === 'administrator') navigate('/administrator');
@@ -21,22 +19,20 @@ const Eventlog = () => {
     else if (userRole === 'regularuser') navigate('/regularaccountuser');
     else navigate('/administrator');
   };
-
   const handleGenerateReport = () => {
     console.log('Generating report...');
-    // You can implement report generation here
+    
   };
 
   useEffect(() => {
-    // Fetch event logs from your backend API
     fetch('http://localhost:3000/api/eventlog')
       .then((res) => res.json())
       .then((data) => {
         setLogs(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error('Failed to fetch event logs', err);
+      .catch((e) => {
+        console.error('Failed to fetch event logs', e);
         setLoading(false);
       });
   }, []);

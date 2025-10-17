@@ -16,9 +16,9 @@ function NewUser() {
     })
 
     const [message, setMessage] = useState("");
-    const navigate = useNavigate(); // navigate hook
+    const navigate = useNavigate(); // hook
 
-     //Hash password with SHA-256
+     //Hash password
   async function hashedPassword(password)
   {
     const encoder = new TextEncoder();
@@ -104,7 +104,6 @@ function NewUser() {
             setMessage("Server error. Please try again later.");
         }
 
-    // Reset form
     setFormData({
       firstName: "",
       lastName: "",

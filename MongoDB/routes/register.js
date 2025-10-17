@@ -1,7 +1,7 @@
 const express = require('express');
 const dbRoute = express.Router();
 const { getDB } = require('../db');
-const logEvent = require('../utils/logEvent'); // ✅ Make sure this is correct
+const logEvent = require('../utils/logEvent');
 
 dbRoute.post('/', async (q, r) => {
   try {
@@ -24,10 +24,8 @@ dbRoute.post('/', async (q, r) => {
       approved: false,
     };
 
-    // ✅ Insert new user into users collection
     const result = await mongoDB.collection('users').insertOne(newUser);
 
-    // ✅ Log the registration event
     await logEvent(mongoDB, {
       userId: result.insertedId,
       action: 'New user registered',
@@ -43,11 +41,10 @@ dbRoute.post('/', async (q, r) => {
       },
     });
 
-    // ✅ Respond success
     r.json({ success: true, insertedId: result.insertedId });
 
-  } catch (error) {
-    console.error('Error inserting user:', error);
+  } catch (e) {
+    console.error('Error inserting user:', e);
     r.status(500).json({ success: false, message: 'There was an error with the server.' });
   }
 });
