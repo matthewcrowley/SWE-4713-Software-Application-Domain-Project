@@ -27,7 +27,7 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Account Management",
       description: "Add, view, edit, or deactivate accounts",
       icon: "👥",
-      path: "/Accountview", // Added path for navigation
+      path: "/accountview", // Added path for navigation
     },
     {
       title: "Chart of Accounts",

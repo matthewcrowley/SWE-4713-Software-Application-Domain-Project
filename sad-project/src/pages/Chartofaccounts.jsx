@@ -17,7 +17,7 @@ const Chartofaccounts = () => {
 
   // ===== Fetch Accounts from MongoDB Backend =====
   useEffect(() => {
-    fetch('/api/accounts') // Hopefully this in our backend
+    fetch('localhost:3000/api/register') // Hopefully this in our backend
       .then(res => {
         if (!res.ok) throw new Error('Network response was not ok');
         return res.json();
@@ -38,12 +38,12 @@ const Chartofaccounts = () => {
     console.log('Generating report...');
   };
 
-  const accounts = [
+  const accounts1 = [
     { id: '1001', name: 'Cash' },
     { id: '2001', name: 'Accounts Receivable' },
     { id: '3001', name: 'Revenue' },
     { id: '4001', name: 'Expenses' },
-  ];
+];
 
   const handleAccountClick = (accountId) => {
     navigate(`/ledger/${accountId}`);

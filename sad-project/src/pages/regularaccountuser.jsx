@@ -27,7 +27,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       title: "Account Management",
       description: "view accounts",
       icon: "👥",
-      path: "/Accountview", // Added path for navigation
+      path: "/accountview", // Added path for navigation
     },
     {
       title: "Chart of Accounts",
@@ -66,7 +66,9 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   // Navigate to a service (only Account Management has a route for now)
   const handleServiceClick = (service) => {
     if (service.path) {
-      navigate(service.path);
+      navigate({pathname: service.path,
+        state: {admin: false}
+      });
     } else {
       alert(`"${service.title}" service is not available yet.`);
     }
@@ -111,7 +113,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
       {/* Main Content */}
       <main className="dashboard-main">
-        <h1 className="dashboard-title">Manager Dashboard</h1>
+        <h1 className="dashboard-title">User Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
 
         {/* Service Cards */}

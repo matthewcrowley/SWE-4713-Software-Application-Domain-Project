@@ -9,7 +9,7 @@ import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
 import AccountManagement from "./pages/accountmanagement";
-import ViewAccounts from "./pages/Accountview";
+import AccountView from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
@@ -133,7 +133,6 @@ function App() {
           onChange={e => setPassword(e.target.value)}
           data-testid="passinput"
         />
-        <Calendar/>
       </div>
 
             <button data-testid="loginbtn" className="login-button" onClick={handleLogin}>
@@ -213,9 +212,9 @@ function App() {
 
         {/* View Accounts Page (Read-Only for Regular Users) */}
         <Route
-          path="/Accountview"
+          path="/accountview"
           element={
-            isLoggedIn ? <ViewAccounts /> : <Navigate to="/" replace />
+            isLoggedIn ? <AccountView /> : <Navigate to="/" replace />
           }
         />
 

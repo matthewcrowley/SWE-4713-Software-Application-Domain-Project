@@ -6,11 +6,12 @@ import logo from "../assets/sweetledger.jpeg";
 export default function Administrator({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await fetch("/api/me");
+        const res = await fetch("localhost:3000/api/accounts");
         if (res.ok) {
           const data = await res.json();
           setCurrentUser(data);
@@ -66,7 +67,9 @@ export default function Administrator({ setIsLoggedIn }) {
   // Navigate to a service (only Account Management has a route for now)
   const handleServiceClick = (service) => {
     if (service.path) {
-      navigate(service.path);
+      navigate({pathname: service.path,
+        state: true
+      });
     } else {
       alert(`"${service.title}" service is not available yet.`);
     }

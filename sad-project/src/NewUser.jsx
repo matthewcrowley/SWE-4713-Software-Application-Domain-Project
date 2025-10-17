@@ -78,7 +78,7 @@ function NewUser() {
 
         try {
             // Send to backend
-            const response = await fetch('http://localhost:3000/api/register', {
+            const response = await fetch('localhost:3000/api/register', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({

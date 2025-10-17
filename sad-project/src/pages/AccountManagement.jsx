@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import defaultProfile from "../assets/defaultprofile.png";
 import "./accountmanagement.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/sweetledger.jpeg";
 
 export default function AccountManagement() {
@@ -37,6 +37,7 @@ export default function AccountManagement() {
     email: "",
     role: "User",
   });
+  
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -498,7 +499,7 @@ export default function AccountManagement() {
                 Create New User
               </Typography>
               <form onSubmit={handleCreateUser}>
-                <Grid container spacing={2}>
+                <Grid container spacing={ 2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -661,14 +662,14 @@ export default function AccountManagement() {
                           >
                             {u.active ? "Deactivate" : "Activate"}
                           </Button>
-                          <Button
+                          { <Button
                             className="btn"
                             size="small"
                             style={{ backgroundColor: '#ff9800' }}
                             onClick={() => openSuspendDialog(u)}
                           >
                             Suspend
-                          </Button>
+                          </Button>}
                           <Button
                             className="btn"
                             size="small"
@@ -692,7 +693,7 @@ export default function AccountManagement() {
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
-          <form className="account-form" onSubmit={handleAddAccount}>
+          { <form className="account-form" onSubmit={handleAddAccount}>
             <Grid container spacing={2}>
               {[
                 "accountName",
@@ -753,7 +754,7 @@ export default function AccountManagement() {
                 Add Account
               </Button>
             </Box>
-          </form>
+          </form> }
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
