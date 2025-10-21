@@ -50,20 +50,17 @@ const Eventlog = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
-        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
-        <Calendar />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <h1 className="admin-title">Event Log</h1>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <img 
+                  src={logo} 
+                  alt="Sweet Ledger Logo" 
+                  className="header-logo"
+                />
+                <h1 className="admin-title">Event Log</h1>
+              </div>
+        
 
         <div className="header-actions">
-          <Button
-            className="back-to-dashboard-btn"
-            onClick={handleBackToDashboard}
-            variant="outlined"
-          >
-            Back to Dashboard
-          </Button>
           <Button
             className="generate-report-btn"
             onClick={handleGenerateReport}
@@ -73,6 +70,28 @@ const Eventlog = () => {
           </Button>
         </div>
       </header>
+
+       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+        <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/administrator")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
+        </nav>
 
       <div className="admin-section">
         <h2>Event Log</h2>

@@ -300,15 +300,7 @@ const Chartofaccounts = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Calendar />
           <div className="header-actions">
-            <Button 
-              className="back-to-dashboard-btn" 
-              onClick={handleBackToDashboard}
-              variant="outlined"
-            >
-              Back to Dashboard
-            </Button>
             <Button 
               className="generate-report-btn" 
               onClick={handleGenerateReport}
@@ -321,7 +313,28 @@ const Chartofaccounts = () => {
         </div>
       </header>
 
-return (
+       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+        <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/administrator")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
+        </nav>
+
 
       {/* ===== Error Message ===== */}
       {error && (
@@ -447,9 +460,12 @@ return (
                 <th>Account Number</th>
                 <th>Account Name</th>
                 <th>Account Type</th>
-                <th>Description</th>
-                <th>Debits</th>
-                <th>Credits</th>
+                <th>Subcategory</th>
+                <th>Balance</th>
+                <th>Created By</th>
+                <th>Date Created</th>
+                <th>Comments</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -458,9 +474,12 @@ return (
                   <td>{account.account_number}</td>
                   <td>{account.account_name}</td>
                   <td>{account.type}</td>
-                  <td>{account.description}</td>
-                  <td>{account.debits}</td>
-                  <td>{account.credits}</td>
+                  <td>{account.accountSubcategory}</td>
+                  <td>{account.balance}</td>
+                  <td>{account.created_by}</td>
+                  <td>{account.date_created}</td>
+                  <td>{account.comments}</td>
+                  <td></td>
                 </tr>
               ))}
             </tbody>

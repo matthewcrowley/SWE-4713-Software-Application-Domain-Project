@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
+import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
 
 const Journal = () => {
@@ -255,18 +258,45 @@ const Journal = () => {
 
   return (
     <div className="admin-container">
+      <HelpButton />
       <div className="admin-header">
-        <h1 className="admin-title">Journal Entry Manager</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <img 
+                          src={logo} 
+                          alt="Sweet Ledger Logo" 
+                          className="header-logo"
+                        />
+                        <h1 className="admin-title">Journal Entries</h1>
+                      </div>
         <div className="header-actions">
-          <button onClick={() => navigate('/manager')} className="back-to-dashboard-btn">
-            ← Back to Dashboard
-          </button>
           <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
             <span className="btn-icon">+</span>
             New Entry
           </button>
         </div>
       </div>
+
+       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+        <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/manager")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
+        </nav>
 
       {error && (
         <div className="admin-section">
@@ -467,6 +497,7 @@ const Journal = () => {
                             step="0.01"
                           />
                         </td>
+                        
                         <td>
                           {newEntry.entries.length > 2 && (
                             <button
