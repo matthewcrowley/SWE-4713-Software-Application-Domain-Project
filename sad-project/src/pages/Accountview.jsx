@@ -9,6 +9,8 @@ export default function Accountview() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [accounts, setAccounts] = useState([]);
+  const [sortedAccounts, setSortedAccounts] = useState([]);
+  
 
   // Fetch users
   useEffect(() => {
@@ -29,17 +31,24 @@ export default function Accountview() {
 
   // Fetch accounts
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await fetch("http://localhost:3000/api/accounts");
-        const data = await response.json();
-        setAccounts(data || []);
-      } catch (error) {
-        console.error("Error fetching accounts:", error);
-      }
-    };
-    fetchAccounts();
-  }, []);
+      setLoading(true);
+      fetch('http://localhost:3000/api/accounts')
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch accounts');
+          return res.json();
+        })
+        .then(data => {
+          setAccounts(data);
+          const sorted = [...data].sort((a,b) => Number(a.account_number) - Number(b.account_number));
+          setSortedAccounts(sorted);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error('Error loading accounts:', err);
+          setError('Failed to load accounts from database');
+          setLoading(false);
+        });
+    }, []);
 
   const handleBack = () => {
     window.history.back();
@@ -131,32 +140,38 @@ export default function Accountview() {
 
         {/* ========== ACCOUNT MANAGEMENT ========== */}
         <div className="admin-section">
-          <h6 style={{ marginBottom: '16px' }}>
-            Existing Accounts
-          </h6>
-          <table className="account-table">
+        <h2>Accounts</h2>
+        <p>Manage your accounts here.</p>
+
+        {loading ? (
+          <p>Loading accounts...</p>
+        ) : sortedAccounts.length === 0 ? (
+          <p>No accounts found.</p>
+        ) : (
+          <table className="account-table" border="1" cellPadding="8" style={{color: 'black'}}>
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Number</th>
+                <th>Account Name</th>
+                <th>Account Number</th>
                 <th>Category</th>
                 <th>Balance</th>
                 <th>Statement</th>
               </tr>
             </thead>
             <tbody>
-              {accounts.map((a, i) => (
-                <tr key={i}>
-                  <td>{a.accountName}</td>
-                  <td>{a.accountNumber}</td>
-                  <td>{a.category}</td>
-                  <td>{parseFloat(a.balance).toFixed(2)}</td>
-                  <td>{a.statement}</td>
+              {sortedAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.account_name}</td>
+                  <td>{account.account_number}</td>
+                  <td>{account.type}</td>
+                  <td>{account.balance}</td>
+                  <td>{account.description}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        )}
+      </div>
 
         {message && <p className="status-message">{message}</p>}
       </div>

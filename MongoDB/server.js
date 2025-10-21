@@ -9,7 +9,6 @@ const eventLogRoutes = require('./routes/eventlog');
 const chartOfAccountsRoute = require('./routes/chartofaccounts');
 const journalEntriesRoute = require('./routes/journalentries');
 const ledgerRoutes = require('./routes/ledger');
-
 const { updateAccount } = require('./eventLogger');
 
 let db;
