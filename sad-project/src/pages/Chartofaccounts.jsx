@@ -26,6 +26,7 @@ const Chartofaccounts = () => {
   const [loading, setLoading] = useState(true);
   const [logsLoading, setLogsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [sortedAccounts, setSortedAccounts] = useState([]);
 
   // ===== Fetch Accounts from MongoDB Backend =====
   useEffect(() => {
@@ -37,6 +38,8 @@ const Chartofaccounts = () => {
       })
       .then(data => {
         setAccounts(data);
+        const sorted = [...data].sort((a,b) => Number(a.account_number) - Number(b.account_number));
+        setSortedAccounts(sorted);
         setLoading(false);
       })
       .catch(err => {
@@ -45,6 +48,7 @@ const Chartofaccounts = () => {
         setLoading(false);
       });
   }, []);
+
 
   // ===== Fetch Event Logs for Specific Account =====
   const fetchAccountEventLogs = async (accountId, accountNumber) => {
@@ -327,6 +331,8 @@ const Chartofaccounts = () => {
         </div>
       </header>
 
+return (
+
       {/* ===== Error Message ===== */}
       {error && (
         <div className="admin-section">
@@ -442,6 +448,43 @@ const Chartofaccounts = () => {
           <p>Select a filter type and enter a search term to find accounts.</p>
         )}
       </div>
+
+      <div className="admin-section">
+        <h2>Chart of Accounts</h2>
+        <p>Manage your accounts here.</p>
+
+        {loading ? (
+          <p>Loading accounts...</p>
+        ) : sortedAccounts.length === 0 ? (
+          <p>No accounts found.</p>
+        ) : (
+          <table className="account-table" border="1" cellPadding="8" style={{color: 'black'}}>
+            <thead>
+              <tr>
+                <th>Account Number</th>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th>Description</th>
+                <th>Debits</th>
+                <th>Credits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedAccounts.map((account) => (
+                <tr key={account._id}>
+                  <td>{account.account_number}</td>
+                  <td>{account.account_name}</td>
+                  <td>{account.type}</td>
+                  <td>{account.description}</td>
+                  <td>{account.debits}</td>
+                  <td>{account.credits}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+  );
 
       {/* ===== All Accounts Report Dialog ===== */}
       <Dialog open={openReport} onClose={handleCloseReport} maxWidth="lg" fullWidth>

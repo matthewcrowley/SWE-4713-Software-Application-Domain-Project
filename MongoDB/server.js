@@ -11,6 +11,7 @@ const journalEntriesRoute = require('./routes/journalentries');
 const ledgerRoutes = require('./routes/ledgerRoutes');
 
 const { updateAccount } = require('./eventLogger');
+
 let db;
 
 app.use(cors({
