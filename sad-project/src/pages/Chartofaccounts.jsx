@@ -165,6 +165,16 @@ const Chartofaccounts = () => {
     setDetailsTab(newValue);
   };
 
+  const handleAccountNameClick = (account) => {
+    // Navigate to the ledger page for this account
+    navigate(`/ledger/${account._id}`, { 
+      state: { 
+        accountNumber: account.accountNumber,
+        accountName: account.accountName 
+      } 
+    });
+  };
+
   // ===== Render Before/After Comparison =====
   const renderBeforeAfterComparison = (log) => {
     if (!log.before && log.after) {
@@ -400,7 +410,14 @@ const Chartofaccounts = () => {
                 {filteredAccounts.map((acc) => (
                   <TableRow key={acc._id}>
                     <TableCell>{acc.accountNumber}</TableCell>
-                    <TableCell>{acc.accountName}</TableCell>
+                    <TableCell>
+                      <span 
+                        onClick={() => handleAccountNameClick(acc)}
+                        className="clickable-account-name"
+                      >
+                        {acc.accountName}
+                      </span>
+                    </TableCell>
                     <TableCell>{acc.normalSide}</TableCell>
                     <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
                     <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
@@ -446,7 +463,14 @@ const Chartofaccounts = () => {
               {accounts.map((acc) => (
                 <TableRow key={acc._id}>
                   <TableCell>{acc.accountNumber}</TableCell>
-                  <TableCell>{acc.accountName}</TableCell>
+                  <TableCell>
+                    <span 
+                      onClick={() => handleAccountNameClick(acc)}
+                      className="clickable-account-name"
+                    >
+                      {acc.accountName}
+                    </span>
+                  </TableCell>
                   <TableCell>{acc.normalSide}</TableCell>
                   <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
                   <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
