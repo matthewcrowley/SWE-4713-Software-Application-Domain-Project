@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { getDB } = require('../db'); 
+const { getDB } = require('../db');
 
-// GET all accounts (Chart of Accounts)
 router.get('/', async (req, res) => {
   try {
     const db = getDB();
-
-    // Fetch all accounts from MongoDB (collection name = chartofaccounts)
-    const accounts = await db.collection('chartofaccounts').find({}).toArray();
-
-    res.json(accounts);
+    const accounts = await db.collection('chart_of_accounts')
+      .find({})
+      .sort({accountNumber: 1})
+      .toArray();
+    
+    res.status(200).json(accounts);
   } catch (err) {
-    console.error('Error fetching chart of accounts:', err);
-    res.status(500).json({ error: 'Failed to fetch accounts' });
+    console.error('Error fetching accounts:', err);
+    res.status(500).json({error: 'Failed to fetch accounts'});
   }
 });
 

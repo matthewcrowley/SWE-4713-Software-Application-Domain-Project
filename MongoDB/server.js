@@ -6,12 +6,10 @@ const registerRoutes = require('./routes/register');
 const usersRoutes = require('./routes/users');
 const emailRoutes = require('./routes/email');
 const eventLogRoutes = require('./routes/eventlog');
-
 const chartOfAccountsRoute = require('./routes/chartofaccounts');
-
 const journalEntriesRoute = require('./routes/journalentries');
-
 const { updateAccount } = require('./eventLogger');
+
 let db;
 
 app.use(cors({

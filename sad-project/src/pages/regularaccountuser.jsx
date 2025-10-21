@@ -93,7 +93,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
-                {currentUser?.username || "matthewwilliam#8"}
+                {currentUser?.username || "matthewwilliam#1"}
               </div>
               <span className="regularuser-badge">RegUser</span>
             </div>
