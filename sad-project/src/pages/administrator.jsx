@@ -108,11 +108,21 @@ export default function Administrator({ setIsLoggedIn }) {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button">🏠 Dashboard</button>
-          <button className="nav-button">👤 Accounts</button>
-          <button className="nav-button">📋 Chart</button>
-          <button className="nav-button">📝 Event Log</button>
-          <button className="nav-button">📖 Journal</button>
+          <button className="nav-button" onClick={() => navigate("/administrator")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
         </nav>
       </header>
 

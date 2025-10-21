@@ -16,9 +16,9 @@ function NewUser() {
     })
 
     const [message, setMessage] = useState("");
-    const navigate = useNavigate(); // navigate hook
+    const navigate = useNavigate(); // hook
 
-     //Hash password with SHA-256
+     //Hash password
   async function hashedPassword(password)
   {
     const encoder = new TextEncoder();
@@ -78,7 +78,6 @@ function NewUser() {
         const hashed = await hashedPassword(password);
 
         try {
-            // Send to backend
             const response = await fetch('http://localhost:3000/api/register', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -104,7 +103,6 @@ function NewUser() {
             setMessage("Server error. Please try again later.");
         }
 
-    // Reset form
     setFormData({
       firstName: "",
       lastName: "",

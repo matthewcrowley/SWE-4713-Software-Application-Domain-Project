@@ -1,11 +1,9 @@
-/* ===== Layout ===== */
 .admin-container {
   background-color: #f8f7f4;
   min-height: 100vh;
   font-family: "Inter", sans-serif;
 }
 
-/* ===== Header ===== */
 .admin-header {
   background-color: #fff;
   display: flex;
@@ -22,14 +20,12 @@
   margin: 0;
 }
 
-/* ===== Header Actions (Right Side Buttons) ===== */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* ===== Generate Report Button (Orange) ===== */
 .generate-report-btn {
   background-color: #f7941d !important;
   color: #fff !important;
@@ -46,7 +42,6 @@
   background-color: #e6830c !important;
 }
 
-/* ===== Back to Dashboard Button (Outlined Orange) ===== */
 .back-to-dashboard-btn {
   border: 2px solid #f7941d !important;
   color: #f7941d !important;
@@ -72,7 +67,6 @@
   margin-left: 1rem;
 }
 
-/* ===== Section Container ===== */
 .admin-section {
   background-color: #fff;
   border-radius: 16px;
@@ -95,7 +89,6 @@
   line-height: 1.6;
 }
 
-/* ===== Buttons ===== */
 .btn {
   background-color: #f7941d !important;
   color: #fff !important;
@@ -117,7 +110,6 @@
   background-color: #7e7e7e !important;
 }
 
-/* ===== Back Button ===== */
 .back-btn {
   border: 2px solid #f7941d !important;
   color: #f7941d !important;
@@ -134,9 +126,8 @@
   color: #fff !important;
 }
 
-/* Tooltip container */
 .tooltiptext {
-  visibility: hidden; /* Hidden by default */
+  visibility: hidden;
   opacity: 0;
   background-color: #d0d0d0bb;
   color: #fff;
@@ -148,12 +139,12 @@
   top: 125%;
   left: 50%;
   min-width: 50px;
-  transform: translateX(-50%); /* Center the tooltip */
-  transition: opacity 0.3s; /* Smooth transition for appearance */
+  transform: translateX(-50%);
+  transition: opacity 0.3s;
 }
 
 .button-container:hover .tooltiptext {
-  visibility: visible; /* Show on hover */
+  visibility: visible;
   opacity: 1;
 }
 
