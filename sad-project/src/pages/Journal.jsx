@@ -1,0 +1,621 @@
+import React, { useState, useMemo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './Journal.css';
+
+const Journal = () => {
+  const navigate = useNavigate();
+  const [chartOfAccounts, setChartOfAccounts] = useState([]);
+  const [journalEntries, setJournalEntries] = useState([]);
+  const [activeTab, setActiveTab] = useState('pending');
+  const [showNewEntry, setShowNewEntry] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState(null);
+  const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // New Entry Form State
+  const [newEntry, setNewEntry] = useState({
+    date: new Date().toISOString().split('T')[0],
+    description: '',
+    entries: [
+      { accountId: '', accountName: '', debit: '', credit: '' },
+      { accountId: '', accountName: '', debit: '', credit: '' }
+    ]
+  });
+
+  const [rejectionComment, setRejectionComment] = useState('');
+
+  // Fetch Chart of Accounts
+  useEffect(() => {
+    fetchChartOfAccounts();
+    fetchJournalEntries();
+  }, []);
+
+  const fetchChartOfAccounts = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/accounts');
+      if (!response.ok) throw new Error('Failed to fetch accounts');
+      const data = await response.json();
+      setChartOfAccounts(data);
+    } catch (err) {
+      setError('Failed to load chart of accounts: ' + err.message);
+    }
+  };
+
+  const fetchJournalEntries = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:3000/api/journal-entries');
+      if (!response.ok) throw new Error('Failed to fetch journal entries');
+      const data = await response.json();
+      setJournalEntries(data);
+    } catch (err) {
+      setError('Failed to load journal entries: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calculate totals for new entry
+  const totals = useMemo(() => {
+    const debitTotal = newEntry.entries.reduce((sum, e) => sum + (parseFloat(e.debit) || 0), 0);
+    const creditTotal = newEntry.entries.reduce((sum, e) => sum + (parseFloat(e.credit) || 0), 0);
+    return { debit: debitTotal, credit: creditTotal, balanced: debitTotal === creditTotal && debitTotal > 0 };
+  }, [newEntry.entries]);
+
+  // Filter entries by status, date, and search term
+  const filteredEntries = useMemo(() => {
+    let entries = journalEntries.filter(e => e.status === activeTab);
+    
+    // Date filter
+    if (dateFilter.start) {
+      entries = entries.filter(e => e.date >= dateFilter.start);
+    }
+    if (dateFilter.end) {
+      entries = entries.filter(e => e.date <= dateFilter.end);
+    }
+    
+    // Search filter
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      entries = entries.filter(entry => {
+        // Search in account names
+        const accountMatch = entry.entries.some(e => 
+          e.accountName?.toLowerCase().includes(search) ||
+          e.accountId?.toLowerCase().includes(search)
+        );
+        
+        // Search in amounts (debit or credit)
+        const amountMatch = entry.entries.some(e => {
+          const debitStr = e.debit ? e.debit.toString() : '';
+          const creditStr = e.credit ? e.credit.toString() : '';
+          return debitStr.includes(search) || creditStr.includes(search);
+        });
+        
+        // Search in date
+        const dateStr = new Date(entry.date).toLocaleDateString().toLowerCase();
+        const dateMatch = dateStr.includes(search);
+        
+        // Search in description or entry ID
+        const descMatch = entry.description?.toLowerCase().includes(search);
+        const idMatch = entry.journalEntryNumber?.toString().includes(search) || 
+                        entry._id?.slice(-6).toLowerCase().includes(search);
+        
+        return accountMatch || amountMatch || dateMatch || descMatch || idMatch;
+      });
+    }
+    
+    return entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+  }, [journalEntries, activeTab, dateFilter, searchTerm]);
+
+  // Handle account selection
+  const handleAccountChange = (index, accountId) => {
+    const account = chartOfAccounts.find(a => a._id === accountId || a.accountNumber === accountId);
+    const updated = [...newEntry.entries];
+    updated[index] = { 
+      ...updated[index], 
+      accountId: account?.accountNumber || accountId, 
+      accountName: account?.accountName || '' 
+    };
+    setNewEntry({ ...newEntry, entries: updated });
+  };
+
+  // Handle debit/credit input
+  const handleAmountChange = (index, field, value) => {
+    const updated = [...newEntry.entries];
+    updated[index] = { ...updated[index], [field]: value };
+    setNewEntry({ ...newEntry, entries: updated });
+  };
+
+  // Add new line
+  const addLine = () => {
+    setNewEntry({
+      ...newEntry,
+      entries: [...newEntry.entries, { accountId: '', accountName: '', debit: '', credit: '' }]
+    });
+  };
+
+  // Remove line
+  const removeLine = (index) => {
+    if (newEntry.entries.length > 2) {
+      const updated = newEntry.entries.filter((_, i) => i !== index);
+      setNewEntry({ ...newEntry, entries: updated });
+    }
+  };
+
+  // Submit new journal entry
+  const submitEntry = async () => {
+    if (!totals.balanced) {
+      alert('Journal entry must be balanced (debits must equal credits)');
+      return;
+    }
+
+    if (!newEntry.description.trim()) {
+      alert('Please enter a description');
+      return;
+    }
+
+    const filteredEntries = newEntry.entries.filter(
+      e => e.accountId && (parseFloat(e.debit) > 0 || parseFloat(e.credit) > 0)
+    );
+
+    const entryData = {
+      date: newEntry.date,
+      description: newEntry.description,
+      entries: filteredEntries,
+      status: 'pending'
+    };
+
+    try {
+      const response = await fetch('http://localhost:3000/api/journal-entries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entryData)
+      });
+
+      if (!response.ok) throw new Error('Failed to create journal entry');
+
+      await fetchJournalEntries();
+      setShowNewEntry(false);
+      setNewEntry({
+        date: new Date().toISOString().split('T')[0],
+        description: '',
+        entries: [
+          { accountId: '', accountName: '', debit: '', credit: '' },
+          { accountId: '', accountName: '', debit: '', credit: '' }
+        ]
+      });
+    } catch (err) {
+      alert('Error creating journal entry: ' + err.message);
+    }
+  };
+
+  // Approve entry
+  const approveEntry = async (entryId) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/approve`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      if (!response.ok) throw new Error('Failed to approve journal entry');
+
+      await fetchJournalEntries();
+      setSelectedEntry(null);
+    } catch (err) {
+      alert('Error approving entry: ' + err.message);
+    }
+  };
+
+  // Reject entry
+  const rejectEntry = async (entryId) => {
+    if (!rejectionComment.trim()) {
+      alert('Please enter a reason for rejection');
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/reject`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment: rejectionComment })
+      });
+
+      if (!response.ok) throw new Error('Failed to reject journal entry');
+
+      await fetchJournalEntries();
+      setSelectedEntry(null);
+      setRejectionComment('');
+    } catch (err) {
+      alert('Error rejecting entry: ' + err.message);
+    }
+  };
+
+  const StatusBadge = ({ status }) => {
+    return (
+      <span className={`status-badge status-${status}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
+  if (loading) {
+    return (
+      <div className="admin-container">
+        <div className="admin-header">
+          <h1 className="admin-title">Journal Entry Manager</h1>
+        </div>
+        <div className="admin-section">
+          <div className="loading-message">Loading journal entries...</div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="admin-container">
+      <div className="admin-header">
+        <h1 className="admin-title">Journal Entry Manager</h1>
+        <div className="header-actions">
+          <button onClick={() => navigate('/manager')} className="back-to-dashboard-btn">
+            ← Back to Dashboard
+          </button>
+          <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
+            <span className="btn-icon">+</span>
+            New Entry
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="admin-section">
+          <div className="error-message">{error}</div>
+        </div>
+      )}
+
+      <div className="admin-section">
+        {/* Tabs */}
+        <div className="tabs-container">
+          <div className="tabs-header">
+            {['pending', 'approved', 'rejected'].map(tab => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`tab-button ${activeTab === tab ? 'active' : ''}`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)} 
+                <span className="tab-count">
+                  ({journalEntries.filter(e => e.status === tab).length})
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {/* Search Bar */}
+          <div className="filter-container">
+            <span className="filter-icon">🔍</span>
+            <div className="search-wrapper">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by account name, amount, date, or description..."
+                className="form-input search-input"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="clear-search-btn"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Date Filter */}
+          <div className="filter-container">
+            <span className="filter-icon">📅</span>
+            <label className="filter-label">
+              <span>From:</span>
+              <input
+                type="date"
+                value={dateFilter.start}
+                onChange={(e) => setDateFilter({ ...dateFilter, start: e.target.value })}
+                className="date-input"
+              />
+            </label>
+            <label className="filter-label">
+              <span>To:</span>
+              <input
+                type="date"
+                value={dateFilter.end}
+                onChange={(e) => setDateFilter({ ...dateFilter, end: e.target.value })}
+                className="date-input"
+              />
+            </label>
+            {(dateFilter.start || dateFilter.end) && (
+              <button
+                onClick={() => setDateFilter({ start: '', end: '' })}
+                className="clear-filter-btn"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+
+          {/* Results Count */}
+          {(searchTerm || dateFilter.start || dateFilter.end) && (
+            <div className="results-count">
+              Showing {filteredEntries.length} of {journalEntries.filter(e => e.status === activeTab).length} entries
+            </div>
+          )}
+
+          {/* Entries List */}
+          <div className="entries-list">
+            {filteredEntries.length === 0 ? (
+              <div className="empty-state">
+                {searchTerm || dateFilter.start || dateFilter.end 
+                  ? 'No journal entries match your search criteria'
+                  : `No ${activeTab} journal entries found`
+                }
+              </div>
+            ) : (
+              filteredEntries.map(entry => (
+                <div key={entry._id} className="entry-card">
+                  <div className="entry-header">
+                    <div className="entry-info">
+                      <div className="entry-meta">
+                        <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
+                        <StatusBadge status={entry.status} />
+                        <span className="entry-date">{new Date(entry.date).toLocaleDateString()}</span>
+                      </div>
+                      <p className="entry-description">{entry.description}</p>
+                      <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedEntry(entry)}
+                      className="view-btn"
+                    >
+                      👁️ View
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* New Entry Modal */}
+      {showNewEntry && (
+        <div className="modal-overlay">
+          <div className="modal-content modal-large">
+            <div className="modal-header">
+              <h2>Create Journal Entry</h2>
+              <button onClick={() => setShowNewEntry(false)} className="close-btn">×</button>
+            </div>
+            
+            <div className="modal-body">
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Date</label>
+                  <input
+                    type="date"
+                    value={newEntry.date}
+                    onChange={(e) => setNewEntry({ ...newEntry, date: e.target.value })}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <input
+                    type="text"
+                    value={newEntry.description}
+                    onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
+                    className="form-input"
+                    placeholder="Enter description"
+                  />
+                </div>
+              </div>
+
+              <div className="journal-table-container">
+                <table className="journal-table">
+                  <thead>
+                    <tr>
+                      <th>Account</th>
+                      <th>Debit</th>
+                      <th>Credit</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {newEntry.entries.map((entry, index) => (
+                      <tr key={index}>
+                        <td>
+                          <select
+                            value={entry.accountId}
+                            onChange={(e) => handleAccountChange(index, e.target.value)}
+                            className="form-select"
+                          >
+                            <option value="">Select Account</option>
+                            {chartOfAccounts.map(acc => (
+                              <option key={acc._id} value={acc.accountNumber}>
+                                {acc.accountNumber} - {acc.accountName}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={entry.debit}
+                            onChange={(e) => handleAmountChange(index, 'debit', e.target.value)}
+                            className="form-input text-right"
+                            placeholder="0.00"
+                            step="0.01"
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="number"
+                            value={entry.credit}
+                            onChange={(e) => handleAmountChange(index, 'credit', e.target.value)}
+                            className="form-input text-right"
+                            placeholder="0.00"
+                            step="0.01"
+                          />
+                        </td>
+                        <td>
+                          {newEntry.entries.length > 2 && (
+                            <button
+                              onClick={() => removeLine(index)}
+                              className="remove-line-btn"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="totals-row">
+                      <td className="text-right"><strong>Totals:</strong></td>
+                      <td className="text-right"><strong>${totals.debit.toFixed(2)}</strong></td>
+                      <td className="text-right"><strong>${totals.credit.toFixed(2)}</strong></td>
+                      <td></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <button onClick={addLine} className="add-line-btn">
+                + Add Line
+              </button>
+
+              {!totals.balanced && totals.debit > 0 && (
+                <div className="error-message">
+                  Entry is not balanced. Debits: ${totals.debit.toFixed(2)}, Credits: ${totals.credit.toFixed(2)}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={() => setShowNewEntry(false)} className="btn cancel">
+                Cancel
+              </button>
+              <button
+                onClick={submitEntry}
+                disabled={!totals.balanced}
+                className="btn"
+              >
+                Submit for Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Entry Detail Modal */}
+      {selectedEntry && (
+        <div className="modal-overlay">
+          <div className="modal-content modal-large">
+            <div className="modal-header">
+              <div>
+                <h2>Journal Entry JE-{selectedEntry.journalEntryNumber || selectedEntry._id.slice(-6)}</h2>
+                <StatusBadge status={selectedEntry.status} />
+              </div>
+              <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); }} className="close-btn">
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div className="detail-grid">
+                <div className="detail-item">
+                  <span className="detail-label">Date:</span>
+                  <p className="detail-value">{new Date(selectedEntry.date).toLocaleDateString()}</p>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">Created By:</span>
+                  <p className="detail-value">{selectedEntry.createdBy || 'Unknown'}</p>
+                </div>
+              </div>
+
+              <div className="detail-item">
+                <span className="detail-label">Description:</span>
+                <p className="detail-value">{selectedEntry.description}</p>
+              </div>
+
+              <table className="journal-table">
+                <thead>
+                  <tr>
+                    <th>Account</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedEntry.entries.map((entry, idx) => (
+                    <tr key={idx}>
+                      <td>{entry.accountId} - {entry.accountName}</td>
+                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toFixed(2)}` : '-'}</td>
+                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toFixed(2)}` : '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {selectedEntry.status === 'rejected' && selectedEntry.comment && (
+                <div className="error-message">
+                  <strong>💬 Rejection Reason:</strong>
+                  <p>{selectedEntry.comment}</p>
+                </div>
+              )}
+
+              {selectedEntry.status === 'pending' && (
+                <div className="approval-section">
+                  <label className="form-label">
+                    Rejection Comment (required if rejecting):
+                  </label>
+                  <textarea
+                    value={rejectionComment}
+                    onChange={(e) => setRejectionComment(e.target.value)}
+                    className="form-textarea"
+                    rows="3"
+                    placeholder="Enter reason for rejection..."
+                  />
+                </div>
+              )}
+
+              {selectedEntry.status !== 'pending' && selectedEntry.reviewedAt && (
+                <div className="review-info">
+                  Reviewed by {selectedEntry.reviewedBy || 'Unknown'} on {new Date(selectedEntry.reviewedAt).toLocaleString()}
+                </div>
+              )}
+            </div>
+
+            {selectedEntry.status === 'pending' && (
+              <div className="modal-footer">
+                <button
+                  onClick={() => rejectEntry(selectedEntry._id)}
+                  className="btn reject-btn"
+                >
+                  ✕ Reject
+                </button>
+                <button
+                  onClick={() => approveEntry(selectedEntry._id)}
+                  className="btn approve-btn"
+                >
+                  ✓ Approve
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Journal;

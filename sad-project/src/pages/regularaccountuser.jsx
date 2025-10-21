@@ -52,6 +52,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       title: "Journal Entries",
       description: "Record transactions",
       icon: "➕",
+      path: "/JournalEntries",
     },
     {
       title: "Search",
