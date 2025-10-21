@@ -221,7 +221,7 @@ function App() {
         />
 
         <Route
-          path="/JournalEntries"
+          path="/journal"
           element={
             isLoggedIn ? <Journal /> : <Navigate to="/" replace />
           }

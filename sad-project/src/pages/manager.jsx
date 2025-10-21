@@ -52,7 +52,7 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Journal Entries",
       description: "Record transactions",
       icon: "➕",
-      path: "/JournalEntries",
+      path: "/journal",
     },
     {
       title: "Search",

@@ -8,6 +8,8 @@ const emailRoutes = require('./routes/email');
 const eventLogRoutes = require('./routes/eventlog');
 const chartOfAccountsRoute = require('./routes/chartofaccounts');
 const journalEntriesRoute = require('./routes/journalentries');
+const ledgerRoutes = require('./routes/ledgerRoutes');
+
 const { updateAccount } = require('./eventLogger');
 
 let db;
@@ -27,7 +29,8 @@ app.use((req, res, next) => {
 });
 app.use('/api/eventlog', eventLogRoutes);
 app.use('/api/accounts', chartOfAccountsRoute);
-app.use('/api/journal-entries', journalEntriesRoute); 
+app.use('/api/journal-entries', journalEntriesRoute);
+app.use('/api/ledger', ledgerRoutes); 
 
 connectToDB()
   .then(() => {

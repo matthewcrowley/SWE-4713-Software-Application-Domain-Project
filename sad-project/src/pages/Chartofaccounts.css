@@ -1,3 +1,24 @@
+/* ===== Clickable Account Names ===== */
+.clickable-account-name {
+  cursor: pointer;
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  position: relative;
+}
+
+.clickable-account-name:hover {
+  color: #f7941d;
+  text-decoration: underline;
+  transform: translateX(2px);
+}
+
+.clickable-account-name:active {
+  color: #e6830c;
+}
+
 /* ===== Event Logs Styles ===== */
 .event-logs-container {
   max-height: 600px;
@@ -12,7 +33,7 @@
 }
 
 .event-log-card {
-  border: 1px solid #e0e0e0;
+  border: 1px solid #eee;
   border-radius: 8px;
   padding: 1.5rem;
   background-color: #fafafa;
@@ -20,13 +41,13 @@
 }
 
 .event-log-card:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .log-header {
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e0e0e0;
+  border-bottom: 2px solid #eee;
 }
 
 .log-action {
@@ -58,10 +79,11 @@
 }
 
 .log-section {
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 1rem;
   background-color: #fff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .log-section h4 {
@@ -69,15 +91,15 @@
   font-size: 1rem;
   font-weight: 600;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #eee;
 }
 
 .log-before h4 {
-  color: #c62828;
+  color: #e74c3c;
 }
 
 .log-after h4 {
-  color: #2e7d32;
+  color: #2ecc71;
 }
 
 .log-details {
@@ -96,7 +118,7 @@
 }
 
 .changed-field {
-  background-color: #fff3cd !important;
+  background-color: #fff8e6 !important;
   border-left: 3px solid #f7941d;
 }
 
