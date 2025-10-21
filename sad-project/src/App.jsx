@@ -12,6 +12,7 @@ import AccountManagement from "./pages/AccountManagement";
 import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
+import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
 
 function App() {
@@ -216,6 +217,13 @@ function App() {
           path="/chartofaccounts"
           element={
             isLoggedIn ? <Chartofaccounts /> : <Navigate to="/" replace />
+          }
+        />
+
+        <Route
+          path="/JournalEntries"
+          element={
+            isLoggedIn ? <Journal /> : <Navigate to="/" replace />
           }
         />
       </Routes>
