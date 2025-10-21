@@ -1,5 +1,5 @@
-import React, {useState, useEffect} from 'react';
-import {Button} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Button } from '@mui/material';
 import './eventlog.css';
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
@@ -12,6 +12,7 @@ const Eventlog = () => {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState('desc');
   const [sortedLogs, setSortedLogs] = useState([]);
+
   const handleBackToDashboard = () => {
     const userRole = sessionStorage.getItem('userRole');
     if (userRole === 'administrator') navigate('/administrator');
@@ -19,11 +20,13 @@ const Eventlog = () => {
     else if (userRole === 'regularuser') navigate('/regularaccountuser');
     else navigate('/administrator');
   };
+
   const handleGenerateReport = () => {
     console.log('Generating report...');
-    
+    // You can implement report generation here
   };
 
+  // Fetch event logs from API
   useEffect(() => {
     fetch('http://localhost:3000/api/eventlog')
       .then((res) => res.json())
@@ -37,6 +40,7 @@ const Eventlog = () => {
       });
   }, []);
 
+  // Sort logs by timestamp
   useEffect(() => {
     const sorted = [...logs].sort((a, b) => {
       const timeA = new Date(a.timestamp).getTime();
@@ -55,7 +59,6 @@ const Eventlog = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 className="admin-title">Event Log</h1>
         </div>
-
         <div className="header-actions">
           <Button
             className="back-to-dashboard-btn"
@@ -76,7 +79,7 @@ const Eventlog = () => {
 
       <div className="admin-section">
         <h2>Event Log</h2>
-        <p>Manage your events here.</p>
+        <p>View all account changes, including before and after states.</p>
 
         {loading ? (
           <p>Loading event logs...</p>
@@ -107,10 +110,18 @@ const Eventlog = () => {
                   <td>{log.action}</td>
                   <td>{new Date(log.timestamp).toLocaleString()}</td>
                   <td>
-                    <pre>{JSON.stringify(log.before, null, 2)}</pre>
+                    {log.before ? (
+                      <pre>{JSON.stringify(log.before, null, 2)}</pre>
+                    ) : (
+                      <em>New Account</em>
+                    )}
                   </td>
                   <td>
-                    <pre>{JSON.stringify(log.after, null, 2)}</pre>
+                    {log.after ? (
+                      <pre>{JSON.stringify(log.after, null, 2)}</pre>
+                    ) : (
+                      <em>Deleted</em>
+                    )}
                   </td>
                 </tr>
               ))}
