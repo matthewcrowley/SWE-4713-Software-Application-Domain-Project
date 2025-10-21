@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const JournalEntry = require('../models/JournalEntry'); // Adjust path as needed
-const Account = require('../models/Account'); // Adjust path as needed
+const JournalEntry = require('../routes/journalentries'); // Adjust path as needed
+const Account = require('../routes/chartofaccounts'); // Adjust path as needed
+const { getDB } = require('../db');
+
 
 /**
  * GET /api/ledger/:accountId
