@@ -491,7 +491,7 @@ const Chartofaccounts = () => {
                   <td>{account.account_number}</td>
                   <td>{account.account_name}</td>
                   <td>{account.type}</td>
-                  <td>{account.accountSubcategory}</td>
+                  <td>{account.subcategory}</td>
                   <td>{account.balance}</td>
                   <td>{account.created_by}</td>
                   <td>{account.timestamp}</td>
@@ -524,18 +524,18 @@ const Chartofaccounts = () => {
             <TableBody>
               {accounts.map((acc) => (
                 <TableRow key={acc._id}>
-                  <TableCell>{acc.accountNumber}</TableCell>
+                  <TableCell>{acc.account_number}</TableCell>
                   <TableCell>
                     <span 
                       onClick={() => handleAccountNameClick(acc)}
                       className="clickable-account-name"
                     >
-                      {acc.accountName}
+                      {acc.account_name}
                     </span>
                   </TableCell>
-                  <TableCell>{acc.normalSide}</TableCell>
-                  <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
-                  <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
+                  <TableCell>{acc.normal_side}</TableCell>
+                  <TableCell>{acc.type || 'N/A'}</TableCell>
+                  <TableCell>{acc.subcategory || 'N/A'}</TableCell>
                   <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
                   <TableCell>{acc.isActive ? 'Active' : 'Inactive'}</TableCell>
                 </TableRow>

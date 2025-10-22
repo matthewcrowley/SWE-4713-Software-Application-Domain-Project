@@ -1,5 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import HelpButton from '../components/HelpButton';
+import Calendar from '../components/Calendar';
+import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
 
 const Journal = () => {
@@ -500,6 +503,19 @@ const Journal = () => {
                             step="0.01"
                           />
                         </td>
+                        
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
+                            onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                            className="file-input"
+                          />
+                          {entry.attachment && (
+                            <div className="file-name" style={{color: 'black !important'}}>
+                              {entry.attachment.name}
+                            </div>
+                          )}    
+
                         <td>
                           {newEntry.entries.length > 2 && (
                             <button
