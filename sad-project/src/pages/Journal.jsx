@@ -1,8 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import HelpButton from '../components/HelpButton';
-import Calendar from '../components/Calendar';
-import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
 
 const Journal = () => {
@@ -209,6 +206,12 @@ const Journal = () => {
     } catch (err) {
       alert('Error approving entry: ' + err.message);
     }
+  };
+
+  const handleFileUpload = (index, file) => {
+    const updatedEntries = [...newEntry.entries];
+    updatedEntries[index].attachment = file;
+    setNewEntry({ ...newEntry, entries: updatedEntries });
   };
 
   // Reject entry
@@ -471,8 +474,8 @@ const Journal = () => {
                           >
                             <option value="">Select Account</option>
                             {chartOfAccounts.map(acc => (
-                              <option key={acc._id} value={acc.accountNumber}>
-                                {acc.accountNumber} - {acc.accountName}
+                              <option key={acc._id} value={acc.account_number}>
+                                {acc.account_number} - {acc.account_name}
                               </option>
                             ))}
                           </select>
@@ -497,7 +500,6 @@ const Journal = () => {
                             step="0.01"
                           />
                         </td>
-                        
                         <td>
                           {newEntry.entries.length > 2 && (
                             <button

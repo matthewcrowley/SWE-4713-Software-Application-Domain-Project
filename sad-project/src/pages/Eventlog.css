@@ -148,12 +148,60 @@
   opacity: 1;
 }
 
-.button-container
-{
-  position: relative; 
+.button-container {
+  position: relative;
   display: inline-block;
 }
 
+/* Event Log Table Styling */
 .eventlog-table {
-  color: black;
+  width: 100%;
+  border-collapse: collapse;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.eventlog-table th,
+.eventlog-table td {
+  padding: 12px 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  vertical-align: top;
+}
+
+.eventlog-table th {
+  background-color: #f4f4f4;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.eventlog-table tr:nth-child(even) {
+  background-color: #fcfcfc;
+}
+
+.eventlog-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.eventlog-table pre {
+  background-color: #f7f7f7;
+  padding: 8px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  max-height: 200px;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  .eventlog-table th,
+  .eventlog-table td {
+    font-size: 0.85rem;
+    padding: 8px 6px;
+  }
+
+  .admin-section {
+    padding: 1rem;
+  }
 }
