@@ -212,6 +212,12 @@ const Journal = () => {
     }
   };
 
+  const handleFileUpload = (index, file) => {
+    const updatedEntries = [...newEntry.entries];
+    updatedEntries[index].attachment = file;
+    setNewEntry({ ...newEntry, entries: updatedEntries });
+  };
+
   // Reject entry
   const rejectEntry = async (entryId) => {
     if (!rejectionComment.trim()) {
@@ -499,6 +505,18 @@ const Journal = () => {
                           />
                         </td>
                         
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
+                            onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                            className="file-input"
+                          />
+                          {entry.attachment && (
+                            <div className="file-name" style={{color: 'black !important'}}>
+                              {entry.attachment.name}
+                            </div>
+                          )}    
+
                         <td>
                           {newEntry.entries.length > 2 && (
                             <button

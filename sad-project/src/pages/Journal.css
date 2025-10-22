@@ -729,4 +729,8 @@
   .modal-footer button {
     width: 100%;
   }
+
+  .file-name {
+  color: black !important;
+}
 }
