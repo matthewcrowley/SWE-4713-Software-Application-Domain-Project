@@ -6,6 +6,8 @@ import logo from "../assets/sweetledger.jpeg";
 export default function Regularaccountuser({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+    const data = {acctType: 'accountant'}
+
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -67,7 +69,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   const handleServiceClick = (service) => {
     if (service.path) {
       navigate({pathname: service.path,
-        state: {admin: false}
+        state: data
       });
     } else {
       alert(`"${service.title}" service is not available yet.`);

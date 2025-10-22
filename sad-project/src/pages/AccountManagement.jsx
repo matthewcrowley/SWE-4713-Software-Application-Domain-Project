@@ -447,7 +447,7 @@ export default function AccountManagement() {
         <Box display="flex" alignItems="center" gap={2}>
           <img src={logo} alt="Sweet Ledger Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
           <Typography variant="h5" className="admin-title">
-            Administrator Account Management
+            Administrator Account Management: {data.acctType}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={2}>

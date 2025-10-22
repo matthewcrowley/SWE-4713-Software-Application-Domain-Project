@@ -6,6 +6,7 @@ import logo from "../assets/sweetledger.jpeg";
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+  let data = {acctType: 'manager'}
 
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -66,7 +67,9 @@ export default function Manager({ setIsLoggedIn }) {
   // Navigate to a service (only Account Management has a route for now)
   const handleServiceClick = (service) => {
     if (service.path) {
-      navigate(service.path);
+      navigate({pathname: service.path,
+        state: data
+    });
     } else {
       alert(`"${service.title}" service is not available yet.`);
     }

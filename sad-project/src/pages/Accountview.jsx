@@ -37,7 +37,9 @@ export default function AccountView() {
     email: "",
     role: "User",
   });
-  
+  let location = useLocation();
+  const data = {acctType: 'regular'};
+  //data = location.state;
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -447,7 +449,7 @@ export default function AccountView() {
         <Box display="flex" alignItems="center" gap={2}>
           <img src={logo} alt="Sweet Ledger Logo" style={{ height: '50px', width: '50px', objectFit: 'contain' }} />
           <Typography variant="h5" className="admin-title">
-            Account Management
+            Account Management: {data.acctType}
           </Typography>
         </Box>
         <Box display="flex" alignItems="center" gap={2}>

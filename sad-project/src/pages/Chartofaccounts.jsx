@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Button } from '@mui/material';
 import './eventlog.css';
 import logo from "../assets/sweetledger.jpeg";
