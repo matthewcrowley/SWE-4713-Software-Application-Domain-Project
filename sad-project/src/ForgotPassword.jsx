@@ -2,6 +2,7 @@ import {useState} from "react";
 import"./style.css";
 import logo from "./assets/sweetledger.jpeg";
 import { useNavigate, Link } from "react-router-dom";
+import HelpButton from "./components/HelpButton";
 
 function ForgotPassword() {
     const [username, setUsername] = useState("");
@@ -77,6 +78,7 @@ function ForgotPassword() {
 
     return (
         <div className="login-container">
+            <HelpButton />
             <div className="login-card">
                 <img src={logo} alt="SweetLedger Logo" className="login-logo-img" />
                 

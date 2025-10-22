@@ -1,135 +1,223 @@
-/* ===== Layout ===== */
-.admin-container {
-  background-color: #f8f7f4;
-  min-height: 100vh;
-  font-family: "Inter", sans-serif;
+/* ===== Clickable Account Names ===== */
+.clickable-account-name {
+  cursor: pointer;
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  position: relative;
 }
 
-/* ===== Header ===== */
-.admin-header {
-  background-color: #fff;
+.clickable-account-name:hover {
+  color: #f7941d;
+  text-decoration: underline;
+  transform: translateX(2px);
+}
+
+.clickable-account-name:active {
+  color: #e6830c;
+}
+
+/* ===== Event Logs Styles ===== */
+.event-logs-container {
+  max-height: 600px;
+  overflow-y: auto;
+  padding: 1rem 0;
+}
+
+.event-logs-list {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.event-log-card {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1.5rem;
+  background-color: #fafafa;
+  transition: box-shadow 0.2s;
+}
+
+.event-log-card:hover {
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.log-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
   border-bottom: 2px solid #eee;
 }
 
-.admin-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #2c3e50;
-  margin: 0;
+.log-action {
+  color: #f7941d;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
 }
 
-/* ===== Header Actions (Right Side Buttons) ===== */
-.header-actions {
+.log-meta {
+  display: flex;
+  gap: 2rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.log-user,
+.log-timestamp {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
-/* ===== Generate Report Button (Orange) ===== */
-.generate-report-btn {
-  background-color: #f7941d !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  padding: 10px 24px !important;
-  border: none !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
+.log-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 1rem;
 }
 
-.generate-report-btn:hover {
-  background-color: #e6830c !important;
-}
-
-/* ===== Back to Dashboard Button (Outlined Orange) ===== */
-.back-to-dashboard-btn {
-  border: 2px solid #f7941d !important;
-  color: #f7941d !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  padding: 8px 22px !important;
-  background-color: #fff !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-.back-to-dashboard-btn:hover {
-  background-color: #f7941d !important;
-  color: #fff !important;
-}
-
-.profile-pic {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-left: 1rem;
-}
-
-/* ===== Section Container ===== */
-.admin-section {
+.log-section {
+  border-radius: 8px;
+  padding: 1rem;
   background-color: #fff;
-  border-radius: 16px;
-  padding: 2rem;
-  margin: 2rem auto;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
-  width: 95%;
-  max-width: 1200px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.admin-section h2 {
-  color: #34495e;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-}
-
-.admin-section p {
-  color: #666;
+.log-section h4 {
+  margin: 0 0 1rem 0;
   font-size: 1rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.log-before h4 {
+  color: #e74c3c;
+}
+
+.log-after h4 {
+  color: #2ecc71;
+}
+
+.log-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.log-details p {
+  margin: 0;
+  font-size: 0.9rem;
   line-height: 1.6;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 
-/* ===== Buttons ===== */
-.btn {
-  background-color: #f7941d !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  padding: 8px 18px !important;
+.changed-field {
+  background-color: #fff8e6 !important;
+  border-left: 3px solid #f7941d;
 }
 
-.btn:hover {
-  background-color: #e6830c !important;
+.log-details strong {
+  color: #2c3e50;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 150px;
 }
 
-.btn.cancel {
-  background-color: #9e9e9e !important;
+/* Single column layout for creation/deletion */
+.log-comparison:has(.log-section:only-child) {
+  grid-template-columns: 1fr;
 }
 
-.btn.cancel:hover {
-  background-color: #7e7e7e !important;
+/* ===== Responsive Design for Event Logs ===== */
+@media (max-width: 768px) {
+  .log-comparison {
+    grid-template-columns: 1fr;
+  }
+
+  .log-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .event-log-card {
+    padding: 1rem;
+  }
+
+  .account-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #000; /* table text color */
+  background-color: #fff; /* table background */
 }
 
-/* ===== Back Button ===== */
-.back-btn {
-  border: 2px solid #f7941d !important;
-  color: #f7941d !important;
-  font-weight: 600 !important;
-  border-radius: 8px !important;
-  text-transform: none !important;
-  padding: 8px 18px !important;
-  background-color: #fff !important;
-  transition: all 0.2s ease-in-out !important;
+.account-table th,
+.account-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  color: #000; /* explicitly set text color */
 }
 
-.back-btn:hover {
-  background-color: #f7941d !important;
-  color: #fff !important;
+.accounts-table tr:hover {
+  background-color: #e0e0e0;
+}
+
+/* Force text color to black */
+.admin-container,
+.admin-container * {
+  color: #000 !important;
+}
+
+.account-table,
+.accounttable * {
+  color: #000 !important;
+}
+
+.accounts-table,
+.accounts-table * {
+  color: #000 !important;
+}
+
+.accounts-table {
+  color: black; /* text color */
+  background-color: white; /* optional: white background */
+}
+
+/* Make sure table headers and cells inherit black text */
+.accounts-table th,
+.accounts-table td {
+  color: black;
+}
+
+/* Ensure table text is black */
+.accounts-table {
+  color: black;
+  background-color: white;
+}
+
+/* Optional: make sure individual cells inherit black color */
+.accounts-table td,
+.accounts-table th {
+  color: black;
+}
+
+/* Ensure overall background doesn’t wash out black text */
+.admin-section {
+  background-color: white;
+  color: black;
+}
+
+.account-table {
+  color: black !important;
+}
+
+.accounts-table {
+  color: black !important;
+}
 }

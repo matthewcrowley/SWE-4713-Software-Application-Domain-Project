@@ -8,12 +8,14 @@ import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
 import Regularaccountuser from "./pages/regularaccountuser";
-import AccountManagement from "./pages/accountmanagement";
+import AccountManagement from "./pages/AccountManagement";
 import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
 import Calendar from "./pages/components/Calendar";
+import Journal from './pages/Journal';
+import HelpButton from "./components/HelpButton";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -68,13 +70,10 @@ function App() {
       setIsLoggedIn(true);
 
       if (password === "Administrator#01") {
-        sessionStorage.setItem('userRole', 'administrator');
         navigate("/administrator");
       } else if (password === "Manageruser#02") {
-        sessionStorage.setItem('userRole', 'manager');
         navigate("/manager");
       } else if (password === "Accountuser#03") {
-        sessionStorage.setItem('userRole', 'regularuser');
         navigate("/regularaccountuser");
       } else {
         setIsLoggedIn(false);
@@ -92,6 +91,7 @@ function App() {
 
     return (
       <div className="login-container">
+        <HelpButton />
         <div className="login-card">
           <img src={logo} alt="SweetLedger Logo" className="login-logo-img" />
 
@@ -234,9 +234,9 @@ function App() {
         />
 
         <Route
-          path="/ledger/:accountId"
+          path="/JournalEntries"
           element={
-            isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
+            isLoggedIn ? <Journal /> : <Navigate to="/" replace />
           }
         />
       </Routes>

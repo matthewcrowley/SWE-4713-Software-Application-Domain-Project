@@ -1,7 +1,5 @@
 const express = require('express');
-
 const dbRoute = express.Router();
-
 const { getDB } = require('../db');
 
 dbRoute.post('/', async (q, r) => {
