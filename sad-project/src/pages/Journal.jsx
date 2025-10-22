@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
+import axios from 'axios';
 import './Journal.css';
 
 const Journal = () => {
@@ -471,8 +472,8 @@ const Journal = () => {
                           >
                             <option value="">Select Account</option>
                             {chartOfAccounts.map(acc => (
-                              <option key={acc._id} value={acc.accountNumber}>
-                                {acc.accountNumber} - {acc.accountName}
+                              <option key={acc._id} value={acc.account_number}>
+                                {acc.account_number} - {acc.account_name}
                               </option>
                             ))}
                           </select>
