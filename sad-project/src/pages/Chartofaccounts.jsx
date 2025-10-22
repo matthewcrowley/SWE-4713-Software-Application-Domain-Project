@@ -477,9 +477,9 @@ const Chartofaccounts = () => {
                   <td>{account.accountSubcategory}</td>
                   <td>{account.balance}</td>
                   <td>{account.created_by}</td>
-                  <td>{account.date_created}</td>
+                  <td>{account.timestamp}</td>
                   <td>{account.comments}</td>
-                  <td></td>
+                  <button style={{ backgroundColor: 'lightblue' , margin: '10px'}}>Edit</button>
                 </tr>
               ))}
             </tbody>
