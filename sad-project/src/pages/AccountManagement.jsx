@@ -799,7 +799,10 @@ export default function AccountManagement() {
                   <td>{a.account_name}</td>
                   <td>{a.type}</td>
                   <td>{a.subcategory}</td>
-                  <td style={{ textAlign: 'right' }}>${a.balance.toFixed(2)}</td>
+                  <td style={{ textAlign: 'right' }}>${a.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
                   <td>{a.createdBy}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>

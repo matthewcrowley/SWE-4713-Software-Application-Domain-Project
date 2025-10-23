@@ -485,7 +485,10 @@ const handleSave = async (accountId) => {
                     <TableCell>{acc.normal_side}</TableCell>
                     <TableCell>{acc.type || 'N/A'}</TableCell>
                     <TableCell>{acc.subcategory || 'N/A'}</TableCell>
-                    <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
+                    <TableCell style={{ textAlign: 'right' }}>${acc.balance?.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}</TableCell>
                     <TableCell>
                       <Button
                         variant="outlined"
@@ -635,7 +638,10 @@ const handleSave = async (accountId) => {
                       <td>{account.account_name}</td>
                       <td>{account.type}</td>
                       <td>{account.subcategory}</td>
-                      <td style={{ textAlign: 'right' }}>${account.balance.toFixed(2)}</td>
+                      <td style={{ textAlign: 'right' }}>${account.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
                       <td>{account.created_by}</td>
                       <td>{account.timestamp}</td>
                       <td>{account.comments}</td>
@@ -690,7 +696,10 @@ const handleSave = async (accountId) => {
                   <TableCell>{acc.normal_side}</TableCell>
                   <TableCell>{acc.type || 'N/A'}</TableCell>
                   <TableCell>{acc.subcategory || 'N/A'}</TableCell>
-                  <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
+                  <TableCell style={{ textAlign: 'right', marginLeft: '40px' }}>${acc.balance?.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}</TableCell>
                   <TableCell>{acc.isActive ? 'Active' : 'Inactive'}</TableCell>
                 </TableRow>
               ))}

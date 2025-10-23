@@ -170,7 +170,10 @@ export default function Accountview() {
                   <td>{account.account_number}</td>
                   <td>{account.type}</td>
                   <td>{account.subcategory}</td>
-                  <td style={{ textAlign: 'right' }}>${account.balance.toFixed(2)}</td>
+                  <td style={{ textAlign: 'right' }}>${account.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
                   <td>{account.description}</td>
                 </tr>
               ))}
