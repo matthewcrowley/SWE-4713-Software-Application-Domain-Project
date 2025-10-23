@@ -158,6 +158,7 @@ export default function Accountview() {
                 <th>Account Name</th>
                 <th>Account Number</th>
                 <th>Category</th>
+                <th>Subcategory</th>
                 <th>Balance</th>
                 <th>Statement</th>
               </tr>
@@ -168,6 +169,7 @@ export default function Accountview() {
                   <td>{account.account_name}</td>
                   <td>{account.account_number}</td>
                   <td>{account.type}</td>
+                  <td>{account.subcategory}</td>
                   <td>{account.balance}</td>
                   <td>{account.description}</td>
                 </tr>

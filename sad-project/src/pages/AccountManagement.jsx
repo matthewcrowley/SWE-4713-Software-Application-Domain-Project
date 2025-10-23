@@ -795,13 +795,13 @@ export default function AccountManagement() {
             <tbody>
               {accounts.map((a, i) => (
                 <tr key={i}>
-                  <td>{a.accountNumber}</td>
-                  <td>{a.accountName}</td>
-                  <td>{a.category}</td>
+                  <td>{a.account_number}</td>
+                  <td>{a.account_name}</td>
+                  <td>{a.type}</td>
                   <td>{a.subcategory}</td>
                   <td>{parseFloat(a.balance).toFixed(2)}</td>
                   <td>{a.createdBy}</td>
-                  <td>{a.date_created}</td>
+                  <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
               ))}

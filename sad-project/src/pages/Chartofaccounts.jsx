@@ -116,15 +116,15 @@ const Chartofaccounts = () => {
     const results = accounts.filter(acc => {
       switch(filterType) {
         case 'number':
-          return acc.accountNumber?.toString().toLowerCase().includes(query);
+          return acc.account_number?.toString().toLowerCase().includes(query);
         case 'name':
-          return acc.accountName?.toLowerCase().includes(query);
+          return acc.account_name?.toLowerCase().includes(query);
         case 'type':
-          return acc.normalSide?.toLowerCase().includes(query);
+          return acc.normal_side?.toLowerCase().includes(query);
         case 'category':
-          return acc.accountCategory?.toLowerCase().includes(query);
+          return acc.type?.toLowerCase().includes(query);
         case 'subcategory':
-          return acc.accountSubcategory?.toLowerCase().includes(query);
+          return acc.subcategory?.toLowerCase().includes(query);
         case 'balance': {
           const balance = acc.balance?.toString() || '0';
           return balance.includes(query.replace(/[,$]/g, ''));
@@ -132,11 +132,11 @@ const Chartofaccounts = () => {
         case 'all':
         default:
           return (
-            acc.accountNumber?.toString().toLowerCase().includes(query) ||
-            acc.accountName?.toLowerCase().includes(query) ||
-            acc.normalSide?.toLowerCase().includes(query) ||
-            acc.accountCategory?.toLowerCase().includes(query) ||
-            acc.accountSubcategory?.toLowerCase().includes(query) ||
+            acc.account_number?.toString().toLowerCase().includes(query) ||
+            acc.account_name?.toLowerCase().includes(query) ||
+            acc.normal_side?.toLowerCase().includes(query) ||
+            acc.type?.toLowerCase().includes(query) ||
+            acc.subcategory?.toLowerCase().includes(query) ||
             acc.balance?.toString().includes(query.replace(/[,$]/g, ''))
           );
       }
@@ -149,7 +149,7 @@ const Chartofaccounts = () => {
     setDetailsTab(0);
     setOpenDetails(true);
     // Fetch event logs for this account
-    fetchAccountEventLogs(account._id, account.accountNumber);
+    fetchAccountEventLogs(account._id, account.account_number);
   };
 
   const handleCloseDetails = () => {
@@ -173,8 +173,8 @@ const Chartofaccounts = () => {
     // Navigate to the ledger page for this account
     navigate(`/ledger/${account._id}`, { 
       state: { 
-        accountNumber: account.accountNumber,
-        accountName: account.accountName 
+        accountNumber: account.account_number,
+        accountName: account.account_name 
       } 
     });
   };
@@ -428,18 +428,18 @@ const Chartofaccounts = () => {
               <TableBody>
                 {filteredAccounts.map((acc) => (
                   <TableRow key={acc._id}>
-                    <TableCell>{acc.accountNumber}</TableCell>
+                    <TableCell>{acc.account_number}</TableCell>
                     <TableCell>
                       <span 
                         onClick={() => handleAccountNameClick(acc)}
                         className="clickable-account-name"
                       >
-                        {acc.accountName}
+                        {acc.account_name}
                       </span>
                     </TableCell>
-                    <TableCell>{acc.normalSide}</TableCell>
-                    <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
-                    <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
+                    <TableCell>{acc.normal_side}</TableCell>
+                    <TableCell>{acc.type || 'N/A'}</TableCell>
+                    <TableCell>{acc.subcategory || 'N/A'}</TableCell>
                     <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
                     <TableCell>
                       <Button
@@ -564,18 +564,16 @@ const Chartofaccounts = () => {
           {/* Tab 0: Account Information */}
           {detailsTab === 0 && selectedAccount && (
             <div style={{ lineHeight: '1.8' }}>
-              <p><strong>Account Number:</strong> {selectedAccount.accountNumber}</p>
-              <p><strong>Account Name:</strong> {selectedAccount.accountName}</p>
-              <p><strong>Description:</strong> {selectedAccount.accountDescription || 'N/A'}</p>
-              <p><strong>Normal Side:</strong> {selectedAccount.normalSide}</p>
-              <p><strong>Category:</strong> {selectedAccount.accountCategory || 'N/A'}</p>
-              <p><strong>Subcategory:</strong> {selectedAccount.accountSubcategory || 'N/A'}</p>
-              <p><strong>Initial Balance:</strong> ${selectedAccount.initialBalance?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Current Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Account Number:</strong> {selectedAccount.account_number}</p>
+              <p><strong>Account Name:</strong> {selectedAccount.account_name}</p>
+              <p><strong>Description:</strong> {selectedAccount.description || 'N/A'}</p>
+              <p><strong>Normal Side:</strong> {selectedAccount.normal_side}</p>
+              <p><strong>Category:</strong> {selectedAccount.type || 'N/A'}</p>
+              <p><strong>Subcategory:</strong> {selectedAccount.subcategory || 'N/A'}</p>
+              <p><strong>Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Debit:</strong> ${selectedAccount.debit?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Credit:</strong> ${selectedAccount.credit?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Status:</strong> {selectedAccount.isActive ? 'Active' : 'Inactive'}</p>
-              <p><strong>Order:</strong> {selectedAccount.order || 'N/A'}</p>
               <p><strong>Statement:</strong> {selectedAccount.statement || 'N/A'}</p>
               <p><strong>Comment:</strong> {selectedAccount.comment || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(selectedAccount.createdAt).toLocaleString()}</p>
