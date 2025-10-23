@@ -195,7 +195,7 @@ const Ledger = () => {
           <h2>Account Summary</h2>
           <div className="summary-grid">
             <div className="summary-item">
-              <strong>Account Number:</strong> {account.accountNumber}
+              <strong>Account Number:</strong> {account.accountId}
             </div>
             <div className="summary-item">
               <strong>Account Name:</strong> {account.accountName}
