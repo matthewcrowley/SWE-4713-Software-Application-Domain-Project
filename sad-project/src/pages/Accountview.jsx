@@ -12,6 +12,7 @@ export default function Accountview() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [accounts, setAccounts] = useState([]);
   const [sortedAccounts, setSortedAccounts] = useState([]);
   
@@ -49,6 +50,7 @@ export default function Accountview() {
         })
         .catch(err => {
           console.error('Error loading accounts:', err);
+          // eslint-disable-next-line no-undef
           setError('Failed to load accounts from database');
           setLoading(false);
         });
