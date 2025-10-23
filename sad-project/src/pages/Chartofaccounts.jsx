@@ -28,6 +28,10 @@ const Chartofaccounts = () => {
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
 
+
+const [editingAccountId, setEditingAccountId] = useState(null);
+const [editedAccount, setEditedAccount] = useState({});
+
   // ===== Fetch Accounts from MongoDB Backend =====
   useEffect(() => {
     setLoading(true);
@@ -94,6 +98,47 @@ const Chartofaccounts = () => {
   };
 
   // ===== Handlers =====
+  // Enter edit mode
+const handleEdit = (account) => {
+  setEditingAccountId(account._id);
+  setEditedAccount({ ...account });
+};
+
+// Cancel edit mode
+const handleCancel = () => {
+  setEditingAccountId(null);
+  setEditedAccount({});
+};
+
+// Save edited account
+const handleSave = async (accountId) => {
+  try {
+    const payload = { ...editedAccount, _id: accountId }; // include _id in body
+
+    const response = await fetch('http://localhost:3000/api/accounts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error('Failed to update account');
+    const updatedAccount = await response.json();
+
+    // Update UI state
+    const updatedAccounts = accounts.map((acc) =>
+      acc._id === accountId ? updatedAccount : acc
+    );
+    setAccounts(updatedAccounts);
+    setSortedAccounts([...updatedAccounts].sort((a,b) => Number(a.account_number) - Number(b.account_number)));
+
+    setEditingAccountId(null);
+    setEditedAccount({});
+  } catch (error) {
+    console.error('Error saving account:', error);
+    alert('Failed to save account changes.');
+  }
+};
+
   const handleBackToDashboard = () => {
     navigate('/administrator');
   };
@@ -486,19 +531,128 @@ const Chartofaccounts = () => {
               </tr>
             </thead>
             <tbody>
-              {sortedAccounts.map((account) => (
-                <tr key={account._id}>
-                  <td>{account.account_number}</td>
-                  <td>{account.account_name}</td>
-                  <td>{account.type}</td>
-                  <td>{account.subcategory}</td>
-                  <td>{account.balance}</td>
-                  <td>{account.created_by}</td>
-                  <td>{account.timestamp}</td>
-                  <td>{account.comments}</td>
-                  <button style={{ backgroundColor: 'lightblue' , margin: '10px'}}>Edit</button>
-                </tr>
-              ))}
+              {/*===== Rows in COA -- editable (doesn't save yet) =====*/}
+               {sortedAccounts.map((account) => (
+                <React.Fragment key={account._id}>
+                  {editingAccountId === account._id ? (
+                    <tr>
+                      <td>
+                        <TextField
+                          value={editedAccount.account_number}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, account_number: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.account_name}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, account_name: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.type}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, type: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.subcategory}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, subcategory: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.balance}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, balance: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.created_by}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, created_by: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.timestamp}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, comments: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.comments}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, comments: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          onClick={() => handleSave(account._id)}
+                          style={{ margin: '10px' }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          style={{ margin: '10px' }}
+                          onClick={handleCancel}
+                        >
+                          Cancel
+                        </Button>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td>{account.account_number}</td>
+                      <td>{account.account_name}</td>
+                      <td>{account.type}</td>
+                      <td>{account.subcategory}</td>
+                      <td>{account.balance}</td>
+                      <td>{account.created_by}</td>
+                      <td>{account.timestamp}</td>
+                      <td>{account.comments}</td>
+                      <td>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          style={{ backgroundColor: 'lightblue', margin: '10px' }}
+                          onClick={() => handleEdit(account)}
+                        >
+                          Edit
+                        </Button>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+        ))}
             </tbody>
           </table>
         )}
