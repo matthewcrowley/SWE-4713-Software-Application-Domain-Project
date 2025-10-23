@@ -163,21 +163,39 @@ const Journal = () => {
       e => e.accountId && (parseFloat(e.debit) > 0 || parseFloat(e.credit) > 0)
     );
 
-    const entryData = {
-      date: newEntry.date,
-      description: newEntry.description,
-      entries: filteredEntries,
-      status: 'pending'
-    };
+    const formData = new FormData();
+      formData.append('date', newEntry.date);
+      formData.append('description', newEntry.description);
+      formData.append('status', 'pending');
+      filteredEntries.forEach((entry, index) => {
+    formData.append(`entries[${index}][accountId]`, entry.accountId);
+    formData.append(`entries[${index}][debit]`, entry.debit || 0);
+    formData.append(`entries[${index}][credit]`, entry.credit || 0);
+
+    if (entry.attachment) {
+      formData.append(`entries[${index}][attachment]`, entry.attachment);
+    }
+  });
 
     try {
       const response = await fetch('http://localhost:3000/api/journal-entries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(entryData)
+        body: JSON.stringify({
+          date: newEntry.date,
+          description: newEntry.description,
+          status: 'pending',
+          entries: newEntry.entries.map(e => ({
+            accountId: e.accountId,
+            accountName: e.accountName,
+            debit: parseFloat(e.debit) || 0,
+            credit: parseFloat(e.credit) || 0
+          }))
+        })
       });
 
-      if (!response.ok) throw new Error('Failed to create journal entry');
+
+      if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
       await fetchJournalEntries();
       setShowNewEntry(false);
@@ -190,7 +208,7 @@ const Journal = () => {
         ]
       });
     } catch (err) {
-      alert('Error creating journal entry: ' + err.message);
+      alert('There was an error creating the journal entry: ' + err.message);
     }
   };
 

@@ -1,65 +1,98 @@
 const express = require('express');
 const router = express.Router();
+const { getDB } = require('../db');
 
-let journalEntries = [
-];
-
-router.get('/', (req, res) => {
-  res.json(journalEntries);
+//Get all journal entries
+router.get('/', async (req, res) => {
+  try {
+    const db = getDB();
+    const entries = await db.collection('journal').find().toArray();
+    res.json(entries);
+  } catch (err) {
+    console.error('Error fetching journal entries:', err);
+    res.status(500).json({ message: 'Failed to fetch journal entries.' });
+  }
 });
 
-router.get('/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const entry = journalEntries.find(e => e.id === id);
-  if (entry) {
+//Get a single journal entry by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { ObjectId } = require('mongodb');
+    const entry = await db.collection('journal').findOne({ _id: new ObjectId(req.params.id) });
+
+    if (!entry) {
+      return res.status(404).json({ message: 'Journal Entry not found.' });
+    }
+
     res.json(entry);
-  } else {
-    res.status(404).json({ message: 'Journal Entry was not found' });
+  } catch (err) {
+    console.error('Error fetching entry by ID:', err);
+    res.status(500).json({ message: 'Failed to fetch journal entry.' });
   }
 });
 
-router.post('/', (req, res) => {
-  const { title, content } = req.body;
-  if (!title || !content) {
-    return res.status(400).json({ message: 'The title and content are required' });
-  }
+//Create a new journal entry
+router.post('/', async (req, res) => {
+  try {
+    const db = getDB();
+    const newEntry = req.body;
 
-  const newEntry = {
-    id: journalEntries.length ? journalEntries[journalEntries.length - 1].id + 1 : 1,
-    title,
-    content,
-  };
-  journalEntries.push(newEntry);
-  res.status(201).json(newEntry);
+    if (!newEntry.description || !newEntry.entries) {
+      return res.status(400).json({ message: 'Description and entries are required.' });
+    }
+
+    newEntry.status = newEntry.status || 'pending';
+    newEntry.createdAt = new Date();
+
+    const result = await db.collection('journal').insertOne(newEntry);
+    res.status(201).json({ message: 'Journal entry created successfully.', id: result.insertedId });
+  } catch (err) {
+    console.error('Error creating journal entry:', err);
+    res.status(500).json({ message: 'Failed to create journal entry.' });
+  }
 });
 
-router.put('/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const entryIndex = journalEntries.findIndex(e => e.id === id);
+//Update a journal entry (approve or reject)
+router.put('/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { ObjectId } = require('mongodb');
+    const updateData = req.body;
 
-  if (entryIndex === -1) {
-    return res.status(404).json({ message: 'Journal Entry was not found' });
+    const result = await db.collection('journal').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: updateData }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: 'Journal Entry not found.' });
+    }
+
+    res.json({ message: 'Journal entry updated successfully.' });
+  } catch (err) {
+    console.error('Error updating journal entry:', err);
+    res.status(500).json({ message: 'Failed to update journal entry.' });
   }
-
-  const { title, content } = req.body;
-  if (!title || !content) {
-    return res.status(400).json({ message: 'The title and content are required' });
-  }
-
-  journalEntries[entryIndex] = { id, title, content };
-  res.json(journalEntries[entryIndex]);
 });
 
-router.delete('/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const entryIndex = journalEntries.findIndex(e => e.id === id);
+//Delete a journal entry
+router.delete('/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { ObjectId } = require('mongodb');
 
-  if (entryIndex === -1) {
-    return res.status(404).json({ message: 'Journal Entry was not found' });
+    const result = await db.collection('journal').deleteOne({ _id: new ObjectId(req.params.id) });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: 'Journal Entry not found.' });
+    }
+
+    res.json({ message: 'Journal entry deleted successfully.' });
+  } catch (err) {
+    console.error('Error deleting journal entry:', err);
+    res.status(500).json({ message: 'Failed to delete journal entry.' });
   }
-
-  journalEntries.splice(entryIndex, 1);
-  res.status(204).send();
 });
 
 module.exports = router;
