@@ -133,7 +133,7 @@ function App() {
           onChange={e => setPassword(e.target.value)}
           data-testid="passinput"
         />
-        <Calendar/>
+        
       </div>
 
             <button data-testid="loginbtn" className="login-button" onClick={handleLogin}>
@@ -239,6 +239,12 @@ function App() {
             isLoggedIn ? <Journal /> : <Navigate to="/" replace />
           }
         />
+        <Route
+          path="/Ledger"
+          element={
+            isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
+          }
+          />
       </Routes>
     </Router>
   );

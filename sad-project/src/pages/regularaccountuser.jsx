@@ -59,6 +59,12 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       description: "Find accounts and transactions",
       icon: "🔍",
     },
+    {
+          title: "Ledger",
+          description: "Show ledger of Accounts",
+          icon: "📙",
+          path: "/Ledger"
+    },
   ];
 
   const handleLogout = () => {

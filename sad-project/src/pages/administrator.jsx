@@ -4,6 +4,7 @@ import "./Admin.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
+import path from "path";
 
 export default function Administrator({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -52,11 +53,18 @@ export default function Administrator({ setIsLoggedIn }) {
       title: "Journal Entries",
       description: "Record transactions",
       icon: "➕",
+      path: "/JournalEntries"
     },
     {
       title: "Search",
       description: "Find accounts and transactions",
       icon: "🔍",
+    },
+    {
+      title: "Ledger",
+      description: "Show ledger of Accounts",
+      icon: "📙",
+      path: "/Ledger"
     },
   ];
 
