@@ -635,7 +635,7 @@ const handleSave = async (accountId) => {
                       <td>{account.account_name}</td>
                       <td>{account.type}</td>
                       <td>{account.subcategory}</td>
-                      <td>{account.balance}</td>
+                      <td style={{ textAlign: 'right' }}>${account.balance.toFixed(2)}</td>
                       <td>{account.created_by}</td>
                       <td>{account.timestamp}</td>
                       <td>{account.comments}</td>
