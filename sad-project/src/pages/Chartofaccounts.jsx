@@ -28,6 +28,10 @@ const Chartofaccounts = () => {
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
 
+
+const [editingAccountId, setEditingAccountId] = useState(null);
+const [editedAccount, setEditedAccount] = useState({});
+
   // ===== Fetch Accounts from MongoDB Backend =====
   useEffect(() => {
     setLoading(true);
@@ -94,6 +98,47 @@ const Chartofaccounts = () => {
   };
 
   // ===== Handlers =====
+  // Enter edit mode
+const handleEdit = (account) => {
+  setEditingAccountId(account._id);
+  setEditedAccount({ ...account });
+};
+
+// Cancel edit mode
+const handleCancel = () => {
+  setEditingAccountId(null);
+  setEditedAccount({});
+};
+
+// Save edited account
+const handleSave = async (accountId) => {
+  try {
+    const payload = { ...editedAccount, _id: accountId }; // include _id in body
+
+    const response = await fetch('http://localhost:3000/api/accounts', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error('Failed to update account');
+    const updatedAccount = await response.json();
+
+    // Update UI state
+    const updatedAccounts = accounts.map((acc) =>
+      acc._id === accountId ? updatedAccount : acc
+    );
+    setAccounts(updatedAccounts);
+    setSortedAccounts([...updatedAccounts].sort((a,b) => Number(a.account_number) - Number(b.account_number)));
+
+    setEditingAccountId(null);
+    setEditedAccount({});
+  } catch (error) {
+    console.error('Error saving account:', error);
+    alert('Failed to save account changes.');
+  }
+};
+
   const handleBackToDashboard = () => {
     navigate('/administrator');
   };
@@ -116,15 +161,15 @@ const Chartofaccounts = () => {
     const results = accounts.filter(acc => {
       switch(filterType) {
         case 'number':
-          return acc.accountNumber?.toString().toLowerCase().includes(query);
+          return acc.account_number?.toString().toLowerCase().includes(query);
         case 'name':
-          return acc.accountName?.toLowerCase().includes(query);
+          return acc.account_name?.toLowerCase().includes(query);
         case 'type':
-          return acc.normalSide?.toLowerCase().includes(query);
+          return acc.normal_side?.toLowerCase().includes(query);
         case 'category':
-          return acc.accountCategory?.toLowerCase().includes(query);
+          return acc.type?.toLowerCase().includes(query);
         case 'subcategory':
-          return acc.accountSubcategory?.toLowerCase().includes(query);
+          return acc.subcategory?.toLowerCase().includes(query);
         case 'balance': {
           const balance = acc.balance?.toString() || '0';
           return balance.includes(query.replace(/[,$]/g, ''));
@@ -132,11 +177,11 @@ const Chartofaccounts = () => {
         case 'all':
         default:
           return (
-            acc.accountNumber?.toString().toLowerCase().includes(query) ||
-            acc.accountName?.toLowerCase().includes(query) ||
-            acc.normalSide?.toLowerCase().includes(query) ||
-            acc.accountCategory?.toLowerCase().includes(query) ||
-            acc.accountSubcategory?.toLowerCase().includes(query) ||
+            acc.account_number?.toString().toLowerCase().includes(query) ||
+            acc.account_name?.toLowerCase().includes(query) ||
+            acc.normal_side?.toLowerCase().includes(query) ||
+            acc.type?.toLowerCase().includes(query) ||
+            acc.subcategory?.toLowerCase().includes(query) ||
             acc.balance?.toString().includes(query.replace(/[,$]/g, ''))
           );
       }
@@ -149,7 +194,7 @@ const Chartofaccounts = () => {
     setDetailsTab(0);
     setOpenDetails(true);
     // Fetch event logs for this account
-    fetchAccountEventLogs(account._id, account.accountNumber);
+    fetchAccountEventLogs(account._id, account.account_number);
   };
 
   const handleCloseDetails = () => {
@@ -173,8 +218,8 @@ const Chartofaccounts = () => {
     // Navigate to the ledger page for this account
     navigate(`/ledger/${account._id}`, { 
       state: { 
-        accountNumber: account.accountNumber,
-        accountName: account.accountName 
+        accountNumber: account.account_number,
+        accountName: account.account_name 
       } 
     });
   };
@@ -310,15 +355,7 @@ const Chartofaccounts = () => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Calendar />
           <div className="header-actions">
-            <Button 
-              className="back-to-dashboard-btn" 
-              onClick={handleBackToDashboard}
-              variant="outlined"
-            >
-              Back to Dashboard
-            </Button>
             <Button 
               className="generate-report-btn" 
               onClick={handleGenerateReport}
@@ -331,7 +368,28 @@ const Chartofaccounts = () => {
         </div>
       </header>
 
-return (
+       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+        <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/administrator")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
+        </nav>
+
 
       {/* ===== Error Message ===== */}
       {error && (
@@ -415,19 +473,22 @@ return (
               <TableBody>
                 {filteredAccounts.map((acc) => (
                   <TableRow key={acc._id}>
-                    <TableCell>{acc.accountNumber}</TableCell>
+                    <TableCell>{acc.account_number}</TableCell>
                     <TableCell>
                       <span 
                         onClick={() => handleAccountNameClick(acc)}
                         className="clickable-account-name"
                       >
-                        {acc.accountName}
+                        {acc.account_name}
                       </span>
                     </TableCell>
-                    <TableCell>{acc.normalSide}</TableCell>
-                    <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
-                    <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
-                    <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
+                    <TableCell>{acc.normal_side}</TableCell>
+                    <TableCell>{acc.type || 'N/A'}</TableCell>
+                    <TableCell>{acc.subcategory || 'N/A'}</TableCell>
+                    <TableCell style={{ textAlign: 'right' }}>${acc.balance?.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}</TableCell>
                     <TableCell>
                       <Button
                         variant="outlined"
@@ -464,22 +525,140 @@ return (
                 <th>Account Number</th>
                 <th>Account Name</th>
                 <th>Account Type</th>
-                <th>Description</th>
-                <th>Debits</th>
-                <th>Credits</th>
+                <th>Subcategory</th>
+                <th>Balance</th>
+                <th>Created By</th>
+                <th>Date Created</th>
+                <th>Comments</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {sortedAccounts.map((account) => (
-                <tr key={account._id}>
-                  <td>{account.account_number}</td>
-                  <td>{account.account_name}</td>
-                  <td>{account.type}</td>
-                  <td>{account.description}</td>
-                  <td>{account.debits}</td>
-                  <td>{account.credits}</td>
-                </tr>
-              ))}
+              {/*===== Rows in COA -- editable (doesn't save yet) =====*/}
+               {sortedAccounts.map((account) => (
+                <React.Fragment key={account._id}>
+                  {editingAccountId === account._id ? (
+                    <tr>
+                      <td>
+                        <TextField
+                          value={editedAccount.account_number}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, account_number: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.account_name}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, account_name: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.type}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, type: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.subcategory}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, subcategory: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.balance}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, balance: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.created_by}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, created_by: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.timestamp}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, comments: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <TextField
+                          value={editedAccount.comments}
+                          onChange={(e) =>
+                            setEditedAccount({ ...editedAccount, comments: e.target.value })
+                          }
+                          size="small"
+                        />
+                      </td>
+                      <td>
+                        <Button
+                          variant="contained"
+                          color="success"
+                          size="small"
+                          onClick={() => handleSave(account._id)}
+                          style={{ margin: '10px' }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          size="small"
+                          style={{ margin: '10px' }}
+                          onClick={handleCancel}
+                        >
+                          Cancel
+                        </Button>
+                      </td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td>{account.account_number}</td>
+                      <td>{account.account_name}</td>
+                      <td>{account.type}</td>
+                      <td>{account.subcategory}</td>
+                      <td style={{ textAlign: 'right' }}>${account.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
+                      <td>{account.created_by}</td>
+                      <td>{account.timestamp}</td>
+                      <td>{account.comments}</td>
+                      <td>
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          style={{ backgroundColor: 'lightblue', margin: '10px' }}
+                          onClick={() => handleEdit(account)}
+                        >
+                          Edit
+                        </Button>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+        ))}
             </tbody>
           </table>
         )}
@@ -505,19 +684,22 @@ return (
             <TableBody>
               {accounts.map((acc) => (
                 <TableRow key={acc._id}>
-                  <TableCell>{acc.accountNumber}</TableCell>
+                  <TableCell>{acc.account_number}</TableCell>
                   <TableCell>
                     <span 
                       onClick={() => handleAccountNameClick(acc)}
                       className="clickable-account-name"
                     >
-                      {acc.accountName}
+                      {acc.account_name}
                     </span>
                   </TableCell>
-                  <TableCell>{acc.normalSide}</TableCell>
-                  <TableCell>{acc.accountCategory || 'N/A'}</TableCell>
-                  <TableCell>{acc.accountSubcategory || 'N/A'}</TableCell>
-                  <TableCell>${acc.balance?.toLocaleString() ?? '0.00'}</TableCell>
+                  <TableCell>{acc.normal_side}</TableCell>
+                  <TableCell>{acc.type || 'N/A'}</TableCell>
+                  <TableCell>{acc.subcategory || 'N/A'}</TableCell>
+                  <TableCell style={{ textAlign: 'right', marginLeft: '40px' }}>${acc.balance?.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}</TableCell>
                   <TableCell>{acc.isActive ? 'Active' : 'Inactive'}</TableCell>
                 </TableRow>
               ))}
@@ -545,18 +727,16 @@ return (
           {/* Tab 0: Account Information */}
           {detailsTab === 0 && selectedAccount && (
             <div style={{ lineHeight: '1.8' }}>
-              <p><strong>Account Number:</strong> {selectedAccount.accountNumber}</p>
-              <p><strong>Account Name:</strong> {selectedAccount.accountName}</p>
-              <p><strong>Description:</strong> {selectedAccount.accountDescription || 'N/A'}</p>
-              <p><strong>Normal Side:</strong> {selectedAccount.normalSide}</p>
-              <p><strong>Category:</strong> {selectedAccount.accountCategory || 'N/A'}</p>
-              <p><strong>Subcategory:</strong> {selectedAccount.accountSubcategory || 'N/A'}</p>
-              <p><strong>Initial Balance:</strong> ${selectedAccount.initialBalance?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Current Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Account Number:</strong> {selectedAccount.account_number}</p>
+              <p><strong>Account Name:</strong> {selectedAccount.account_name}</p>
+              <p><strong>Description:</strong> {selectedAccount.description || 'N/A'}</p>
+              <p><strong>Normal Side:</strong> {selectedAccount.normal_side}</p>
+              <p><strong>Category:</strong> {selectedAccount.type || 'N/A'}</p>
+              <p><strong>Subcategory:</strong> {selectedAccount.subcategory || 'N/A'}</p>
+              <p><strong>Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Debit:</strong> ${selectedAccount.debit?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Credit:</strong> ${selectedAccount.credit?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Status:</strong> {selectedAccount.isActive ? 'Active' : 'Inactive'}</p>
-              <p><strong>Order:</strong> {selectedAccount.order || 'N/A'}</p>
               <p><strong>Statement:</strong> {selectedAccount.statement || 'N/A'}</p>
               <p><strong>Comment:</strong> {selectedAccount.comment || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(selectedAccount.createdAt).toLocaleString()}</p>

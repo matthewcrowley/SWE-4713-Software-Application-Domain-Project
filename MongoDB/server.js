@@ -19,13 +19,13 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use('/api/register', registerRoutes);
-app.use('/api/users', usersRoutes);
-app.use('/api/email', emailRoutes);
 app.use((req, res, next) => {
   req.user = { id: 'Sweetledger Admin' };
   next();
 });
+app.use('/api/register', registerRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/email', emailRoutes);
 app.use('/api/eventlog', eventLogRoutes);
 app.use('/api/accounts', chartOfAccountsRoute);
 app.use('/api/journal-entries', journalEntriesRoute);

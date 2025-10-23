@@ -158,6 +158,7 @@ export default function Accountview() {
                 <th>Account Name</th>
                 <th>Account Number</th>
                 <th>Category</th>
+                <th>Subcategory</th>
                 <th>Balance</th>
                 <th>Statement</th>
               </tr>
@@ -168,7 +169,11 @@ export default function Accountview() {
                   <td>{account.account_name}</td>
                   <td>{account.account_number}</td>
                   <td>{account.type}</td>
-                  <td>{account.balance}</td>
+                  <td>{account.subcategory}</td>
+                  <td style={{ textAlign: 'right' }}>${account.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
                   <td>{account.description}</td>
                 </tr>
               ))}

@@ -7,7 +7,7 @@ const { getDB } = require('../db');
 router.get('/', async (req, res) => {
   try {
     const db = getDB();
-    const journalEntries = await db.collection('journalEntries')
+    const journalEntries = await db.collection('journal')
       .find()
       .sort({ createdAt: -1 })
       .toArray();
@@ -24,7 +24,7 @@ router.get('/status/:status', async (req, res) => {
   try {
     const db = getDB();
     const { status } = req.params;
-    const journalEntries = await db.collection('journalEntries')
+    const journalEntries = await db.collection('journal')
       .find({ status })
       .sort({ createdAt: -1 })
       .toArray();
@@ -46,7 +46,7 @@ router.get('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
     }
 
-    const journalEntry = await db.collection('journalEntries')
+    const journalEntry = await db.collection('journal')
       .findOne({ _id: new ObjectId(id) });
     
     if (!journalEntry) {
@@ -85,7 +85,7 @@ router.post('/', async (req, res) => {
     }
 
     // Get the last journal entry number
-    const lastEntry = await db.collection('journalEntries')
+    const lastEntry = await db.collection('journal')
       .find()
       .sort({ journalEntryNumber: -1 })
       .limit(1)
@@ -113,10 +113,10 @@ router.post('/', async (req, res) => {
       comment: ''
     };
 
-    const result = await db.collection('journalEntries').insertOne(newJournalEntry);
+    const result = await db.collection('journal').insertOne(newJournalEntry);
     
     // Log the event
-    await db.collection('eventLogs').insertOne({
+    await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Unknown',
       action: 'CREATE',
       targetType: 'journalEntry',
@@ -146,7 +146,7 @@ router.put('/:id/approve', async (req, res) => {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
     }
 
-    const journalEntry = await db.collection('journalEntries')
+    const journalEntry = await db.collection('journal')
       .findOne({ _id: new ObjectId(id) });
 
     if (!journalEntry) {
@@ -160,7 +160,7 @@ router.put('/:id/approve', async (req, res) => {
     }
 
     // Update journal entry status
-    await db.collection('journalEntries').updateOne(
+    await db.collection('journal').updateOne(
       { _id: new ObjectId(id) },
       { 
         $set: { 
@@ -189,7 +189,7 @@ router.put('/:id/approve', async (req, res) => {
 
     // Update account balances
     for (const entry of journalEntry.entries) {
-      const account = await db.collection('accounts')
+      const account = await db.collection('chart_of_accounts')
         .findOne({ accountNumber: entry.accountId });
       
       if (account) {
@@ -203,7 +203,7 @@ router.put('/:id/approve', async (req, res) => {
           newBalance += entry.credit - entry.debit;
         }
 
-        await db.collection('accounts').updateOne(
+        await db.collection('chart_of_accounts').updateOne(
           { accountNumber: entry.accountId },
           { 
             $set: { 
@@ -216,7 +216,7 @@ router.put('/:id/approve', async (req, res) => {
     }
 
     // Log the event
-    await db.collection('eventLogs').insertOne({
+    await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'APPROVE',
       targetType: 'journalEntry',
@@ -251,7 +251,7 @@ router.put('/:id/reject', async (req, res) => {
       });
     }
 
-    const journalEntry = await db.collection('journalEntries')
+    const journalEntry = await db.collection('journal')
       .findOne({ _id: new ObjectId(id) });
 
     if (!journalEntry) {
@@ -265,7 +265,7 @@ router.put('/:id/reject', async (req, res) => {
     }
 
     // Update journal entry status
-    await db.collection('journalEntries').updateOne(
+    await db.collection('journal').updateOne(
       { _id: new ObjectId(id) },
       { 
         $set: { 
@@ -278,7 +278,7 @@ router.put('/:id/reject', async (req, res) => {
     );
 
     // Log the event
-    await db.collection('eventLogs').insertOne({
+    await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'REJECT',
       targetType: 'journalEntry',
@@ -306,7 +306,7 @@ router.delete('/:id', async (req, res) => {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
     }
 
-    const journalEntry = await db.collection('journalEntries')
+    const journalEntry = await db.collection('journal')
       .findOne({ _id: new ObjectId(id) });
 
     if (!journalEntry) {
@@ -320,10 +320,10 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    await db.collection('journalEntries').deleteOne({ _id: new ObjectId(id) });
+    await db.collection('journal').deleteOne({ _id: new ObjectId(id) });
 
     // Log the event
-    await db.collection('eventLogs').insertOne({
+    await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Unknown',
       action: 'DELETE',
       targetType: 'journalEntry',

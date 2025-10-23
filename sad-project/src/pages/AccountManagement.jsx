@@ -445,19 +445,17 @@ export default function AccountManagement() {
     <Box className="admin-container">
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
-        <img src={logo} alt="SweetLedger Logo" className="header-logo" />
-        <Calendar />
-        <Typography variant="h5" className="admin-title">
-          Administrator Account Management
-        </Typography>
+        <header className="admin-header" style={{borderBottom: '0px'}}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                <img 
+                  src={logo} 
+                  alt="Sweet Ledger Logo" 
+                  className="header-logo"
+                />
+                <h1 className="admin-title">Administrator Account Management</h1>
+              </div>
+        </header>
         <Box display="flex" alignItems="center" gap={2}>
-          <Button
-            variant="outlined"
-            className="back-btn"
-            onClick={() => navigate("/administrator")}
-          >
-            Back to Dashboard
-          </Button>
           <Button
             variant="contained"
             className="btn"
@@ -475,6 +473,28 @@ export default function AccountManagement() {
           <Avatar src={defaultProfile} alt="Profile" />
         </Box>
       </Box>
+
+      <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+        <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/administrator")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+            👤 Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal
+          </button>
+        </nav>
 
       {/* ===== Main Content ===== */}
       <Box className="admin-content">
@@ -762,21 +782,30 @@ export default function AccountManagement() {
           <table className="account-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Number</th>
-                <th>Category</th>
+                <th>Account Number</th>
+                <th>Account Name</th>
+                <th>Account Type</th>
+                <th>Subcategory</th>
                 <th>Balance</th>
-                <th>Statement</th>
+                <th>Created By</th>
+                <th>Date Created</th>
+                <th>Comments</th>
               </tr>
             </thead>
             <tbody>
               {accounts.map((a, i) => (
                 <tr key={i}>
-                  <td>{a.accountName}</td>
-                  <td>{a.accountNumber}</td>
-                  <td>{a.category}</td>
-                  <td>{parseFloat(a.balance).toFixed(2)}</td>
-                  <td>{a.statement}</td>
+                  <td>{a.account_number}</td>
+                  <td>{a.account_name}</td>
+                  <td>{a.type}</td>
+                  <td>{a.subcategory}</td>
+                  <td style={{ textAlign: 'right' }}>${a.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          })}</td>
+                  <td>{a.createdBy}</td>
+                  <td>{a.timestamp}</td>
+                  <td>{a.comments}</td>
                 </tr>
               ))}
             </tbody>
