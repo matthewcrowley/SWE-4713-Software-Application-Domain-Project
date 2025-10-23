@@ -215,14 +215,13 @@ const handleSave = async (accountId) => {
   };
 
   const handleAccountNameClick = (account) => {
-    // Navigate to the ledger page for this account
-    navigate(`/ledger/${account._id}`, { 
-      state: { 
-        accountNumber: account.account_number,
-        accountName: account.account_name 
-      } 
-    });
-  };
+  navigate(`/ledger/${account.account_number}`, { 
+    state: { 
+      accountNumber: account.account_number,
+      accountName: account.account_name 
+    } 
+  });
+};
 
   // ===== Render Before/After Comparison =====
   const renderBeforeAfterComparison = (log) => {
