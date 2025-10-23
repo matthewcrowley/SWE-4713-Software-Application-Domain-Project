@@ -220,7 +220,10 @@ const Journal = () => {
         headers: { 'Content-Type': 'application/json' }
       });
 
-      if (!response.ok) throw new Error('Failed to approve journal entry');
+      if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to approve journal entry');
+    }
 
       await fetchJournalEntries();
       setSelectedEntry(null);
