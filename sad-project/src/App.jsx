@@ -13,12 +13,13 @@ import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
-import Calendar from "./pages/components/Calendar";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  var role = " "; // Placeholder for user role management
+  var curUsername; 
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {
@@ -66,14 +67,50 @@ function App() {
       console.log("Username:", username);
       console.log("Hashed password:", hashed);
 
-      // Mark user as logged in
-      setIsLoggedIn(true);
+      try {
+          const response = await fetch("http://localhost:3000/api/users");
+          const data = await response.json();
+          const user = data.find((u) => u.username === username);       
+          
+          if (user && (user.passwordHash == hashed)) {
+            role = user.role;
+            curUsername = user.username;
+            setIsLoggedIn(true);
+            console.log(curUsername)
 
-      if (password === "Administrator#01") {
+            // POST current user info to /api/curUser
+            try {
+              const curUserResponse = await fetch("http://localhost:3000/api/curUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  curUsername,
+                  role,
+                  }),
+                  });
+
+                  if (!curUserResponse.ok) {
+                    throw new Error("Failed to post current user");
+                  }
+
+                  console.log("Current user successfully posted to /api/curUser");
+                } catch (error) {
+                  console.error("Error uploading current user:", error);
+                  setMessage("Server error. Please try again later.");
+                }
+          } else {
+            setMessage("Invalid username or password.");
+          }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          setMessage("Failed to load users.");
+      } 
+
+      if (role === "Admin") {
         navigate("/administrator");
-      } else if (password === "Manageruser#02") {
+      } else if (role === "Manager") {
         navigate("/manager");
-      } else if (password === "Accountuser#03") {
+      } else if (role === "Accountant") {
         navigate("/regularaccountuser");
       } else {
         setIsLoggedIn(false);
@@ -82,13 +119,14 @@ function App() {
       }
     };
 
+
     const handleCreateUser = () => navigate("/new-user");
     const handleClear = () => {
       setUsername("");
       setPassword("");
       setMessage("");
     };
-
+  
     return (
       <div className="login-container">
         <HelpButton />
@@ -124,17 +162,6 @@ function App() {
                 data-testid="passinput"
               />
             </div>
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          data-testid="passinput"
-        />
-        
-      </div>
 
             <button data-testid="loginbtn" className="login-button" onClick={handleLogin}>
               Sign In

@@ -9,20 +9,20 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      try {
-        const res = await fetch("/api/me");
-        if (res.ok) {
-          const data = await res.json();
-          setCurrentUser(data);
+   useEffect(() => {
+      const fetchCurrentUser = async () => {
+        try {
+          const response = await fetch("http://localhost:3000/api/curUser");
+          const data = await response.json();
+          setCurrentUser(data.currentUser || []);
+          console.log(data.currentUser);
+          
+        } catch (err) {
+          console.warn("Could not fetch /api/curUser:", err);
         }
-      } catch (err) {
-        console.warn("Could not fetch /api/me:", err);
-      }
-    };
-    fetchCurrentUser();
-  }, []);
+      };
+      fetchCurrentUser();
+    }, []);
 
   const services = [
     {
@@ -99,7 +99,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
-                {currentUser?.username || "matthewwilliam#1"}
+                {currentUser?.curUsername || "matthewwilliam#1"}
               </div>
               <span className="regularuser-badge">RegUser</span>
             </div>

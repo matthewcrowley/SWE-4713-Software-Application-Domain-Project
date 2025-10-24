@@ -58,23 +58,7 @@ function NewUser() {
         }
 
         if(!validatePassword(password)) return;
-
-        if(password === "Administrator#01") {
-          setMessage("Administrator login created!");
-          navigate("/administrator"); // sends user to admin dashboard
-          return;
-        }
-
-        if(password === "Manageruser#02") {
-          setMessage("Manager login created!");
-          navigate("/manager"); // sends user to manager dashboard
-        }
-
-        if(password === "Accountuser#03") {
-          setMessage("Regular account user login created!");
-          navigate("/regularaccountuser"); // sends user to account user dashboard
-        }
-
+       
         const hashed = await hashedPassword(password);
 
         try {

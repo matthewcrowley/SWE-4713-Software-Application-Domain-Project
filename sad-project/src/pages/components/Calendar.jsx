@@ -1,4 +1,4 @@
-import FullCalendar from '@fullcalendar/react'
+{/*import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 
 export default function Calendar() {
@@ -8,4 +8,4 @@ export default function Calendar() {
       initialView="dayGridMonth"
     />
   )
-}
+}*/}
