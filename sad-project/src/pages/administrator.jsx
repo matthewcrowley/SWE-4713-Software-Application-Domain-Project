@@ -16,7 +16,6 @@ export default function Administrator({ setIsLoggedIn }) {
         const response = await fetch("http://localhost:3000/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
-        console.log(data.currentUser);
         
       } catch (err) {
         console.warn("Could not fetch /api/curUser:", err);
