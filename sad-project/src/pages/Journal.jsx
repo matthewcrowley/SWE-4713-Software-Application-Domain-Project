@@ -520,113 +520,145 @@ const Journal = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* ==== Debit Section ==== */}
-                      <tr>
-                        <th colSpan="4" className="text-left bg-gray-100">
-                          <strong>Debits</strong>
-                        </th>
-                      </tr>
-                      {newEntry.entries
-                        .map((entry, index) => ({ ...entry, realIndex: index }))
-                        .filter((entry) => entry.type === 'debit') // 👈 Only debit type entries
-                        .map((entry, index) => (
-                          <tr key={`debit-${entry.realIndex}`}>
-                            <td>
-                              <select
-                                value={entry.accountId}
-                                onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
-                                className="form-select"
-                              >
-                                <option value="">Select Account</option>
-                                {chartOfAccounts.map((acc) => (
-                                  <option key={acc._id} value={acc.account_number}>
-                                    {acc.account_number} - {acc.account_name}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td>
-                              <input
-                                type="number"
-                                value={entry.debit || ''}
-                                onChange={(e) => handleAmountChange(entry.realIndex, 'debit', e.target.value)}
-                                className="form-input text-right"
-                                placeholder="0.00"
-                                step="0.01"
-                              />
-                            </td>
-                            <td></td>
-                            <td>
-                              {newEntry.entries.filter(e => e.type === 'debit').length > 1 && <button onClick={() => removeLine(entry.realIndex)} className="remove-line-btn">
-                                ×
-                              </button>}
-                            </td>
-                          </tr>
-                        ))}
+                  {(() => {
+                  const selectedAccountIds = newEntry.entries.map(e => e.accountId);
+                      return (
+                        <>
+                        {/* ==== Debit Section ==== */}
+                        <tr>
+                          <th colSpan="4" className="text-left bg-gray-100">
+                            <strong>Debits</strong>
+                          </th>
+                        </tr>
+                        {newEntry.entries
+                          .map((entry, index) => ({ ...entry, realIndex: index }))
+                          .filter((entry) => entry.type === 'debit')
+                          .map((entry) => (
+                            <tr key={`debit-${entry.realIndex}`}>
+                              <td>
+                                <select
+                                  value={entry.accountId}
+                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                  className="form-select"
+                                >
+                                  <option value="">Select Account</option>
+                                  {chartOfAccounts
+                                    .filter(
+                                      (acc) =>
+                                        !selectedAccountIds.includes(acc.account_number) ||
+                                        acc.account_number === entry.accountId
+                                    )
+                                    .map((acc) => (
+                                      <option key={acc._id} value={acc.account_number}>
+                                        {acc.account_number} - {acc.account_name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={entry.debit || ''}
+                                  onChange={(e) =>
+                                    handleAmountChange(entry.realIndex, 'debit', e.target.value)
+                                  }
+                                  className="form-input text-right"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                />
+                              </td>
+                              <td></td>
+                              <td>
+                                {newEntry.entries.filter((e) => e.type === 'debit').length > 1 && (
+                                  <button
+                                    onClick={() => removeLine(entry.realIndex)}
+                                    className="remove-line-btn"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
 
-                      {/* Add Debit Line Button */}
-                      <tr>
-                        <td colSpan="4">
-                          <button onClick={() => addLine('debit')} className="add-line-btn">
-                            + Add Debit Line
-                          </button>
-                        </td>
-                      </tr>
+                        {/* Add Debit Line */}
+                        <tr>
+                          <td colSpan="4">
+                            <button onClick={() => addLine('debit')} className="add-line-btn">
+                              + Add Debit Line
+                            </button>
+                          </td>
+                        </tr>
 
-                      {/* ==== Credit Section ==== */}
-                      <tr>
-                        <th colSpan="4" className="text-left bg-gray-100">
-                          <strong>Credits</strong>
-                        </th>
-                      </tr>
+                        {/* ==== Credit Section ==== */}
+                        <tr>
+                          <th colSpan="4" className="text-left bg-gray-100">
+                            <strong>Credits</strong>
+                          </th>
+                        </tr>
 
-                      {newEntry.entries
-                        .map((entry, index) => ({ ...entry, realIndex: index }))
-                        .filter((entry) => entry.type === 'credit') // 👈 Only credit type entries
-                        .map((entry, index) => (
-                          <tr key={`credit-${entry.realIndex}`}>
-                            <td>
-                              <select
-                                value={entry.accountId}
-                                onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
-                                className="form-select"
-                              >
-                                <option value="">Select Account</option>
-                                {chartOfAccounts.map((acc) => (
-                                  <option key={acc._id} value={acc.account_number}>
-                                    {acc.account_number} - {acc.account_name}
-                                  </option>
-                                ))}
-                              </select>
-                            </td>
-                            <td></td>
-                            <td>
-                              <input
-                                type="number"
-                                value={entry.credit || ''}
-                                onChange={(e) => handleAmountChange(entry.realIndex, 'credit', e.target.value)}
-                                className="form-input text-right"
-                                placeholder="0.00"
-                                step="0.01"
-                              />
-                            </td>
-                            <td>
-                              {newEntry.entries.filter(e => e.type === 'credit').length > 1 && <button onClick={() => removeLine(entry.realIndex)} className="remove-line-btn">
-                                ×
-                              </button>}
-                            </td>
-                          </tr>
-                        ))}
+                        {newEntry.entries
+                          .map((entry, index) => ({ ...entry, realIndex: index }))
+                          .filter((entry) => entry.type === 'credit')
+                          .map((entry) => (
+                            <tr key={`credit-${entry.realIndex}`}>
+                              <td>
+                                <select
+                                  value={entry.accountId}
+                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                  className="form-select"
+                                >
+                                  <option value="">Select Account</option>
+                                  {chartOfAccounts
+                                    .filter(
+                                      (acc) =>
+                                        !selectedAccountIds.includes(acc.account_number) ||
+                                        acc.account_number === entry.accountId
+                                    )
+                                    .map((acc) => (
+                                      <option key={acc._id} value={acc.account_number}>
+                                        {acc.account_number} - {acc.account_name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </td>
+                              <td></td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={entry.credit || ''}
+                                  onChange={(e) =>
+                                    handleAmountChange(entry.realIndex, 'credit', e.target.value)
+                                  }
+                                  className="form-input text-right"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                />
+                              </td>
+                              <td>
+                                {newEntry.entries.filter((e) => e.type === 'credit').length > 1 && (
+                                  <button
+                                    onClick={() => removeLine(entry.realIndex)}
+                                    className="remove-line-btn"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
 
-                      {/* Add Credit Line Button */}
-                      <tr>
-                        <td colSpan="4">
-                          <button onClick={() => addLine('credit')} className="add-line-btn">
-                            + Add Credit Line
-                          </button>
-                        </td>
-                      </tr>
-
+                        {/* Add Credit Line */}
+                        <tr>
+                          <td colSpan="4">
+                            <button onClick={() => addLine('credit')} className="add-line-btn">
+                              + Add Credit Line
+                            </button>
+                          </td>
+                        </tr>
+                      </>
+                    );
+                  })()}   
                   </tbody>
                 </table>
               </div>
