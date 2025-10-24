@@ -16,6 +16,22 @@ const Journal = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Fetch current users
+  useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/curUser");
+            const data = await response.json();
+            setCurrentUser(data.currentUser || []);
+            
+          } catch (err) {
+            console.warn("Could not fetch /api/curUser:", err);
+          }
+        };
+        fetchCurrentUser();
+      }, []);
 
   // New Entry Form State
   const [newEntry, setNewEntry] = useState({
@@ -194,11 +210,12 @@ const Journal = () => {
           date: newEntry.date,
           description: newEntry.description,
           status: 'pending',
+          createdBy: currentUser.curUsername,
           entries: newEntry.entries.map(e => ({
             accountId: e.accountId,
             accountName: e.accountName,
             debit: parseFloat(e.debit) || 0,
-            credit: parseFloat(e.credit) || 0
+            credit: parseFloat(e.credit) || 0, 
           }))
         })
       });
@@ -687,8 +704,14 @@ const Journal = () => {
                   .map((entry, idx) => (
                     <tr key={idx}>
                       <td>{entry.accountId} - {entry.accountName}</td>
-                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toFixed(2)}` : '-'}</td>
-                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toFixed(2)}` : '-'}</td>
+                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : '-'}</td>
+                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : '-'}</td>
                     </tr>
                   ))}
                 </tbody>
