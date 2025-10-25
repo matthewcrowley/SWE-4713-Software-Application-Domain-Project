@@ -4,7 +4,7 @@ const app = express();
 const {connectToDB, getDB} = require('./db');
 const registerRoutes = require('./routes/register');
 const usersRoutes = require('./routes/users');
-const emailRoutes = require('./routes/email');
+const emailRoute = require('./routes/email');
 const eventLogRoutes = require('./routes/eventlog');
 const chartOfAccountsRoute = require('./routes/chartofaccounts');
 const journalEntriesRoute = require('./routes/journalentries');
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 app.use('/api/register', registerRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/email', emailRoutes);
+app.use('/api/email', emailRoute);
 app.use('/api/eventlog', eventLogRoutes);
 app.use('/api/accounts', chartOfAccountsRoute);
 app.use('/api/journal-entries', journalEntriesRoute);
