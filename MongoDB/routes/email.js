@@ -8,24 +8,24 @@ const transport = mailer.createTransport({
   secure: true,
   auth: {
     user: 'apikey',
-    pass: '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'
+    pass: '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'
   }
 });
 
 dbRoute.post('/', async (q, r) => {
-  const {email, username} = q.body;
+  const { email, username, subject, message } = q.body;
 
-  if (!email) {
-    return r.status(400).json({success: false, message: "The email is missing."});
+  if (!email || !subject || !message) {
+    return r.status(400).json({ success: false, message: "Missing required fields." });
   }
 
   try {
     await transport.sendMail({
-      from: '"SweetLedger Admin" <matthewcrowley2002@gmail.com>',
-      to: email,
-      subject: 'Your Boss Needs You',
-      text: `Hi ${username}, your admin has pinged you.`
-    });
+    from: '"SweetLedger Admin" <matthewcrowley2002@gmail.com>',
+    to: email,
+    subject,
+    text: `Hi ${username},\n\n${message}`,
+  });
 
     r.json({success: true});
   } catch (error) {
