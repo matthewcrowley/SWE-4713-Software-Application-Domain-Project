@@ -267,7 +267,53 @@ const Journal = () => {
       throw new Error(errorData.error || 'Failed to approve journal entry');
     }
 
+    const approvedEntry = journalEntries.find((e) => e._id === entryId);
+    if (!approvedEntry) {
+      throw new Error('Approved entry not found in local data.');
+    }
+
+    // Update each account's balance
+    for (const line of approvedEntry.entries) {
+      const { accountId, debit = 0, credit = 0 } = line;
+      const debitVal = parseFloat(debit) || 0;
+      const creditVal = parseFloat(credit) || 0;
+
+      // Match account by account_number
+      const account = chartOfAccounts.find(acc => acc.account_number === accountId);
+      if (!account) {
+        console.warn(`⚠️ Account ${accountId} not found, skipping.`);
+        continue;
+      }
+
+      let newBalance = parseFloat(account.balance) || 0;
+      let newDebits = parseFloat(account.debits) || 0;
+      let newCredits = parseFloat(account.credits) || 0;
+
+      if (account.normal_side === "L") {
+        newBalance += debitVal;
+        newBalance -= creditVal;
+      } else {
+        newBalance -= debitVal;
+        newBalance += creditVal;
+      }
+
+      newDebits += debitVal;
+      newCredits += creditVal;
+
+      // Update account in backend
+      await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          balance: newBalance,
+          debits: newDebits,
+          credits: newCredits,
+        }),
+      });
+    }
+
       await fetchJournalEntries();
+      await fetchChartOfAccounts();
       setSelectedEntry(null);
     } catch (err) {
       alert('Error approving entry: ' + err.message);
@@ -358,7 +404,12 @@ const Journal = () => {
             }}>
                       🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/AccountView");
+              else if (currentUser.role === "Accountant") navigate("/AccountView");
+              else navigate("/accountmanagement");
+            }}>
             👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>

@@ -17,24 +17,45 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.put('/', async (req, res) => {
+// Update an account in the Chart of Accounts
+router.put('/:id', async (req, res) => {
   try {
     const db = getDB();
-    const { _id, ...updateData } = req.body; // account ID must be in request body
+    const { id } = req.params; // URL param (string)
+    const updateData = { ...req.body };
 
-    if (!_id) return res.status(400).json({ error: 'Account ID (_id) is required' });
+    // Prevent updating _id
+    delete updateData._id;
 
-    const result = await db.collection('chart_of_accounts').findOneAndUpdate(
-      { _id: new ObjectId(_id) },
-      { $set: updateData },
-      { returnDocument: 'after' }
+    // Whitelist fields allowed to update
+    const allowedFields = [
+      'account_number',
+      'account_name',
+      'type',
+      'description',
+      'debits',
+      'credits',
+      'balance',
+      'subcategory',
+    ];
+
+    const sanitizedData = Object.keys(updateData)
+      .filter(key => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = updateData[key];
+        return obj;
+      }, {});
+
+    const result = await db.collection('chart_of_accounts').updateOne(
+      { _id: new ObjectId(id) }, // Convert string ID to ObjectId
+      { $set: sanitizedData }
     );
 
-    if (!result.value) {
-      return res.status(404).json({ error: 'Account not found' });
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ message: `Account ${id} not found.` });
     }
 
-    res.status(200).json(result.value);
+    res.status(200).json({ message: `Account ${id} updated successfully.` });
   } catch (err) {
     console.error('Error updating account:', err);
     res.status(500).json({ error: 'Failed to update account' });

@@ -19,7 +19,7 @@ const Eventlog = () => {
     // You can implement report generation here
   };
 
-  // Fetch current users
+// Fetch current users
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
@@ -98,7 +98,12 @@ const Eventlog = () => {
             }}>
             🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/AccountView");
+              else if (currentUser.role === "Accountant") navigate("/AccountView");
+              else navigate("/accountmanagement");
+            }}>
             👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>

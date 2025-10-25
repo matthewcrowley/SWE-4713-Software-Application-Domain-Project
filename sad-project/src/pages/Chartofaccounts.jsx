@@ -33,7 +33,7 @@ const Chartofaccounts = () => {
 const [editingAccountId, setEditingAccountId] = useState(null);
 const [editedAccount, setEditedAccount] = useState({});
 
-  // Fetch current users
+  // Fetch current user
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
@@ -394,15 +394,20 @@ const handleSave = async (accountId) => {
             }}>
             🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/AccountView");
+              else if (currentUser.role === "Accountant") navigate("/AccountView");
+              else navigate("/accountmanagement");
+            }}>
             👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
-          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+          {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/journalentries")}>
             📖 Journal Entries
-          </button>
+          </button>}
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
           </button>
