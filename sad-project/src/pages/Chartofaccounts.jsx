@@ -27,10 +27,27 @@ const Chartofaccounts = () => {
   const [logsLoading, setLogsLoading] = useState(false);
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
 
 const [editingAccountId, setEditingAccountId] = useState(null);
 const [editedAccount, setEditedAccount] = useState({});
+
+  // Fetch current users
+  useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/curUser");
+            const data = await response.json();
+            setCurrentUser(data.currentUser || []);
+              
+          } catch (err) {
+            console.warn("Could not fetch /api/curUser:", err);
+          }
+        };
+        fetchCurrentUser();
+      }, []);
+
 
   // ===== Fetch Accounts from MongoDB Backend =====
   useEffect(() => {
@@ -138,10 +155,6 @@ const handleSave = async (accountId) => {
     alert('Failed to save account changes.');
   }
 };
-
-  const handleBackToDashboard = () => {
-    navigate('/administrator');
-  };
 
   const handleGenerateReport = () => {
     setOpenReport(true);
@@ -372,7 +385,13 @@ const handleSave = async (accountId) => {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/administrator")}>
+          <button
+            className="nav-button"
+            onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+              else navigate("/administrator");
+            }}>
             🏠 Dashboard
           </button>
           <button className="nav-button" onClick={() => navigate("/accountmanagement")}>

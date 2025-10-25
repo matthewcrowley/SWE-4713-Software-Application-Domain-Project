@@ -49,12 +49,6 @@ export default function Administrator({ setIsLoggedIn }) {
       icon: "📊",
     },
     {
-      title: "Journal Entries",
-      description: "Record transactions",
-      icon: "➕",
-      path: "/JournalEntries"
-    },
-    {
       title: "Search",
       description: "Find accounts and transactions",
       icon: "🔍",
@@ -126,9 +120,6 @@ export default function Administrator({ setIsLoggedIn }) {
           </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
-          </button>
-          <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
           </button>
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger

@@ -85,7 +85,9 @@ const Journal = () => {
 
   // Filter entries by status, date, and search term
   const filteredEntries = useMemo(() => {
-    let entries = journalEntries.filter(e => e.status === activeTab);
+    let entries = activeTab === "all"
+      ? [...journalEntries]
+      : journalEntries.filter(e => e.status === activeTab);
     
     // Date filter
     if (dateFilter.start) {
@@ -348,8 +350,13 @@ const Journal = () => {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/manager")}>
-            🏠 Dashboard
+          <button
+            className="nav-button"
+            onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+            }}>
+                      🏠 Dashboard
           </button>
           <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
             👤 Account Management
@@ -375,15 +382,19 @@ const Journal = () => {
         {/* Tabs */}
         <div className="tabs-container">
           <div className="tabs-header">
-            {['pending', 'approved', 'rejected'].map(tab => (
+            {['all', 'pending', 'approved', 'rejected'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`tab-button ${activeTab === tab ? 'active' : ''}`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} 
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 <span className="tab-count">
-                  ({journalEntries.filter(e => e.status === tab).length})
+                  (
+                    {tab === 'all'
+                      ? journalEntries.length
+                      : journalEntries.filter((e) => e.status === tab).length}
+                  )
                 </span>
               </button>
             ))}
@@ -807,7 +818,7 @@ const Journal = () => {
               )}
             </div>
 
-            {selectedEntry.status === 'pending' && (
+            {selectedEntry.status === 'pending' && currentUser?.role === "Manager" && (
               <div className="modal-footer">
                 <button
                   onClick={() => rejectEntry(selectedEntry._id)}

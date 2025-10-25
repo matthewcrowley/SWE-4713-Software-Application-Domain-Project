@@ -12,19 +12,28 @@ const Eventlog = () => {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState('desc');
   const [sortedLogs, setSortedLogs] = useState([]);
-
-  const handleBackToDashboard = () => {
-    const userRole = sessionStorage.getItem('userRole');
-    if (userRole === 'administrator') navigate('/administrator');
-    else if (userRole === 'manager') navigate('/manager');
-    else if (userRole === 'regularuser') navigate('/regularaccountuser');
-    else navigate('/administrator');
-  };
+  const [currentUser, setCurrentUser] = useState(null);
 
   const handleGenerateReport = () => {
     console.log('Generating report...');
     // You can implement report generation here
   };
+
+  // Fetch current users
+  useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/curUser");
+            const data = await response.json();
+            setCurrentUser(data.currentUser || []);
+              
+          } catch (err) {
+            console.warn("Could not fetch /api/curUser:", err);
+          }
+        };
+        fetchCurrentUser();
+      }, []);
+
 
   // Fetch event logs from API
   useEffect(() => {
@@ -80,7 +89,13 @@ const Eventlog = () => {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/administrator")}>
+          <button
+            className="nav-button"
+            onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+              else navigate("/administrator");
+            }}>
             🏠 Dashboard
           </button>
           <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
