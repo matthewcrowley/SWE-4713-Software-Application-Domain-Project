@@ -100,7 +100,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
               <div className="username">
                 {currentUser?.curUsername || "matthewwilliam#1"}
               </div>
-              <span className="regularuser-badge">RegUser</span>
+              <span className="regularuser-badge">Accountant</span>
             </div>
             <button className="logout-button" onClick={handleLogout}>
               Logout
@@ -118,16 +118,19 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             🏠 Dashboard
           </button>
           <button className="nav-button" onClick={() => navigate("/AccountView")}>
-            👤 Accounts
+            👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart
+            📋 Chart of Accounts
           </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal
+            📖 Journal Entries
+          </button>
+          <button className="nav-button" onClick={() => navigate("/ledger")}>
+            📙 Ledger
           </button>
         </nav>
       </header>
