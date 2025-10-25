@@ -184,9 +184,23 @@ const Journal = () => {
       return;
     }
 
-    const filteredEntries = newEntry.entries.filter(
-      e => e.accountId && (parseFloat(e.debit) > 0 || parseFloat(e.credit) > 0)
-    );
+    const filteredEntries = newEntry.entries.filter((e) => {
+        // Only keep entries with accountId and debit/credit > 0
+        if (!e.accountId || (parseFloat(e.debit) <= 0 && parseFloat(e.credit) <= 0)) {
+          return false;
+        }
+
+        // Convert entry date and filter dates to Date objects
+        const entryDate = new Date(e.date);
+        const startDate = dateFilter.start ? new Date(dateFilter.start) : null;
+        const endDate = dateFilter.end ? new Date(dateFilter.end) : null;
+
+        // Apply date filter
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+
+        return true; // Keep entry
+      });
 
     const formData = new FormData();
       formData.append('date', newEntry.date);
@@ -400,24 +414,39 @@ const Journal = () => {
           {/* Date Filter */}
           <div className="filter-container">
             <span className="filter-icon">📅</span>
+
             <label className="filter-label">
               <span>From:</span>
               <input
                 type="date"
                 value={dateFilter.start}
-                onChange={(e) => setDateFilter({ ...dateFilter, start: e.target.value })}
+                max={dateFilter.end || undefined} // Prevent choosing a start date after end
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    start: e.target.value,
+                  }))
+                }
                 className="date-input"
               />
             </label>
+
             <label className="filter-label">
               <span>To:</span>
               <input
                 type="date"
                 value={dateFilter.end}
-                onChange={(e) => setDateFilter({ ...dateFilter, end: e.target.value })}
+                min={dateFilter.start || undefined} // Prevent choosing an end date before start
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    end: e.target.value,
+                  }))
+                }
                 className="date-input"
               />
             </label>
+
             {(dateFilter.start || dateFilter.end) && (
               <button
                 onClick={() => setDateFilter({ start: '', end: '' })}
