@@ -218,9 +218,8 @@ function NewUser() {
               type="text"
               name="username"
               className="form-input"
-              placeholder="Enter your username"
               value={formData.username}
-              onChange={handleChange}
+              readOnly
             />
           </div>
 
