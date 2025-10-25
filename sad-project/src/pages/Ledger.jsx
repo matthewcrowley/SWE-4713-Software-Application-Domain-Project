@@ -165,10 +165,31 @@ const Ledger = () => {
               </p>
             )}
           </div>
+          <nav className="dashboard-nav">
+          <div className="button-container">
+            <Calendar title="Calander" />
+            <span className="tooltiptext">Click here to open the calendar</span>
+          </div>
+          <button className="nav-button" onClick={() => navigate("/manager")}>
+            🏠 Dashboard
+          </button>
+          <button className="nav-button" onClick={() => navigate("/AccountView")}>
+            👤 Account Management
+          </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart of Accounts
+          </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+            📝 Event Log
+          </button>
+          <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journal Entries
+          </button>
+        </nav>
+
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Calendar />
           <div className="header-actions">
             <Button 
               className="back-btn" 

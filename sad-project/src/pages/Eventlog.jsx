@@ -84,16 +84,16 @@ const Eventlog = () => {
             🏠 Dashboard
           </button>
           <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
-            👤 Accounts
+            👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart
-          </button>
-          <button className="nav-button" onClick={() => navigate("/eventlog")}>
-            📝 Event Log
+            📋 Chart of Accounts
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal
+            📖 Journal Entries
+          </button>
+          <button className="nav-button" onClick={() => navigate("/ledger")}>
+            📙 Ledger
           </button>
         </nav>
 
