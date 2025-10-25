@@ -13,12 +13,13 @@ import ViewAccounts from "./pages/Accountview";
 import Eventlog from "./pages/Eventlog";
 import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
-import Calendar from "./pages/components/Calendar";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  var role = " "; // Placeholder for user role management
+  var curUsername; 
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {
@@ -47,18 +48,6 @@ function App() {
         setMessage("Username must be at least 8 characters.");
         return;
       }
-      if (password.length < 8) {
-        setMessage("Password must be at least 8 characters.");
-        return;
-      }
-      if (!/^[A-Za-z]/.test(password)) {
-        setMessage("Password must start with a letter.");
-        return;
-      }
-      if (!/(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-])/.test(password)) {
-        setMessage("Password must contain at least one letter, one number, and one special character.");
-        return;
-      }
 
       setMessage("Processing...");
 
@@ -66,21 +55,86 @@ function App() {
       console.log("Username:", username);
       console.log("Hashed password:", hashed);
 
-      // Mark user as logged in
-      setIsLoggedIn(true);
+      try {
+          const response = await fetch("http://localhost:3000/api/users");
+          const data = await response.json();
+          const user = data.find((u) => u.username === username);  
+          
+          if(user.suspended) {
+            setMessage("Account is suspended. Please contact an administrator.");
+            return;
+          }
+          
+          if (user && (user.passwordHash == hashed)) {
+            role = user.role;
+            curUsername = user.username;
+            setIsLoggedIn(true);
+            console.log(curUsername)
 
-      if (password === "Administrator#01") {
-        navigate("/administrator");
-      } else if (password === "Manageruser#02") {
-        navigate("/manager");
-      } else if (password === "Accountuser#03") {
-        navigate("/regularaccountuser");
-      } else {
-        setIsLoggedIn(false);
-        setMessage("Invalid input for role-based login.");
-        return;
-      }
+            // POST current user info to /api/curUser
+            try {
+              const curUserResponse = await fetch("http://localhost:3000/api/curUser", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  curUsername,
+                  role,
+                  }),
+                  });
+
+                  if (!curUserResponse.ok) {
+                    throw new Error("Failed to post current user");
+                  }
+
+                  console.log("Current user successfully posted to /api/curUser");
+                } catch (error) {
+                  console.error("Error uploading current user:", error);
+                  setMessage("Server error. Please try again later.");
+                }
+
+                if (role === "Admin") {
+                  navigate("/administrator");
+                } else if (role === "Manager") {
+                  navigate("/manager");
+                } else if (role === "Accountant") {
+                  navigate("/regularaccountuser");
+                } else {
+                  setIsLoggedIn(false);
+                  setMessage("Invalid input for role-based login.");
+                  return;
+                }
+
+          } else {
+
+            // ❌ Wrong credentials — track failed attempts
+            const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
+            failedAttempts[username] = (failedAttempts[username] || 0) + 1;
+
+            if (failedAttempts[username] >= 3) {
+              // Suspend user
+              const suspendedUsers = JSON.parse(localStorage.getItem("suspendedUsers")) || {};
+              suspendedUsers[username] = true;
+              localStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
+              setMessage("Account suspended after 3 failed login attempts.");
+
+              await fetch(`http://localhost:3000/api/users/${username}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ suspended: true }),
+              });
+            }
+            else 
+            {   
+                localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
+                setMessage(`Invalid username or password. (${failedAttempts[username]} of 3 attempts used)`);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user:", error);
+          setMessage("Failed to load users.");
+      } 
     };
+
 
     const handleCreateUser = () => navigate("/new-user");
     const handleClear = () => {
@@ -88,7 +142,7 @@ function App() {
       setPassword("");
       setMessage("");
     };
-
+  
     return (
       <div className="login-container">
         <HelpButton />
@@ -124,17 +178,6 @@ function App() {
                 data-testid="passinput"
               />
             </div>
-      <div className="form-group">
-        <label htmlFor="password">Password:</label>
-        <input
-          type="password"
-          id="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          data-testid="passinput"
-        />
-        
-      </div>
 
             <button data-testid="loginbtn" className="login-button" onClick={handleLogin}>
               Sign In

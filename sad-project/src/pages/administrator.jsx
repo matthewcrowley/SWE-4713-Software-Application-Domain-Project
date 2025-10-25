@@ -13,13 +13,12 @@ export default function Administrator({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const res = await fetch("/api/me");
-        if (res.ok) {
-          const data = await res.json();
-          setCurrentUser(data);
-        }
+        const response = await fetch("http://localhost:3000/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+        
       } catch (err) {
-        console.warn("Could not fetch /api/me:", err);
+        console.warn("Could not fetch /api/curUser:", err);
       }
     };
     fetchCurrentUser();
@@ -100,7 +99,7 @@ export default function Administrator({ setIsLoggedIn }) {
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
-                {currentUser?.username || "Devinjacksonadmin#08"}
+                {currentUser?.curUsername || "Devinjacksonadmin#08"}
               </div>
               <span className="admin-badge">Admin</span>
             </div>

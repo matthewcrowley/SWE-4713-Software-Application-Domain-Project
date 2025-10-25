@@ -44,6 +44,20 @@ function NewUser() {
         return true;
     };
 
+    //Create username 
+    function generateUsername(firstName, lastName) {
+      if (!firstName || !lastName) return "";
+
+      const firstInitial = firstName[0].toLowerCase();
+      const lastNameLower = lastName.toLowerCase();
+
+      const now = new Date();
+      const month = String(now.getMonth() + 1).padStart(2, "0"); // 01–12
+      const year = String(now.getFullYear()).slice(-2);          // last 2 digits
+
+      return `${firstInitial}${lastNameLower}${month}${year}`;
+    }
+
     const handleCreateAccount = async () => {
         const{ firstName, lastName, address, dob, email, username, password } = formData;
 
@@ -58,23 +72,7 @@ function NewUser() {
         }
 
         if(!validatePassword(password)) return;
-
-        if(password === "Administrator#01") {
-          setMessage("Administrator login created!");
-          navigate("/administrator"); // sends user to admin dashboard
-          return;
-        }
-
-        if(password === "Manageruser#02") {
-          setMessage("Manager login created!");
-          navigate("/manager"); // sends user to manager dashboard
-        }
-
-        if(password === "Accountuser#03") {
-          setMessage("Regular account user login created!");
-          navigate("/regularaccountuser"); // sends user to account user dashboard
-        }
-
+       
         const hashed = await hashedPassword(password);
 
         try {
@@ -115,10 +113,21 @@ function NewUser() {
   };
 
   const handleChange = (e) => {
-    setFormData({
-        ...formData,
-        [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+  setFormData((prev) => {
+    const updatedData = { ...prev, [name]: value };
+
+    // Auto-generate username if firstName or lastName changes
+    if (name === "firstName" || name === "lastName") {
+      updatedData.username = generateUsername(
+        updatedData.firstName,
+        updatedData.lastName
+      );
+    }
+
+    return updatedData;
+  });
   };
 
   const handleClear = () => {

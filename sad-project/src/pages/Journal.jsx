@@ -10,12 +10,28 @@ const Journal = () => {
   const [chartOfAccounts, setChartOfAccounts] = useState([]);
   const [journalEntries, setJournalEntries] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
-  const [showNewEntry, setShowNewEntry] = useState(false);
+  const [showNewEntry, setShowNewEntry] = useState(false); 
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Fetch current users
+  useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/curUser");
+            const data = await response.json();
+            setCurrentUser(data.currentUser || []);
+            
+          } catch (err) {
+            console.warn("Could not fetch /api/curUser:", err);
+          }
+        };
+        fetchCurrentUser();
+      }, []);
 
   // New Entry Form State
   const [newEntry, setNewEntry] = useState({
@@ -131,13 +147,22 @@ const Journal = () => {
     setNewEntry({ ...newEntry, entries: updated });
   };
 
-  // Add new line
-  const addLine = () => {
-    setNewEntry({
-      ...newEntry,
-      entries: [...newEntry.entries, { accountId: '', accountName: '', debit: '', credit: '' }]
-    });
-  };
+  //Add line
+  const addLine = (type) => {
+  setNewEntry((prev) => ({
+    ...prev,
+    entries: [
+      ...prev.entries,
+      {
+        type, // 👈 This is what determines where it shows
+        accountId: '',
+        debit: type === 'debit' ? '' : 0,
+        credit: type === 'credit' ? '' : 0,
+        attachment: null,
+      },
+    ],
+  }));
+};
 
   // Remove line
   const removeLine = (index) => {
@@ -159,9 +184,23 @@ const Journal = () => {
       return;
     }
 
-    const filteredEntries = newEntry.entries.filter(
-      e => e.accountId && (parseFloat(e.debit) > 0 || parseFloat(e.credit) > 0)
-    );
+    const filteredEntries = newEntry.entries.filter((e) => {
+        // Only keep entries with accountId and debit/credit > 0
+        if (!e.accountId || (parseFloat(e.debit) <= 0 && parseFloat(e.credit) <= 0)) {
+          return false;
+        }
+
+        // Convert entry date and filter dates to Date objects
+        const entryDate = new Date(e.date);
+        const startDate = dateFilter.start ? new Date(dateFilter.start) : null;
+        const endDate = dateFilter.end ? new Date(dateFilter.end) : null;
+
+        // Apply date filter
+        if (startDate && entryDate < startDate) return false;
+        if (endDate && entryDate > endDate) return false;
+
+        return true; // Keep entry
+      });
 
     const formData = new FormData();
       formData.append('date', newEntry.date);
@@ -185,11 +224,12 @@ const Journal = () => {
           date: newEntry.date,
           description: newEntry.description,
           status: 'pending',
+          createdBy: currentUser.curUsername,
           entries: newEntry.entries.map(e => ({
             accountId: e.accountId,
             accountName: e.accountName,
             debit: parseFloat(e.debit) || 0,
-            credit: parseFloat(e.credit) || 0
+            credit: parseFloat(e.credit) || 0, 
           }))
         })
       });
@@ -374,24 +414,39 @@ const Journal = () => {
           {/* Date Filter */}
           <div className="filter-container">
             <span className="filter-icon">📅</span>
+
             <label className="filter-label">
               <span>From:</span>
               <input
                 type="date"
                 value={dateFilter.start}
-                onChange={(e) => setDateFilter({ ...dateFilter, start: e.target.value })}
+                max={dateFilter.end || undefined} // Prevent choosing a start date after end
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    start: e.target.value,
+                  }))
+                }
                 className="date-input"
               />
             </label>
+
             <label className="filter-label">
               <span>To:</span>
               <input
                 type="date"
                 value={dateFilter.end}
-                onChange={(e) => setDateFilter({ ...dateFilter, end: e.target.value })}
+                min={dateFilter.start || undefined} // Prevent choosing an end date before start
+                onChange={(e) =>
+                  setDateFilter((prev) => ({
+                    ...prev,
+                    end: e.target.value,
+                  }))
+                }
                 className="date-input"
               />
             </label>
+
             {(dateFilter.start || dateFilter.end) && (
               <button
                 onClick={() => setDateFilter({ start: '', end: '' })}
@@ -475,6 +530,12 @@ const Journal = () => {
                     placeholder="Enter description"
                   />
                 </div>
+                <input
+                   type="file"
+                   accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
+                   onChange={(e) => handleFileUpload(index, e.target.files[0])}
+                   className="file-input"
+                 />
               </div>
 
               <div className="journal-table-container">
@@ -488,84 +549,157 @@ const Journal = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {newEntry.entries.map((entry, index) => (
-                      <tr key={index}>
-                        <td>
-                          <select
-                            value={entry.accountId}
-                            onChange={(e) => handleAccountChange(index, e.target.value)}
-                            className="form-select"
-                          >
-                            <option value="">Select Account</option>
-                            {chartOfAccounts.map(acc => (
-                              <option key={acc._id} value={acc.account_number}>
-                                {acc.account_number} - {acc.account_name}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={entry.debit}
-                            onChange={(e) => handleAmountChange(index, 'debit', e.target.value)}
-                            className="form-input text-right"
-                            placeholder="0.00"
-                            step="0.01"
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            value={entry.credit}
-                            onChange={(e) => handleAmountChange(index, 'credit', e.target.value)}
-                            className="form-input text-right"
-                            placeholder="0.00"
-                            step="0.01"
-                          />
-                        </td>
-                        
-                          <input
-                            type="file"
-                            accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
-                            onChange={(e) => handleFileUpload(index, e.target.files[0])}
-                            className="file-input"
-                          />
-                          {entry.attachment && (
-                            <div className="file-name" style={{color: 'black !important'}}>
-                              {entry.attachment.name}
-                            </div>
-                          )}    
+                  {(() => {
+                  const selectedAccountIds = newEntry.entries.map(e => e.accountId);
+                      return (
+                        <>
+                        {/* ==== Debit Section ==== */}
+                        <tr>
+                          <th colSpan="4" className="text-left bg-gray-100">
+                            <strong>Debits</strong>
+                          </th>
+                        </tr>
+                        {newEntry.entries
+                          .map((entry, index) => ({ ...entry, realIndex: index }))
+                          .filter((entry) => entry.type === 'debit')
+                          .map((entry) => (
+                            <tr key={`debit-${entry.realIndex}`}>
+                              <td>
+                                <select
+                                  value={entry.accountId}
+                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                  className="form-select"
+                                >
+                                  <option value="">Select Account</option>
+                                  {chartOfAccounts
+                                    .filter(
+                                      (acc) =>
+                                        !selectedAccountIds.includes(acc.account_number) ||
+                                        acc.account_number === entry.accountId
+                                    )
+                                    .map((acc) => (
+                                      <option key={acc._id} value={acc.account_number}>
+                                        {acc.account_number} - {acc.account_name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={entry.debit || ''}
+                                  onChange={(e) =>
+                                    handleAmountChange(entry.realIndex, 'debit', e.target.value)
+                                  }
+                                  className="form-input text-right"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                />
+                              </td>
+                              <td></td>
+                              <td>
+                                {newEntry.entries.filter((e) => e.type === 'debit').length > 1 && (
+                                  <button
+                                    onClick={() => removeLine(entry.realIndex)}
+                                    className="remove-line-btn"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
 
-                        <td>
-                          {newEntry.entries.length > 2 && (
-                            <button
-                              onClick={() => removeLine(index)}
-                              className="remove-line-btn"
-                            >
-                              ×
+                        {/* Add Debit Line */}
+                        <tr>
+                          <td colSpan="4">
+                            <button onClick={() => addLine('debit')} className="add-line-btn">
+                              + Add Debit Line
                             </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                    <tr className="totals-row">
-                      <td className="text-right"><strong>Totals:</strong></td>
-                      <td className="text-right"><strong>${totals.debit.toFixed(2)}</strong></td>
-                      <td className="text-right"><strong>${totals.credit.toFixed(2)}</strong></td>
-                      <td></td>
-                    </tr>
+                          </td>
+                        </tr>
+
+                        {/* ==== Credit Section ==== */}
+                        <tr>
+                          <th colSpan="4" className="text-left bg-gray-100">
+                            <strong>Credits</strong>
+                          </th>
+                        </tr>
+
+                        {newEntry.entries
+                          .map((entry, index) => ({ ...entry, realIndex: index }))
+                          .filter((entry) => entry.type === 'credit')
+                          .map((entry) => (
+                            <tr key={`credit-${entry.realIndex}`}>
+                              <td>
+                                <select
+                                  value={entry.accountId}
+                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                  className="form-select"
+                                >
+                                  <option value="">Select Account</option>
+                                  {chartOfAccounts
+                                    .filter(
+                                      (acc) =>
+                                        !selectedAccountIds.includes(acc.account_number) ||
+                                        acc.account_number === entry.accountId
+                                    )
+                                    .map((acc) => (
+                                      <option key={acc._id} value={acc.account_number}>
+                                        {acc.account_number} - {acc.account_name}
+                                      </option>
+                                    ))}
+                                </select>
+                              </td>
+                              <td></td>
+                              <td>
+                                <input
+                                  type="number"
+                                  value={entry.credit || ''}
+                                  onChange={(e) =>
+                                    handleAmountChange(entry.realIndex, 'credit', e.target.value)
+                                  }
+                                  className="form-input text-right"
+                                  placeholder="0.00"
+                                  step="0.01"
+                                />
+                              </td>
+                              <td>
+                                {newEntry.entries.filter((e) => e.type === 'credit').length > 1 && (
+                                  <button
+                                    onClick={() => removeLine(entry.realIndex)}
+                                    className="remove-line-btn"
+                                  >
+                                    ×
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+
+                        {/* Add Credit Line */}
+                        <tr>
+                          <td colSpan="4">
+                            <button onClick={() => addLine('credit')} className="add-line-btn">
+                              + Add Credit Line
+                            </button>
+                          </td>
+                        </tr>
+                      </>
+                    );
+                  })()}   
                   </tbody>
                 </table>
               </div>
-
-              <button onClick={addLine} className="add-line-btn">
-                + Add Line
-              </button>
-
               {!totals.balanced && totals.debit > 0 && (
                 <div className="error-message">
-                  Entry is not balanced. Debits: ${totals.debit.toFixed(2)}, Credits: ${totals.credit.toFixed(2)}
+                  Entry is not balanced. Debits: ${totals.debit.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}, Credits: ${totals.credit.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}
                 </div>
               )}
             </div>
@@ -626,11 +760,19 @@ const Journal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedEntry.entries.map((entry, idx) => (
+                  {selectedEntry.entries.filter(entry => 
+                  entry.accountId || entry.debit > 0 || entry.credit > 0)
+                  .map((entry, idx) => (
                     <tr key={idx}>
                       <td>{entry.accountId} - {entry.accountName}</td>
-                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toFixed(2)}` : '-'}</td>
-                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toFixed(2)}` : '-'}</td>
+                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : '-'}</td>
+                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : '-'}</td>
                     </tr>
                   ))}
                 </tbody>

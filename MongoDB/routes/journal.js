@@ -64,7 +64,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const db = getDB();
-    const { date, description, entries } = req.body;
+    const { date, description, createdBy, entries } = req.body;
 
     // Validation
     if (!date || !description || !entries || entries.length < 2) {
@@ -106,7 +106,7 @@ router.post('/', async (req, res) => {
         credit: parseFloat(e.credit || 0)
       })),
       status: 'pending',
-      createdBy: req.user?.id || 'Unknown',
+      createdBy: createdBy, 
       createdAt: new Date(),
       reviewedBy: null,
       reviewedAt: null,
