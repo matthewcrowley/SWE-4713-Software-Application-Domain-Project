@@ -48,18 +48,6 @@ function App() {
         setMessage("Username must be at least 8 characters.");
         return;
       }
-      if (password.length < 8) {
-        setMessage("Password must be at least 8 characters.");
-        return;
-      }
-      if (!/^[A-Za-z]/.test(password)) {
-        setMessage("Password must start with a letter.");
-        return;
-      }
-      if (!/(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_+[\]{};':"\\|,.<>/?-])/.test(password)) {
-        setMessage("Password must contain at least one letter, one number, and one special character.");
-        return;
-      }
 
       setMessage("Processing...");
 
@@ -70,7 +58,12 @@ function App() {
       try {
           const response = await fetch("http://localhost:3000/api/users");
           const data = await response.json();
-          const user = data.find((u) => u.username === username);       
+          const user = data.find((u) => u.username === username);  
+          
+          if(user.suspended) {
+            setMessage("Account is suspended. Please contact an administrator.");
+            return;
+          }
           
           if (user && (user.passwordHash == hashed)) {
             role = user.role;
@@ -98,25 +91,48 @@ function App() {
                   console.error("Error uploading current user:", error);
                   setMessage("Server error. Please try again later.");
                 }
+
+                if (role === "Admin") {
+                  navigate("/administrator");
+                } else if (role === "Manager") {
+                  navigate("/manager");
+                } else if (role === "Accountant") {
+                  navigate("/regularaccountuser");
+                } else {
+                  setIsLoggedIn(false);
+                  setMessage("Invalid input for role-based login.");
+                  return;
+                }
+
           } else {
-            setMessage("Invalid username or password.");
+
+            // ❌ Wrong credentials — track failed attempts
+            const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
+            failedAttempts[username] = (failedAttempts[username] || 0) + 1;
+
+            if (failedAttempts[username] >= 3) {
+              // Suspend user
+              const suspendedUsers = JSON.parse(localStorage.getItem("suspendedUsers")) || {};
+              suspendedUsers[username] = true;
+              localStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
+              setMessage("Account suspended after 3 failed login attempts.");
+
+              await fetch(`http://localhost:3000/api/users/${username}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ suspended: true }),
+              });
+            }
+            else 
+            {   
+                localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
+                setMessage(`Invalid username or password. (${failedAttempts[username]} of 3 attempts used)`);
+            }
           }
         } catch (error) {
           console.error("Error fetching user:", error);
           setMessage("Failed to load users.");
       } 
-
-      if (role === "Admin") {
-        navigate("/administrator");
-      } else if (role === "Manager") {
-        navigate("/manager");
-      } else if (role === "Accountant") {
-        navigate("/regularaccountuser");
-      } else {
-        setIsLoggedIn(false);
-        setMessage("Invalid input for role-based login.");
-        return;
-      }
     };
 
 

@@ -22,7 +22,9 @@ dbRoute.post('/', async (q, r) => {
       passwordHash,
       createdAt: new Date(),
       approved: false,
-      role: " "
+      role: " ", 
+      suspended: false, 
+      active: true
     };
 
     const result = await mongoDB.collection('users').insertOne(newUser);

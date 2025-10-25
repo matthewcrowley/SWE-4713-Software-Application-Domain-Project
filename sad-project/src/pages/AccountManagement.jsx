@@ -185,11 +185,11 @@ export default function AccountManagement() {
 
       if (data.success) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === user.id ? { ...u, active: !u.active } : u))
+          prev.map((u) => (u._id === user._id ? { ...u, active: !u.active } : u))
         );
         setMessage(
           `User ${user.username} is now ${
-            !user.active ? "active" : "inactive"
+            !user.active ? "true" : "false"
           }`
         );
       } else {
@@ -234,7 +234,7 @@ export default function AccountManagement() {
           username: "",
           email: "",
           password: "",
-          role: "User",
+          role: "",
         });
         setShowCreateUser(false);
       } else {
@@ -249,19 +249,19 @@ export default function AccountManagement() {
   // Generate User Report
   const generateUserReport = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/users/report");
-      const data = await response.json();
-      
-      if (data.success) {
-        setUserReportData(data.users);
-        setShowUserReport(true);
-      } else {
-        setMessage("Failed to generate user report");
-      }
-    } catch (error) {
-      console.error("Error generating report:", error);
-      setMessage("Server error while generating report.");
+    const response = await fetch("http://localhost:3000/api/users");
+    const data = await response.json();
+
+    if (Array.isArray(data)) {
+      setUserReportData(data);
+      setShowUserReport(true);
+    } else {
+      setMessage("Failed to generate user report");
     }
+  } catch (error) {
+    console.error("Error generating report:", error);
+    setMessage("Server error while generating report.");
+  }
   };
 
   // Open suspend dialog
@@ -683,9 +683,8 @@ export default function AccountManagement() {
                             {u.active ? "Deactivate" : "Activate"}
                           </Button>
                           <Button
-                            className="btn"
+                            className={`btn ${u.suspended ? "unsuspend" : "suspend"}`}
                             size="small"
-                            style={{ backgroundColor: '#ff9800' }}
                             onClick={() => openSuspendDialog(u)}
                           >
                             Suspend
@@ -827,6 +826,7 @@ export default function AccountManagement() {
                   <TableCell><strong>Email</strong></TableCell>
                   <TableCell><strong>Role</strong></TableCell>
                   <TableCell><strong>Status</strong></TableCell>
+                  <TableCell><strong>Suspended</strong></TableCell>
                   <TableCell><strong>Created Date</strong></TableCell>
                   <TableCell><strong>Last Login</strong></TableCell>
                 </TableRow>
@@ -838,14 +838,17 @@ export default function AccountManagement() {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
                     <TableCell>
-                      {user.suspended ? (
-                        <Chip label="Suspended" color="warning" size="small" />
-                      ) : user.active ? (
+                      {user.active ? (
                         <Chip label="Active" color="success" size="small" />
                       ) : (
                         <Chip label="Inactive" color="error" size="small" />
                       )}
                     </TableCell>
+                    <TableCell>{user.suspended ? (
+                      <Chip label="True" color="warning" size="small" />
+                    ) : (
+                      <Chip label="False" color="default" size="small" />
+                    )}</TableCell>
                     <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                     <TableCell>{user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "Never"}</TableCell>
                   </TableRow>
