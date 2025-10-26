@@ -15,7 +15,22 @@ export default function Accountview() {
   // eslint-disable-next-line no-unused-vars
   const [accounts, setAccounts] = useState([]);
   const [sortedAccounts, setSortedAccounts] = useState([]);
-  
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // Fetch current users
+  useEffect(() => {
+        const fetchCurrentUser = async () => {
+          try {
+            const response = await fetch("http://localhost:3000/api/curUser");
+            const data = await response.json();
+            setCurrentUser(data.currentUser || []);
+              
+          } catch (err) {
+            console.warn("Could not fetch /api/curUser:", err);
+          }
+        };
+        fetchCurrentUser();
+      }, []);
 
   // Fetch users
   useEffect(() => {
@@ -73,12 +88,6 @@ export default function Accountview() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <button
-            className="back-btn"
-            onClick={handleBack}
-          >
-            Back to Dashboard
-          </button>
-          <button
             className="btn"
             onClick={() => setMessage("No Current Expired Passwords")}
           >
@@ -95,7 +104,12 @@ export default function Accountview() {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/manager")}>
+          <button
+            className="nav-button"
+            onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+            }}>
             🏠 Dashboard
           </button>
           <button className="nav-button">

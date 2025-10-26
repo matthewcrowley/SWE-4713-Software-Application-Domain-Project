@@ -85,7 +85,9 @@ const Journal = () => {
 
   // Filter entries by status, date, and search term
   const filteredEntries = useMemo(() => {
-    let entries = journalEntries.filter(e => e.status === activeTab);
+    let entries = activeTab === "all"
+      ? [...journalEntries]
+      : journalEntries.filter(e => e.status === activeTab);
     
     // Date filter
     if (dateFilter.start) {
@@ -265,7 +267,53 @@ const Journal = () => {
       throw new Error(errorData.error || 'Failed to approve journal entry');
     }
 
+    const approvedEntry = journalEntries.find((e) => e._id === entryId);
+    if (!approvedEntry) {
+      throw new Error('Approved entry not found in local data.');
+    }
+
+    // Update each account's balance
+    for (const line of approvedEntry.entries) {
+      const { accountId, debit = 0, credit = 0 } = line;
+      const debitVal = parseFloat(debit) || 0;
+      const creditVal = parseFloat(credit) || 0;
+
+      // Match account by account_number
+      const account = chartOfAccounts.find(acc => acc.account_number === accountId);
+      if (!account) {
+        console.warn(`⚠️ Account ${accountId} not found, skipping.`);
+        continue;
+      }
+
+      let newBalance = parseFloat(account.balance) || 0;
+      let newDebits = parseFloat(account.debits) || 0;
+      let newCredits = parseFloat(account.credits) || 0;
+
+      if (account.normal_side === "L") {
+        newBalance += debitVal;
+        newBalance -= creditVal;
+      } else {
+        newBalance -= debitVal;
+        newBalance += creditVal;
+      }
+
+      newDebits += debitVal;
+      newCredits += creditVal;
+
+      // Update account in backend
+      await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          balance: newBalance,
+          debits: newDebits,
+          credits: newCredits,
+        }),
+      });
+    }
+
       await fetchJournalEntries();
+      await fetchChartOfAccounts();
       setSelectedEntry(null);
     } catch (err) {
       alert('Error approving entry: ' + err.message);
@@ -348,10 +396,20 @@ const Journal = () => {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/manager")}>
-            🏠 Dashboard
+          <button
+            className="nav-button"
+            onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+            }}>
+                      🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/accountmanagement")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/AccountView");
+              else if (currentUser.role === "Accountant") navigate("/AccountView");
+              else navigate("/accountmanagement");
+            }}>
             👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
@@ -375,15 +433,19 @@ const Journal = () => {
         {/* Tabs */}
         <div className="tabs-container">
           <div className="tabs-header">
-            {['pending', 'approved', 'rejected'].map(tab => (
+            {['all', 'pending', 'approved', 'rejected'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`tab-button ${activeTab === tab ? 'active' : ''}`}
               >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)} 
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 <span className="tab-count">
-                  ({journalEntries.filter(e => e.status === tab).length})
+                  (
+                    {tab === 'all'
+                      ? journalEntries.length
+                      : journalEntries.filter((e) => e.status === tab).length}
+                  )
                 </span>
               </button>
             ))}
@@ -807,7 +869,7 @@ const Journal = () => {
               )}
             </div>
 
-            {selectedEntry.status === 'pending' && (
+            {selectedEntry.status === 'pending' && currentUser?.role === "Manager" && (
               <div className="modal-footer">
                 <button
                   onClick={() => rejectEntry(selectedEntry._id)}

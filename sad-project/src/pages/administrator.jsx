@@ -49,12 +49,6 @@ export default function Administrator({ setIsLoggedIn }) {
       icon: "📊",
     },
     {
-      title: "Journal Entries",
-      description: "Record transactions",
-      icon: "➕",
-      path: "/JournalEntries"
-    },
-    {
       title: "Search",
       description: "Find accounts and transactions",
       icon: "🔍",

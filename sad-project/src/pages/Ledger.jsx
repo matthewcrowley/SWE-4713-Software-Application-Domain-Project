@@ -170,10 +170,20 @@ const Ledger = () => {
             <Calendar title="Calander" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
-          <button className="nav-button" onClick={() => navigate("/manager")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/manager");
+              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+              else navigate("/administrator");
+            }}>
             🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/AccountView")}>
+          <button className="nav-button"
+          onClick={() => {
+              if (currentUser.role === "Manager") navigate("/AccountView");
+              else if (currentUser.role === "Accountant") navigate("/AccountView");
+              else navigate("/accountmanagement");
+            }}>
             👤 Account Management
           </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
