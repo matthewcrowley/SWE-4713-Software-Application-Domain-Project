@@ -132,7 +132,7 @@ const handleSave = async (accountId) => {
   try {
     const payload = { ...editedAccount, _id: accountId }; // include _id in body
 
-    const response = await fetch('http://localhost:3000/api/accounts', {
+    const response = await fetch(`http://localhost:3000/api/accounts/${accountId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
