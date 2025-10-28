@@ -262,7 +262,7 @@ function App() {
           }
         />
 
-         <Route
+        <Route
           path="/eventlog"
           element={
             isLoggedIn ? <Eventlog /> : <Navigate to="/" replace />
@@ -276,6 +276,7 @@ function App() {
           }
         />
 
+        {/* ✅ Journal Entry Routes - with optional highlighting parameter */}
         <Route
           path="/JournalEntries"
           element={
@@ -283,13 +284,25 @@ function App() {
           }
         />
         <Route
+          path="/journal/:highlightEntryId?"
+          element={
+            isLoggedIn ? <Journal /> : <Navigate to="/" replace />
+          }
+        />
+
+        {/* ✅ Ledger Routes - with account ID parameter */}
+        <Route
           path="/ledger"
           element={
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
-          />
-
-          <Route path="/ledger/:accountId" element={<Ledger />} />
+        />
+        <Route
+          path="/ledger/:accountId"
+          element={
+            isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
+          }
+        />
       </Routes>
     </Router>
   );
