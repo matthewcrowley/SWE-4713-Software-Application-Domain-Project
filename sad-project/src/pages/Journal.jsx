@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
@@ -7,6 +7,7 @@ import './Journal.css';
 
 const Journal = () => {
   const navigate = useNavigate();
+  const { highlightEntryId } = useParams(); // For navigating from ledger to specific entry
   const [chartOfAccounts, setChartOfAccounts] = useState([]);
   const [journalEntries, setJournalEntries] = useState([]);
   const [activeTab, setActiveTab] = useState('pending');
@@ -17,29 +18,48 @@ const Journal = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [entryTypeFilter, setEntryTypeFilter] = useState('all'); // 'all', 'regular', 'adjusting'
 
   // Fetch current users
   useEffect(() => {
-        const fetchCurrentUser = async () => {
-          try {
-            const response = await fetch("http://localhost:3000/api/curUser");
-            const data = await response.json();
-            setCurrentUser(data.currentUser || []);
-            
-          } catch (err) {
-            console.warn("Could not fetch /api/curUser:", err);
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  // Highlight specific entry when navigating from ledger
+  useEffect(() => {
+    if (highlightEntryId && journalEntries.length > 0) {
+      const entry = journalEntries.find(e => e._id === highlightEntryId);
+      if (entry) {
+        setSelectedEntry(entry);
+        // Scroll to the entry if needed
+        setTimeout(() => {
+          const element = document.getElementById(`entry-${highlightEntryId}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
-        };
-        fetchCurrentUser();
-      }, []);
+        }, 100);
+      }
+    }
+  }, [highlightEntryId, journalEntries]);
 
   // New Entry Form State
   const [newEntry, setNewEntry] = useState({
     date: new Date().toISOString().split('T')[0],
     description: '',
+    isAdjustingEntry: false,
+    attachments: [], // Array to store multiple files
     entries: [
-      { accountId: '', accountName: '', debit: '', credit: '' },
-      { accountId: '', accountName: '', debit: '', credit: '' }
+      { accountId: '', accountName: '', debit: '', credit: '', type: 'debit' },
+      { accountId: '', accountName: '', debit: '', credit: '', type: 'credit' }
     ]
   });
 
@@ -83,11 +103,19 @@ const Journal = () => {
     return { debit: debitTotal, credit: creditTotal, balanced: debitTotal === creditTotal && debitTotal > 0 };
   }, [newEntry.entries]);
 
-  // Filter entries by status, date, and search term
+  // Filter entries by status, date, search term, and entry type
   const filteredEntries = useMemo(() => {
     let entries = activeTab === "all"
       ? [...journalEntries]
       : journalEntries.filter(e => e.status === activeTab);
+    
+    // Filter by entry type (regular vs adjusting)
+    if (entryTypeFilter !== 'all') {
+      entries = entries.filter(e => {
+        const isAdjusting = e.isAdjustingEntry === true;
+        return entryTypeFilter === 'adjusting' ? isAdjusting : !isAdjusting;
+      });
+    }
     
     // Date filter
     if (dateFilter.start) {
@@ -128,7 +156,7 @@ const Journal = () => {
     }
     
     return entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [journalEntries, activeTab, dateFilter, searchTerm]);
+  }, [journalEntries, activeTab, dateFilter, searchTerm, entryTypeFilter]);
 
   // Handle account selection
   const handleAccountChange = (index, accountId) => {
@@ -149,22 +177,23 @@ const Journal = () => {
     setNewEntry({ ...newEntry, entries: updated });
   };
 
-  //Add line
+  // Add line
   const addLine = (type) => {
-  setNewEntry((prev) => ({
-    ...prev,
-    entries: [
-      ...prev.entries,
-      {
-        type, // 👈 This is what determines where it shows
-        accountId: '',
-        debit: type === 'debit' ? '' : 0,
-        credit: type === 'credit' ? '' : 0,
-        attachment: null,
-      },
-    ],
-  }));
-};
+    setNewEntry((prev) => ({
+      ...prev,
+      entries: [
+        ...prev.entries,
+        {
+          type,
+          accountId: '',
+          accountName: '',
+          debit: type === 'debit' ? '' : 0,
+          credit: type === 'credit' ? '' : 0,
+          attachment: null,
+        },
+      ],
+    }));
+  };
 
   // Remove line
   const removeLine = (index) => {
@@ -172,6 +201,49 @@ const Journal = () => {
       const updated = newEntry.entries.filter((_, i) => i !== index);
       setNewEntry({ ...newEntry, entries: updated });
     }
+  };
+
+  // Handle file uploads (multiple files)
+  const handleFileUpload = (e) => {
+    const files = Array.from(e.target.files);
+    
+    // Validate file types
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'text/csv',
+      'image/jpeg',
+      'image/jpg',
+      'image/png'
+    ];
+
+    const validFiles = files.filter(file => {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`File type not allowed: ${file.name}`);
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert(`File too large (max 5MB): ${file.name}`);
+        return false;
+      }
+      return true;
+    });
+
+    setNewEntry(prev => ({
+      ...prev,
+      attachments: [...prev.attachments, ...validFiles]
+    }));
+  };
+
+  // Remove an attachment
+  const removeAttachment = (index) => {
+    setNewEntry(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
   };
 
   // Submit new journal entry
@@ -186,56 +258,36 @@ const Journal = () => {
       return;
     }
 
-    const filteredEntries = newEntry.entries.filter((e) => {
-        // Only keep entries with accountId and debit/credit > 0
-        if (!e.accountId || (parseFloat(e.debit) <= 0 && parseFloat(e.credit) <= 0)) {
-          return false;
-        }
-
-        // Convert entry date and filter dates to Date objects
-        const entryDate = new Date(e.date);
-        const startDate = dateFilter.start ? new Date(dateFilter.start) : null;
-        const endDate = dateFilter.end ? new Date(dateFilter.end) : null;
-
-        // Apply date filter
-        if (startDate && entryDate < startDate) return false;
-        if (endDate && entryDate > endDate) return false;
-
-        return true; // Keep entry
-      });
-
-    const formData = new FormData();
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
       formData.append('date', newEntry.date);
       formData.append('description', newEntry.description);
       formData.append('status', 'pending');
-      filteredEntries.forEach((entry, index) => {
-    formData.append(`entries[${index}][accountId]`, entry.accountId);
-    formData.append(`entries[${index}][debit]`, entry.debit || 0);
-    formData.append(`entries[${index}][credit]`, entry.credit || 0);
+      formData.append('isAdjustingEntry', newEntry.isAdjustingEntry);
+      formData.append('createdBy', currentUser.curUsername);
 
-    if (entry.attachment) {
-      formData.append(`entries[${index}][attachment]`, entry.attachment);
-    }
-  });
+      // Add entries
+      const filteredEntries = newEntry.entries
+        .filter(e => e.accountId && (parseFloat(e.debit) > 0 || parseFloat(e.credit) > 0))
+        .map(e => ({
+          accountId: e.accountId,
+          accountName: e.accountName,
+          debit: parseFloat(e.debit) || 0,
+          credit: parseFloat(e.credit) || 0,
+        }));
+      
+      formData.append('entries', JSON.stringify(filteredEntries));
 
-    try {
-      const response = await fetch('http://localhost:3000/api/journal-entries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          date: newEntry.date,
-          description: newEntry.description,
-          status: 'pending',
-          createdBy: currentUser.curUsername,
-          entries: newEntry.entries.map(e => ({
-            accountId: e.accountId,
-            accountName: e.accountName,
-            debit: parseFloat(e.debit) || 0,
-            credit: parseFloat(e.credit) || 0, 
-          }))
-        })
+      // Add attachments
+      newEntry.attachments.forEach((file, index) => {
+        formData.append('attachments', file);
       });
 
+      const response = await fetch('http://localhost:3000/api/journal-entries', {
+        method: 'POST',
+        body: formData // Send as FormData instead of JSON
+      });
 
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
@@ -244,9 +296,11 @@ const Journal = () => {
       setNewEntry({
         date: new Date().toISOString().split('T')[0],
         description: '',
+        isAdjustingEntry: false,
+        attachments: [],
         entries: [
-          { accountId: '', accountName: '', debit: '', credit: '' },
-          { accountId: '', accountName: '', debit: '', credit: '' }
+          { accountId: '', accountName: '', debit: '', credit: '', type: 'debit' },
+          { accountId: '', accountName: '', debit: '', credit: '', type: 'credit' }
         ]
       });
     } catch (err) {
@@ -263,54 +317,52 @@ const Journal = () => {
       });
 
       if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Failed to approve journal entry');
-    }
-
-    const approvedEntry = journalEntries.find((e) => e._id === entryId);
-    if (!approvedEntry) {
-      throw new Error('Approved entry not found in local data.');
-    }
-
-    // Update each account's balance
-    for (const line of approvedEntry.entries) {
-      const { accountId, debit = 0, credit = 0 } = line;
-      const debitVal = parseFloat(debit) || 0;
-      const creditVal = parseFloat(credit) || 0;
-
-      // Match account by account_number
-      const account = chartOfAccounts.find(acc => acc.account_number === accountId);
-      if (!account) {
-        console.warn(`⚠️ Account ${accountId} not found, skipping.`);
-        continue;
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to approve journal entry');
       }
 
-      let newBalance = parseFloat(account.balance) || 0;
-      let newDebits = parseFloat(account.debits) || 0;
-      let newCredits = parseFloat(account.credits) || 0;
-
-      if (account.normal_side === "L") {
-        newBalance += debitVal;
-        newBalance -= creditVal;
-      } else {
-        newBalance -= debitVal;
-        newBalance += creditVal;
+      const approvedEntry = journalEntries.find((e) => e._id === entryId);
+      if (!approvedEntry) {
+        throw new Error('Approved entry not found in local data.');
       }
 
-      newDebits += debitVal;
-      newCredits += creditVal;
+      // Update each account's balance
+      for (const line of approvedEntry.entries) {
+        const { accountId, debit = 0, credit = 0 } = line;
+        const debitVal = parseFloat(debit) || 0;
+        const creditVal = parseFloat(credit) || 0;
 
-      // Update account in backend
-      await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          balance: newBalance,
-          debits: newDebits,
-          credits: newCredits,
-        }),
-      });
-    }
+        const account = chartOfAccounts.find(acc => acc.account_number === accountId);
+        if (!account) {
+          console.warn(`⚠️ Account ${accountId} not found, skipping.`);
+          continue;
+        }
+
+        let newBalance = parseFloat(account.balance) || 0;
+        let newDebits = parseFloat(account.debits) || 0;
+        let newCredits = parseFloat(account.credits) || 0;
+
+        if (account.normal_side === "L") {
+          newBalance += debitVal;
+          newBalance -= creditVal;
+        } else {
+          newBalance -= debitVal;
+          newBalance += creditVal;
+        }
+
+        newDebits += debitVal;
+        newCredits += creditVal;
+
+        await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            balance: newBalance,
+            debits: newDebits,
+            credits: newCredits,
+          }),
+        });
+      }
 
       await fetchJournalEntries();
       await fetchChartOfAccounts();
@@ -320,11 +372,7 @@ const Journal = () => {
     }
   };
 
-  const handleFileUpload = (index, file) => {
-    const updatedEntries = [...newEntry.entries];
-    updatedEntries[index].attachment = file;
-    setNewEntry({ ...newEntry, entries: updatedEntries });
-  };
+
 
   // Reject entry
   const rejectEntry = async (entryId) => {
@@ -376,13 +424,13 @@ const Journal = () => {
       <HelpButton />
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <img 
-                          src={logo} 
-                          alt="Sweet Ledger Logo" 
-                          className="header-logo"
-                        />
-                        <h1 className="admin-title">Journal Entries</h1>
-                      </div>
+          <img 
+            src={logo} 
+            alt="Sweet Ledger Logo" 
+            className="header-logo"
+          />
+          <h1 className="admin-title">Journal Entries</h1>
+        </div>
         <div className="header-actions">
           <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
             <span className="btn-icon">+</span>
@@ -391,37 +439,37 @@ const Journal = () => {
         </div>
       </div>
 
-       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+      <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
         <div className="button-container">
-            <Calendar title="Calander" />
-            <span className="tooltiptext">Click here to open the calendar</span>
-          </div>
-          <button
-            className="nav-button"
-            onClick={() => {
-              if (currentUser.role === "Manager") navigate("/manager");
-              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
-            }}>
-                      🏠 Dashboard
-          </button>
-          <button className="nav-button"
+          <Calendar title="Calendar" />
+          <span className="tooltiptext">Click here to open the calendar</span>
+        </div>
+        <button
+          className="nav-button"
           onClick={() => {
-              if (currentUser.role === "Manager") navigate("/AccountView");
-              else if (currentUser.role === "Accountant") navigate("/AccountView");
-              else navigate("/accountmanagement");
-            }}>
-            👤 Account Management
-          </button>
-          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart of Accounts
-          </button>
-          <button className="nav-button" onClick={() => navigate("/eventlog")}>
-            📝 Event Log
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
-        </nav>
+            if (currentUser.role === "Manager") navigate("/manager");
+            else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+          }}>
+          🏠 Dashboard
+        </button>
+        <button className="nav-button"
+          onClick={() => {
+            if (currentUser.role === "Manager") navigate("/AccountView");
+            else if (currentUser.role === "Accountant") navigate("/AccountView");
+            else navigate("/accountmanagement");
+          }}>
+          👤 Account Management
+        </button>
+        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+          📋 Chart of Accounts
+        </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+          📝 Event Log
+        </button>
+        <button className="nav-button" onClick={() => navigate("/ledger")}>
+          📙 Ledger
+        </button>
+      </nav>
 
       {error && (
         <div className="admin-section">
@@ -449,6 +497,23 @@ const Journal = () => {
                 </span>
               </button>
             ))}
+          </div>
+
+          {/* Entry Type Filter - NEW */}
+          <div className="filter-container">
+            <span className="filter-icon">📋</span>
+            <label className="filter-label">
+              <span>Entry Type:</span>
+              <select
+                value={entryTypeFilter}
+                onChange={(e) => setEntryTypeFilter(e.target.value)}
+                className="form-select"
+              >
+                <option value="all">All Entries</option>
+                <option value="regular">Regular Entries</option>
+                <option value="adjusting">Adjusting Entries</option>
+              </select>
+            </label>
           </div>
 
           {/* Search Bar */}
@@ -482,7 +547,7 @@ const Journal = () => {
               <input
                 type="date"
                 value={dateFilter.start}
-                max={dateFilter.end || undefined} // Prevent choosing a start date after end
+                max={dateFilter.end || undefined}
                 onChange={(e) =>
                   setDateFilter((prev) => ({
                     ...prev,
@@ -498,7 +563,7 @@ const Journal = () => {
               <input
                 type="date"
                 value={dateFilter.end}
-                min={dateFilter.start || undefined} // Prevent choosing an end date before start
+                min={dateFilter.start || undefined}
                 onChange={(e) =>
                   setDateFilter((prev) => ({
                     ...prev,
@@ -520,9 +585,9 @@ const Journal = () => {
           </div>
 
           {/* Results Count */}
-          {(searchTerm || dateFilter.start || dateFilter.end) && (
+          {(searchTerm || dateFilter.start || dateFilter.end || entryTypeFilter !== 'all') && (
             <div className="results-count">
-              Showing {filteredEntries.length} of {journalEntries.filter(e => e.status === activeTab).length} entries
+              Showing {filteredEntries.length} of {journalEntries.filter(e => activeTab === 'all' || e.status === activeTab).length} entries
             </div>
           )}
 
@@ -530,19 +595,26 @@ const Journal = () => {
           <div className="entries-list">
             {filteredEntries.length === 0 ? (
               <div className="empty-state">
-                {searchTerm || dateFilter.start || dateFilter.end 
+                {searchTerm || dateFilter.start || dateFilter.end || entryTypeFilter !== 'all'
                   ? 'No journal entries match your search criteria'
                   : `No ${activeTab} journal entries found`
                 }
               </div>
             ) : (
               filteredEntries.map(entry => (
-                <div key={entry._id} className="entry-card">
+                <div 
+                  key={entry._id} 
+                  id={`entry-${entry._id}`}
+                  className={`entry-card ${highlightEntryId === entry._id ? 'highlighted' : ''}`}
+                >
                   <div className="entry-header">
                     <div className="entry-info">
                       <div className="entry-meta">
                         <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
                         <StatusBadge status={entry.status} />
+                        {entry.isAdjustingEntry && (
+                          <span className="adjusting-badge">Adjusting Entry</span>
+                        )}
                         <span className="entry-date">{new Date(entry.date).toLocaleDateString()}</span>
                       </div>
                       <p className="entry-description">{entry.description}</p>
@@ -592,12 +664,72 @@ const Journal = () => {
                     placeholder="Enter description"
                   />
                 </div>
+              </div>
+
+              {/* Adjusting Entry Checkbox */}
+              <div className="form-group">
+                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <input
+                    type="checkbox"
+                    checked={newEntry.isAdjustingEntry}
+                    onChange={(e) => setNewEntry({ ...newEntry, isAdjustingEntry: e.target.checked })}
+                  />
+                  <span>This is an adjusting journal entry</span>
+                </label>
+              </div>
+
+              {/* File Upload Section */}
+              <div className="form-group">
+                <label className="form-label">Attachments (Optional)</label>
                 <input
-                   type="file"
-                   accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
-                   onChange={(e) => handleFileUpload(index, e.target.files[0])}
-                   className="file-input"
-                 />
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
+                  onChange={handleFileUpload}
+                  className="form-input"
+                  style={{ padding: '0.5rem' }}
+                />
+                <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
+                  Accepted: PDF, Word, Excel, CSV, JPG, PNG (Max 5MB each)
+                </p>
+                
+                {/* Display uploaded files */}
+                {newEntry.attachments.length > 0 && (
+                  <div className="attachments-list" style={{ marginTop: '1rem' }}>
+                    <strong style={{ fontSize: '0.9rem', color: '#2c3e50' }}>
+                      Uploaded Files ({newEntry.attachments.length}):
+                    </strong>
+                    <div style={{ marginTop: '0.5rem' }}>
+                      {newEntry.attachments.map((file, index) => (
+                        <div 
+                          key={index} 
+                          className="attachment-item"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.5rem',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '4px',
+                            marginBottom: '0.5rem'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.85rem', color: '#2c3e50' }}>
+                            📎 {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(index)}
+                            className="remove-line-btn"
+                            style={{ marginLeft: '0.5rem' }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="journal-table-container">
@@ -611,157 +743,155 @@ const Journal = () => {
                     </tr>
                   </thead>
                   <tbody>
-                  {(() => {
-                  const selectedAccountIds = newEntry.entries.map(e => e.accountId);
+                    {(() => {
+                      const selectedAccountIds = newEntry.entries.map(e => e.accountId);
                       return (
                         <>
-                        {/* ==== Debit Section ==== */}
-                        <tr>
-                          <th colSpan="4" className="text-left bg-gray-100">
-                            <strong>Debits</strong>
-                          </th>
-                        </tr>
-                        {newEntry.entries
-                          .map((entry, index) => ({ ...entry, realIndex: index }))
-                          .filter((entry) => entry.type === 'debit')
-                          .map((entry) => (
-                            <tr key={`debit-${entry.realIndex}`}>
-                              <td>
-                                <select
-                                  value={entry.accountId}
-                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
-                                  className="form-select"
-                                >
-                                  <option value="">Select Account</option>
-                                  {chartOfAccounts
-                                    .filter(
-                                      (acc) =>
-                                        !selectedAccountIds.includes(acc.account_number) ||
-                                        acc.account_number === entry.accountId
-                                    )
-                                    .map((acc) => (
-                                      <option key={acc._id} value={acc.account_number}>
-                                        {acc.account_number} - {acc.account_name}
-                                      </option>
-                                    ))}
-                                </select>
-                              </td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={entry.debit || ''}
-                                  onChange={(e) =>
-                                    handleAmountChange(entry.realIndex, 'debit', e.target.value)
-                                  }
-                                  className="form-input text-right"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                />
-                              </td>
-                              <td></td>
-                              <td>
-                                {newEntry.entries.filter((e) => e.type === 'debit').length > 1 && (
-                                  <button
-                                    onClick={() => removeLine(entry.realIndex)}
-                                    className="remove-line-btn"
+                          {/* Debit Section */}
+                          <tr>
+                            <th colSpan="4" className="text-left bg-gray-100">
+                              <strong>Debits</strong>
+                            </th>
+                          </tr>
+                          {newEntry.entries
+                            .map((entry, index) => ({ ...entry, realIndex: index }))
+                            .filter((entry) => entry.type === 'debit')
+                            .map((entry) => (
+                              <tr key={`debit-${entry.realIndex}`}>
+                                <td>
+                                  <select
+                                    value={entry.accountId}
+                                    onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                    className="form-select"
                                   >
-                                    ×
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                                    <option value="">Select Account</option>
+                                    {chartOfAccounts
+                                      .filter(
+                                        (acc) =>
+                                          !selectedAccountIds.includes(acc.account_number) ||
+                                          acc.account_number === entry.accountId
+                                      )
+                                      .map((acc) => (
+                                        <option key={acc._id} value={acc.account_number}>
+                                          {acc.account_number} - {acc.account_name}
+                                        </option>
+                                      ))}
+                                  </select>
+                                </td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={entry.debit || ''}
+                                    onChange={(e) =>
+                                      handleAmountChange(entry.realIndex, 'debit', e.target.value)
+                                    }
+                                    className="form-input text-right"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                  />
+                                </td>
+                                <td></td>
+                                <td>
+                                  {newEntry.entries.filter((e) => e.type === 'debit').length > 1 && (
+                                    <button
+                                      onClick={() => removeLine(entry.realIndex)}
+                                      className="remove-line-btn"
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
 
-                        {/* Add Debit Line */}
-                        <tr>
-                          <td colSpan="4">
-                            <button onClick={() => addLine('debit')} className="add-line-btn">
-                              + Add Debit Line
-                            </button>
-                          </td>
-                        </tr>
+                          <tr>
+                            <td colSpan="4">
+                              <button onClick={() => addLine('debit')} className="add-line-btn">
+                                + Add Debit Line
+                              </button>
+                            </td>
+                          </tr>
 
-                        {/* ==== Credit Section ==== */}
-                        <tr>
-                          <th colSpan="4" className="text-left bg-gray-100">
-                            <strong>Credits</strong>
-                          </th>
-                        </tr>
+                          {/* Credit Section */}
+                          <tr>
+                            <th colSpan="4" className="text-left bg-gray-100">
+                              <strong>Credits</strong>
+                            </th>
+                          </tr>
 
-                        {newEntry.entries
-                          .map((entry, index) => ({ ...entry, realIndex: index }))
-                          .filter((entry) => entry.type === 'credit')
-                          .map((entry) => (
-                            <tr key={`credit-${entry.realIndex}`}>
-                              <td>
-                                <select
-                                  value={entry.accountId}
-                                  onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
-                                  className="form-select"
-                                >
-                                  <option value="">Select Account</option>
-                                  {chartOfAccounts
-                                    .filter(
-                                      (acc) =>
-                                        !selectedAccountIds.includes(acc.account_number) ||
-                                        acc.account_number === entry.accountId
-                                    )
-                                    .map((acc) => (
-                                      <option key={acc._id} value={acc.account_number}>
-                                        {acc.account_number} - {acc.account_name}
-                                      </option>
-                                    ))}
-                                </select>
-                              </td>
-                              <td></td>
-                              <td>
-                                <input
-                                  type="number"
-                                  value={entry.credit || ''}
-                                  onChange={(e) =>
-                                    handleAmountChange(entry.realIndex, 'credit', e.target.value)
-                                  }
-                                  className="form-input text-right"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                />
-                              </td>
-                              <td>
-                                {newEntry.entries.filter((e) => e.type === 'credit').length > 1 && (
-                                  <button
-                                    onClick={() => removeLine(entry.realIndex)}
-                                    className="remove-line-btn"
+                          {newEntry.entries
+                            .map((entry, index) => ({ ...entry, realIndex: index }))
+                            .filter((entry) => entry.type === 'credit')
+                            .map((entry) => (
+                              <tr key={`credit-${entry.realIndex}`}>
+                                <td>
+                                  <select
+                                    value={entry.accountId}
+                                    onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
+                                    className="form-select"
                                   >
-                                    ×
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          ))}
+                                    <option value="">Select Account</option>
+                                    {chartOfAccounts
+                                      .filter(
+                                        (acc) =>
+                                          !selectedAccountIds.includes(acc.account_number) ||
+                                          acc.account_number === entry.accountId
+                                      )
+                                      .map((acc) => (
+                                        <option key={acc._id} value={acc.account_number}>
+                                          {acc.account_number} - {acc.account_name}
+                                        </option>
+                                      ))}
+                                  </select>
+                                </td>
+                                <td></td>
+                                <td>
+                                  <input
+                                    type="number"
+                                    value={entry.credit || ''}
+                                    onChange={(e) =>
+                                      handleAmountChange(entry.realIndex, 'credit', e.target.value)
+                                    }
+                                    className="form-input text-right"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                  />
+                                </td>
+                                <td>
+                                  {newEntry.entries.filter((e) => e.type === 'credit').length > 1 && (
+                                    <button
+                                      onClick={() => removeLine(entry.realIndex)}
+                                      className="remove-line-btn"
+                                    >
+                                      ×
+                                    </button>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
 
-                        {/* Add Credit Line */}
-                        <tr>
-                          <td colSpan="4">
-                            <button onClick={() => addLine('credit')} className="add-line-btn">
-                              + Add Credit Line
-                            </button>
-                          </td>
-                        </tr>
-                      </>
-                    );
-                  })()}   
+                          <tr>
+                            <td colSpan="4">
+                              <button onClick={() => addLine('credit')} className="add-line-btn">
+                                + Add Credit Line
+                              </button>
+                            </td>
+                          </tr>
+                        </>
+                      );
+                    })()}   
                   </tbody>
                 </table>
               </div>
               {!totals.balanced && totals.debit > 0 && (
                 <div className="error-message">
                   Entry is not balanced. Debits: ${totals.debit.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}, Credits: ${totals.credit.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }) ?? '0.00'}, Credits: ${totals.credit.toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  }) ?? '0.00'}
                 </div>
               )}
             </div>
@@ -790,6 +920,9 @@ const Journal = () => {
               <div>
                 <h2>Journal Entry JE-{selectedEntry.journalEntryNumber || selectedEntry._id.slice(-6)}</h2>
                 <StatusBadge status={selectedEntry.status} />
+                {selectedEntry.isAdjustingEntry && (
+                  <span className="adjusting-badge" style={{ marginLeft: '0.5rem' }}>Adjusting Entry</span>
+                )}
               </div>
               <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); }} className="close-btn">
                 ×
@@ -813,6 +946,37 @@ const Journal = () => {
                 <p className="detail-value">{selectedEntry.description}</p>
               </div>
 
+              {/* Display Attachments */}
+              {selectedEntry.attachments && selectedEntry.attachments.length > 0 && (
+                <div className="detail-item">
+                  <span className="detail-label">Attachments:</span>
+                  <div style={{ marginTop: '0.5rem' }}>
+                    {selectedEntry.attachments.map((attachment, index) => (
+                      <a
+                        key={index}
+                        href={`http://localhost:3000/uploads/${attachment}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'block',
+                          padding: '0.5rem',
+                          backgroundColor: '#f5f5f5',
+                          borderRadius: '4px',
+                          marginBottom: '0.5rem',
+                          color: '#f7941d',
+                          textDecoration: 'none',
+                          fontSize: '0.9rem'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#fff8f0'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                      >
+                        📎 {attachment}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <table className="journal-table">
                 <thead>
                   <tr>
@@ -822,21 +986,43 @@ const Journal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedEntry.entries.filter(entry => 
-                  entry.accountId || entry.debit > 0 || entry.credit > 0)
-                  .map((entry, idx) => (
-                    <tr key={idx}>
-                      <td>{entry.accountId} - {entry.accountName}</td>
-                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                    </tr>
-                  ))}
+                  {selectedEntry.entries
+                    .filter(entry => entry.accountId || entry.debit > 0 || entry.credit > 0)
+                    .map((entry, idx) => (
+                      <tr key={idx}>
+                        <td>
+                          <span
+                            className="clickable-account"
+                            onClick={() => navigate(`/ledger/${entry.accountId}`)}
+                            style={{ 
+                              cursor: 'pointer', 
+                              color: '#2563eb',
+                              textDecoration: 'underline',
+                              fontWeight: '500'
+                            }}
+                            title="Click to view ledger for this account"
+                          >
+                            {entry.accountId} - {entry.accountName}
+                          </span>
+                        </td>
+                        <td className="text-right">
+                          {entry.debit > 0
+                            ? `${parseFloat(entry.debit).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`
+                            : '-'}
+                        </td>
+                        <td className="text-right">
+                          {entry.credit > 0
+                            ? `${parseFloat(entry.credit).toLocaleString('en-US', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              })}`
+                            : '-'}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
 

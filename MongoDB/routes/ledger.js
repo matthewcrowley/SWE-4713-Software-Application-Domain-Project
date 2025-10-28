@@ -45,7 +45,13 @@ router.get('/:accountId', async (req, res) => {
       } else {
         runningBalance += (entry.credit || 0) - (entry.debit || 0);
       }
-      return { ...entry, balance: runningBalance };
+      
+      // ADD JOURNALID HERE - This enables clickable post references
+      return { 
+        ...entry, 
+        balance: runningBalance,
+        journalId: entry.journalEntryId || entry.journalId // ← Add this line
+      };
     });
 
     //Return structured data
