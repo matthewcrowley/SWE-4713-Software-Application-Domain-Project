@@ -106,7 +106,7 @@ function App() {
 
           } else {
 
-            // ❌ Wrong credentials — track failed attempts
+            // Wrong credentials — track failed attempts
             const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
             failedAttempts[username] = (failedAttempts[username] || 0) + 1;
 
@@ -283,11 +283,13 @@ function App() {
           }
         />
         <Route
-          path="/Ledger"
+          path="/ledger"
           element={
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
           />
+
+          <Route path="/ledger/:accountId" element={<Ledger />} />
       </Routes>
     </Router>
   );

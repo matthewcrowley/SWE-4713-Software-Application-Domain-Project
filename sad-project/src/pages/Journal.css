@@ -28,6 +28,17 @@
   align-items: center;
   gap: 1rem;
 }
+/* ===== Clickable Account Link ===== */
+.clickable-account {
+  color: #f7941d;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.clickable-account:hover {
+  color: #e6830c;
+}
 
 /* ===== Back to Dashboard Button (Outlined Orange) ===== */
 .back-to-dashboard-btn {

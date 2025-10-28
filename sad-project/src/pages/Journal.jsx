@@ -822,21 +822,36 @@ const Journal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedEntry.entries.filter(entry => 
-                  entry.accountId || entry.debit > 0 || entry.credit > 0)
-                  .map((entry, idx) => (
-                    <tr key={idx}>
-                      <td>{entry.accountId} - {entry.accountName}</td>
-                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                    </tr>
-                  ))}
+                 {selectedEntry.entries
+    .filter(entry => entry.accountId || entry.debit > 0 || entry.credit > 0)
+    .map((entry, idx) => (
+      <tr key={idx}>
+        <td>
+          <span
+            className="clickable-account"
+            onClick={() => navigate(`/ledger/${entry.accountId}`)}
+          >
+            {entry.accountId} - {entry.accountName}
+          </span>
+        </td>
+        <td className="text-right">
+          {entry.debit > 0
+            ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}`
+            : '-'}
+                    </td>
+                    <td className="text-right">
+                      {entry.credit > 0
+                        ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}`
+                        : '-'}
+                    </td>
+                  </tr>
+                ))}
                 </tbody>
               </table>
 
