@@ -109,9 +109,6 @@ const Eventlog = () => {
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
             📋 Chart of Accounts
           </button>
-          <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
-          </button>
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
           </button>

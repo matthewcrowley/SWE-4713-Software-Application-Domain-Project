@@ -29,6 +29,9 @@ const Chartofaccounts = () => {
   const [sortedAccounts, setSortedAccounts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Radio buttons
+  const [selectedRadioId, setSelectedRadioId] = useState(null);
+
 
 const [editingAccountId, setEditingAccountId] = useState(null);
 const [editedAccount, setEditedAccount] = useState({});
@@ -545,144 +548,186 @@ const handleSave = async (accountId) => {
           <table className="account-table" border="1" cellPadding="8" style={{color: 'black'}}>
             <thead>
               <tr>
-                <th>Account Number</th>
-                <th>Account Name</th>
-                <th>Account Type</th>
+                {currentUser?.role === 'Admin' && <th style={{ alignItems: 'center', textAlign: 'center' }}>Select to Edit</th>}
+                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Number</th>
+                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Name</th>
+                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Type</th>
                 <th>Subcategory</th>
                 <th>Balance</th>
-                <th>Created By</th>
+                <th style={{ alignItems: 'center', textAlign: 'center' }}>Created By</th>
                 <th>Date Created</th>
                 <th>Comments</th>
-                <th></th>
+                {selectedRadioId !== null && <th></th>}
               </tr>
             </thead>
-            <tbody>
-              {/*===== Rows in COA -- editable (doesn't save yet) =====*/}
-               {sortedAccounts.map((account) => (
-                <React.Fragment key={account._id}>
-                  {editingAccountId === account._id ? (
-                    <tr>
-                      <td>
-                        <TextField
-                          value={editedAccount.account_number}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, account_number: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.account_name}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, account_name: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.type}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, type: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.subcategory}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, subcategory: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.balance}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, balance: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.created_by}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, created_by: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.timestamp}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, comments: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <TextField
-                          value={editedAccount.comments}
-                          onChange={(e) =>
-                            setEditedAccount({ ...editedAccount, comments: e.target.value })
-                          }
-                          size="small"
-                        />
-                      </td>
-                      <td>
-                        <Button
-                          variant="contained"
-                          color="success"
-                          size="small"
-                          onClick={() => handleSave(account._id)}
-                          style={{ margin: '10px' }}
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          variant="outlined"
-                          color="error"
-                          size="small"
-                          style={{ margin: '10px' }}
-                          onClick={handleCancel}
-                        >
-                          Cancel
-                        </Button>
-                      </td>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <td>{account.account_number}</td>
-                      <td>{account.account_name}</td>
-                      <td>{account.type}</td>
-                      <td>{account.subcategory}</td>
-                      <td style={{ textAlign: 'right' }}>${account.balance.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          })}</td>
-                      <td>{account.created_by}</td>
-                      <td>{account.timestamp}</td>
-                      <td>{account.comments}</td>
-                      <td>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          style={{ backgroundColor: 'lightblue', margin: '10px' }}
-                          onClick={() => handleEdit(account)}
-                        >
-                          Edit
-                        </Button>
-                      </td>
-                    </tr>
+              <tbody>
+                {sortedAccounts.map((account) => (
+                  <tr key={account._id}>
+                    {currentUser?.role === 'Admin' && (
+                    <td style={{ textAlign: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedRadioId === account._id}
+                        onChange={() => {
+                          if (selectedRadioId === account._id) setSelectedRadioId(null);
+                          else setSelectedRadioId(account._id);
+                        }}
+                      />
+                    </td>
                   )}
-                </React.Fragment>
-        ))}
-            </tbody>
+
+                    {editingAccountId === account._id ? (
+                      <>
+                        <td>
+                          <TextField
+                            value={editedAccount.account_number}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                account_number: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.account_name}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                account_name: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.type}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                type: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.subcategory}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                subcategory: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.balance}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                balance: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.created_by}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                created_by: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.timestamp}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                timestamp: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        <td>
+                          <TextField
+                            value={editedAccount.comments}
+                            onChange={(e) =>
+                              setEditedAccount({
+                                ...editedAccount,
+                                comments: e.target.value,
+                              })
+                            }
+                            size="small"
+                          />
+                        </td>
+                        {selectedRadioId !== null && (<td>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => handleSave(account._id)}
+                            style={{ margin: "10px" }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            style={{ margin: "10px" }}
+                            onClick={handleCancel}
+                          >
+                            Cancel
+                          </Button>
+                        </td>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <td>{account.account_number}</td>
+                        <td>{account.account_name}</td>
+                        <td>{account.type}</td>
+                        <td>{account.subcategory}</td>
+                        <td style={{ textAlign: "right" }}>
+                          $
+                          {account.balance.toLocaleString("en-US", {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td>{account.created_by}</td>
+                        <td>{account.timestamp}</td>
+                        <td>{account.comments}</td>
+                        {selectedRadioId === account._id && ( <td>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              style={{ backgroundColor: "lightblue", margin: "10px" }}
+                              onClick={() => handleEdit(account)}
+                            >
+                              Edit
+                            </Button>
+                        </td>
+                        )}
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
           </table>
         )}
       </div>
