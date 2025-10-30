@@ -132,12 +132,12 @@ const Journal = () => {
 
   // Handle account selection
   const handleAccountChange = (index, accountId) => {
-    const account = chartOfAccounts.find(a => a._id === accountId || a.accountNumber === accountId);
+    const account = chartOfAccounts.find(a => a._id === accountId || a.account_number === accountId);
     const updated = [...newEntry.entries];
     updated[index] = { 
       ...updated[index], 
-      accountId: account?.accountNumber || accountId, 
-      accountName: account?.accountName || '' 
+      accountId: account?.account_number || accountId, 
+      accountName: account?.account_name || '' 
     };
     setNewEntry({ ...newEntry, entries: updated });
   };
@@ -158,6 +158,7 @@ const Journal = () => {
       {
         type, // 👈 This is what determines where it shows
         accountId: '',
+        accountName: '',
         debit: type === 'debit' ? '' : 0,
         credit: type === 'credit' ? '' : 0,
         attachment: null,
@@ -275,30 +276,28 @@ const Journal = () => {
     // Update each account's balance
     for (const line of approvedEntry.entries) {
       const { accountId, debit = 0, credit = 0 } = line;
-      const debitVal = parseFloat(debit) || 0;
-      const creditVal = parseFloat(credit) || 0;
 
       // Match account by account_number
-      const account = chartOfAccounts.find(acc => acc.account_number === accountId);
+      const account = chartOfAccounts.find(acc => acc.account_number === line.accountId);
       if (!account) {
         console.warn(`⚠️ Account ${accountId} not found, skipping.`);
         continue;
       }
 
-      let newBalance = parseFloat(account.balance) || 0;
-      let newDebits = parseFloat(account.debits) || 0;
-      let newCredits = parseFloat(account.credits) || 0;
+      let newBalance = account.balance; 
+      let newDebits = account.debits
+      let newCredits = account.credits
 
       if (account.normal_side === "L") {
-        newBalance += debitVal;
-        newBalance -= creditVal;
+        newBalance += line.debit;
+        newBalance -= line.credit;
       } else {
-        newBalance -= debitVal;
-        newBalance += creditVal;
+        newBalance -= line.debit;
+        newBalance += line.credit;
       }
 
-      newDebits += debitVal;
-      newCredits += creditVal;
+      newDebits += line.debit;
+      newCredits += line.credit;
 
       // Update account in backend
       await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
@@ -543,7 +542,7 @@ const Journal = () => {
                       <div className="entry-meta">
                         <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
                         <StatusBadge status={entry.status} />
-                        <span className="entry-date">{new Date(entry.date).toLocaleDateString()}</span>
+                        <span className="entry-date">{new Date(...entry.date.split('-').map((v,i) => i === 1 ? v-1 : v)).toLocaleDateString()}</span>
                       </div>
                       <p className="entry-description">{entry.description}</p>
                       <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
@@ -800,7 +799,7 @@ const Journal = () => {
               <div className="detail-grid">
                 <div className="detail-item">
                   <span className="detail-label">Date:</span>
-                  <p className="detail-value">{new Date(selectedEntry.date).toLocaleDateString()}</p>
+                  <p className="detail-value">{new Date(...selectedEntry.date.split('-').map((v,i) => i === 1 ? v-1 : v)).toLocaleDateString()}</p>
                 </div>
                 <div className="detail-item">
                   <span className="detail-label">Created By:</span>
