@@ -65,6 +65,39 @@
   background-color: #c0392b !important;
 }
 
+.btn.suspend {
+  background-color: #e7f706 !important;
+}
+
+.btn.suspend:hover {
+  background-color: #d1c40e !important;
+}
+
+.btn.unsuspend {
+  background-color: #09ee9a !important;
+}
+
+.btn.unsuspend:hover {
+  background-color: #0ac480 !important;
+}
+
+.btn.edit-btn {
+  background-color: #05ef15 !important;
+}
+
+.btn.edit-btn:hover {
+  background-color: #29ad08 !important; 
+}
+
+.btn.email {
+  background-color: #2196f3 !important; 
+  color: white !important;
+}
+
+.btn.email:hover {
+  background-color: #1976d2 !important; 
+}
+
 .btn.activate {
   background-color: #2ecc71 !important;
 }
@@ -253,4 +286,14 @@
   .MuiDialogContent-root {
     padding: 1rem !important;
   }
+
+  .header-logo {
+  width: 00px !important;
+  height: 200px !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
 }

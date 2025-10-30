@@ -448,8 +448,8 @@ export default function AccountManagement() {
         <header className="admin-header" style={{borderBottom: '0px'}}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
                 <img 
+                  alt="Sweet Ledger Logo"
                   src={logo} 
-                  alt="Sweet Ledger Logo" 
                   className="header-logo"
                 />
                 <h1 className="admin-title">Administrator Account Management</h1>
@@ -664,7 +664,7 @@ export default function AccountManagement() {
                       ) : (
                         <>
                           <Button
-                            className="btn"
+                            className="btn edit-btn"
                             size="small"
                             onClick={() => startEdit(u)}
                           >
@@ -684,12 +684,11 @@ export default function AccountManagement() {
                             size="small"
                             onClick={() => openSuspendDialog(u)}
                           >
-                            Suspend
+                            {u.suspended ? "Unsuspend" : "Suspend"}
                           </Button>
                           <Button
-                            className="btn"
+                            className="btn email"
                             size="small"
-                            style={{ backgroundColor: '#2196f3' }}
                             onClick={() => openEmailDialog(u)}
                           >
                             Email
