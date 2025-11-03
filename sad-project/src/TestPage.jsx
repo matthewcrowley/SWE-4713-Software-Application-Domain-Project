@@ -21,7 +21,7 @@ function TestPage() {
 
     useEffect(() => {
         fetchAPI();
-    }, [loading]);
+    }, [loading, fetchAPI]);
 
 
 

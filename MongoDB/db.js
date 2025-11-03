@@ -16,7 +16,7 @@ async function connectToDB() {
 
 function getDB() {
   if (!database) throw new Error('The database was not connected.');
-  return database;
+  return this.database;
 }
 
 module.exports = {connectToDB, getDB};
