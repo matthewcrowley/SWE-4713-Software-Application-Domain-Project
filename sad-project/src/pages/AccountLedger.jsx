@@ -103,7 +103,7 @@ const AccountLedger = () => {
 
               {currentUser?.role !== 'Admin' && (
                 <button className="nav-button" onClick={() => navigate("/journalentries")}>
-                  📖 Journal Entries
+                  📖 Journalize
                 </button>
               )}
             </nav>

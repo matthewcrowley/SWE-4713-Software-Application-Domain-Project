@@ -112,6 +112,9 @@ export default function Accountview() {
             }}>
             🏠 Dashboard
           </button>
+          <button className="nav-button" onClick={() => navigate("/AccountView")}>
+            👤 Account Management
+          </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
             📋 Chart of Accounts
           </button>
@@ -119,10 +122,7 @@ export default function Accountview() {
             📝 Event Log
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
+            📖 Journalize
           </button>
         </nav>
 

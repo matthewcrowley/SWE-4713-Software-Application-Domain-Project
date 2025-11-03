@@ -121,9 +121,6 @@ export default function Administrator({ setIsLoggedIn }) {
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
         </nav>
       </header>
 

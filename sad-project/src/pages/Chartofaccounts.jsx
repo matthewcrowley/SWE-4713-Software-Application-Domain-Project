@@ -426,11 +426,8 @@ const handleSave = async (accountId) => {
             📝 Event Log
           </button>
           {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
+            📖 Journalize
           </button>}
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
         </nav>
 
 

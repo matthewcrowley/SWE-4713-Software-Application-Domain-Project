@@ -127,10 +127,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             📝 Event Log
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
+            📖 Journalize
           </button>
         </nav>
       </header>

@@ -417,9 +417,9 @@ const Journal = () => {
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
+          {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/journalentries")}>
+            📖 Journalize
+          </button>}
         </nav>
 
       {error && (

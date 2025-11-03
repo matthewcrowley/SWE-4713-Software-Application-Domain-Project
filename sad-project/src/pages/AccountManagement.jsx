@@ -491,9 +491,6 @@ export default function AccountManagement() {
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
         </nav>
 
       {/* ===== Main Content ===== */}
