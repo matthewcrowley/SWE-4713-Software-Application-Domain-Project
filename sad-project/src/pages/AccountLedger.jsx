@@ -17,6 +17,10 @@ const AccountLedger = () => {
   const { accountId } = useParams();
   const [currentUser, setCurrentUser] = useState(null);
   const [ledgerData, setLedgerData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [filteredEntries, setFilteredEntries] = useState([]);
 
   // Fetch current user
   useEffect(() => {
@@ -51,7 +55,43 @@ const AccountLedger = () => {
     if (accountId) fetchLedger();
   }, [accountId]);
 
-  // example component body:
+  // Handlers 
+  // Filter + search logic
+  useEffect(() => {
+    if (!ledgerData?.entries) return;
+
+    let entries = ledgerData.entries;
+
+    // Filter by date range
+    if (startDate) {
+      entries = entries.filter(e => new Date(e.date) >= new Date(startDate));
+    }
+    if (endDate) {
+      entries = entries.filter(e => new Date(e.date) <= new Date(endDate));
+    }
+
+    // Search by account name or amount
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      entries = entries.filter(e => 
+        e.accountName?.toLowerCase().includes(term) ||
+        e.description?.toLowerCase().includes(term) ||
+        e.debit.toString().includes(term) ||
+        e.credit.toString().includes(term) ||
+        e.balance.toString().includes(term)
+      );
+    }
+
+    setFilteredEntries(entries);
+  }, [ledgerData, startDate, endDate, searchTerm]);
+
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+
   return (
      <div className="admin-container">
           {/* ===== Header ===== */}
@@ -65,6 +105,19 @@ const AccountLedger = () => {
               <h1 className="admin-title">Ledger</h1>
             </div>
             <HelpButton />
+
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
           </header>
     
            <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -108,13 +161,76 @@ const AccountLedger = () => {
               )}
             </nav>
 
-            {/* ===== Ledger Table ===== */}
-      <div style={{ padding: '2rem' }}>
+      {/* ===== Ledger Table ===== */}
+      <div style={{ padding: '2rem'}}>
         {ledgerData ? (
           <>
-            <h2>{ledgerData.account?.accountName !== "Unknown Account"
-                ? ledgerData.account?.accountName
-                : ledgerData.entries.find(e => e.accountName)?.accountName || 'Ledger'}</h2>
+            <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem'}}>
+               {(() => {
+                  const accountNumber = ledgerData?.account?.accountId || accountId || 'Unknown Account';
+                  let accountName = '';
+
+                  if (ledgerData?.account?.accountName && ledgerData.account.accountName !== "Unknown Account") {
+                    accountName = ledgerData.account.accountName;
+                  } else {
+                    // Pull from first entry if account name missing
+                    const entryWithName = ledgerData?.entries?.find(e => e.accountName);
+                    accountName = entryWithName?.accountName || 'Ledger';
+                  }
+
+                  return `${accountNumber} - ${accountName}`;
+                })()}
+              </h2>
+
+    {/* ===== Search & Date Filters ===== */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              marginBottom: '1rem',
+              flexWrap: 'wrap'
+            }}
+          >
+            {/* Search Bar (left) */}
+            <TextField
+              label="Search"
+              placeholder="Name, description, or amount"
+              variant="outlined"
+              size="small"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: 800 }}
+            />
+
+            {/* Date Pickers */}
+            <TextField
+              label="Start Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              size="small"
+            />
+            <TextField
+              label="End Date"
+              type="date"
+              InputLabelProps={{ shrink: true }}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              size="small"
+            />
+
+            {/* Clear Button */}
+            <Button
+              size="small"
+              variant="contained"
+              color="error"
+              onClick={() => { setSearchTerm(''); setStartDate(''); setEndDate(''); }}
+            >
+              Clear
+            </Button>
+          </Box>
           <Table>
             <TableHead>
               <TableRow>
@@ -127,22 +243,30 @@ const AccountLedger = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {ledgerData.entries.map((entry, index) => (
-                <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
-                  <TableCell>{entry.date}</TableCell>
-                  <TableCell>
-                    <Link to={`/journalentries/${entry.journalId}`}>{index + 1}</Link>
-                  </TableCell>
-                  <TableCell>{entry.description}</TableCell>
-                  <TableCell align="right">
-                    {entry.debit !== 0 ? `$${entry.debit.toLocaleString()}` : ''}
-                  </TableCell>
-                  <TableCell align="right">
-                    {entry.credit !== 0 ? `$${entry.credit.toLocaleString()}` : ''}
-                  </TableCell>
-                  <TableCell align="right">${entry.balance.toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
+              {filteredEntries.length > 0 ? (
+                  filteredEntries.map((entry, index) => (
+                    <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
+                      <TableCell>{entry.date}</TableCell>
+                      <TableCell>
+                        <Link to={`/journalentries/${entry.journalId}`}>{index + 1}</Link>
+                      </TableCell>
+                      <TableCell>{entry.description}</TableCell>
+                      <TableCell align="right">
+                        {entry.debit !== 0 ? `$${entry.debit.toLocaleString()}` : ''}
+                      </TableCell>
+                      <TableCell align="right">
+                        {entry.credit !== 0 ? `$${entry.credit.toLocaleString()}` : ''}
+                      </TableCell>
+                      <TableCell align="right">${entry.balance.toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={6} align="center">
+                      No entries match your filter or search.
+                    </TableCell>
+                  </TableRow>
+                )}
             </TableBody>
           </Table>
           </>
