@@ -15,6 +15,7 @@ import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
+import AccountLedger from "./pages/AccountLedger"; 
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -251,6 +252,13 @@ function App() {
           path="/accountmanagement"
           element={
             isLoggedIn ? <AccountManagement /> : <Navigate to="/" replace />
+          }
+        />
+
+        <Route
+          path="/ledger/:accountId"
+          element={
+            isLoggedIn ? <AccountLedger /> : <Navigate to="/" replace />
           }
         />
 

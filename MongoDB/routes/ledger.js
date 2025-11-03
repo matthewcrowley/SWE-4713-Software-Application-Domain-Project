@@ -32,8 +32,8 @@ router.get('/:accountId', async (req, res) => {
     console.log(`Found ${ledgerEntries.length} entries for account ${accountId}`);
 
     //Fetch account info (optional)
-    const account = await db.collection('accounts').findOne({ accountNumber: accountId.toString() })
-      || { accountNumber: accountId, accountName: 'Unknown Account' };
+    const account = await db.collection('chart_of_accounts').findOne({ account_number: accountId.toString() })
+      || { account_number: accountId, accountName: 'Unknown Account' };
 
     //Calculate running balance
     let runningBalance = account.initialBalance || 0;

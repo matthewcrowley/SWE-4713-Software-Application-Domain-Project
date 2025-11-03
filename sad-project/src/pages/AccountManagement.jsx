@@ -482,6 +482,9 @@ export default function AccountManagement() {
           <button className="nav-button" onClick={() => navigate("/administrator")}>
             🏠 Dashboard
           </button>
+          <button className="nav-button" onClick={() => { navigate("/accountmanagement");}}>
+            👤 Account Management
+          </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
             📋 Chart of Accounts
           </button>

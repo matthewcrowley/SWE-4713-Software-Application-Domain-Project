@@ -83,21 +83,31 @@ router.put('/:id/approve', async (req, res) => {
       }
     );
 
-    // Post entries to ledger
-    const ledgerEntries = journalEntry.entries.map(entry => ({
-      date: journalEntry.date,
-      accountId: entry.accountId,
-      accountName: entry.accountName,
-      description: journalEntry.description,
-      journalId: id,
-      journalEntryNumber: journalEntry.journalEntryNumber,
-      debit: entry.debit,
-      credit: entry.credit,
-      postedAt: new Date(),
-      postedBy: req.user?.id || 'Manager',
-    }));
+   // Post entries to ledger only if accountId exists
+    const ledgerEntries = journalEntry.entries
+      .filter(entry => entry.accountId && entry.accountId.trim() !== '') // skip empty accountId
+      .map(entry => {
+        // fetch account info from chart_of_accounts
+        const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
-    await db.collection('ledger').insertMany(ledgerEntries);
+        return {
+          date: journalEntry.date,
+          accountId: entry.accountId,
+          accountName: entry.accountName || (account ? account.accountName : 'Unknown Account'),
+          description: journalEntry.description,
+          journalId: id,
+          journalEntryNumber: journalEntry.journalEntryNumber || null,
+          debit: entry.debit,
+          credit: entry.credit,
+          postedAt: new Date(),
+          postedBy: req.user?.id || 'Manager',
+        };
+      });
+
+    // Only insert if there are valid entries
+    if (ledgerEntries.length > 0) {
+      await db.collection('ledger').insertMany(ledgerEntries);
+    }
 
     // Update account balances
     for (const entry of journalEntry.entries) {

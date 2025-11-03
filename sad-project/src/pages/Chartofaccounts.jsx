@@ -9,6 +9,7 @@ import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
+import { Link } from "react-router-dom";
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -129,6 +130,19 @@ const handleCancel = () => {
   setEditingAccountId(null);
   setEditedAccount({});
 };
+
+// Handle account creation 
+ const handleAddAccount = async (e) => {
+    e.preventDefault();
+    const newAccount = {
+      ...accountForm,
+      initialBalance: formatMoney(accountForm.initialBalance),
+      debit: formatMoney(accountForm.debit),
+      credit: formatMoney(accountForm.credit),
+      balance: formatMoney(accountForm.balance),
+      dateAdded: new Date().toISOString(),
+    };
+ }
 
 // Save edited account
 const handleSave = async (accountId) => {
@@ -405,6 +419,9 @@ const handleSave = async (accountId) => {
             }}>
             👤 Account Management
           </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart of Accounts
+          </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
@@ -537,7 +554,10 @@ const handleSave = async (accountId) => {
       </div>
 
       <div className="admin-section">
-        <h2>Chart of Accounts</h2>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <h2>Chart of Accounts</h2>
+          <Button className="add-account">Add Account</Button>
+        </div>
         <p>Manage your accounts here.</p>
 
         {loading ? (
@@ -579,16 +599,16 @@ const handleSave = async (accountId) => {
                     {editingAccountId === account._id ? (
                       <>
                         <td>
-                          <TextField
-                            value={editedAccount.account_number}
-                            onChange={(e) =>
-                              setEditedAccount({
-                                ...editedAccount,
-                                account_number: e.target.value,
-                              })
-                            }
-                            size="small"
-                          />
+                            <TextField
+                              value={editedAccount.account_number}
+                              onChange={(e) =>
+                                setEditedAccount({
+                                  ...editedAccount,
+                                  account_number: e.target.value,
+                                })
+                              }
+                              size="small"
+                            />
                         </td>
                         <td>
                           <TextField
@@ -698,7 +718,20 @@ const handleSave = async (accountId) => {
                       </>
                     ) : (
                       <>
-                        <td>{account.account_number}</td>
+                        <td>
+                            <Link
+                              to={`/ledger/${account.account_number}`}
+                              onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {account.account_number}
+                            </Link>
+                        </td>
                         <td>{account.account_name}</td>
                         <td>{account.type}</td>
                         <td>{account.subcategory}</td>
