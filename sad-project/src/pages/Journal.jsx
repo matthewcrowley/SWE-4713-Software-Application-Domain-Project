@@ -83,6 +83,14 @@ const Journal = () => {
     return { debit: debitTotal, credit: creditTotal, balanced: debitTotal === creditTotal && debitTotal > 0 };
   }, [newEntry.entries]);
 
+  const formatCurrency = (value) => {
+  if (!value || value <= 0) return '-';
+  return `$${parseFloat(value).toLocaleString('en-US', { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  })}`;
+};
+
   // Filter entries by status, date, and search term
   const filteredEntries = useMemo(() => {
     let entries = activeTab === "all"
@@ -537,23 +545,39 @@ const Journal = () => {
             ) : (
               filteredEntries.map(entry => (
                 <div key={entry._id} className="entry-card">
-                  <div className="entry-header">
-                    <div className="entry-info">
-                      <div className="entry-meta">
-                        <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
-                        <StatusBadge status={entry.status} />
-                        <span className="entry-date">{new Date(...entry.date.split('-').map((v,i) => i === 1 ? v-1 : v)).toLocaleDateString()}</span>
-                      </div>
-                      <p className="entry-description">{entry.description}</p>
-                      <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
+                  <div className="entry-info">
+                    <div className="entry-meta">
+                      <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
+                      <StatusBadge status={entry.status} />
+                      <span className="entry-date">{new Date(...entry.date.split('-').map((v,i) => i === 1 ? v-1 : v)).toLocaleDateString()}</span>
                     </div>
-                    <button
-                      onClick={() => setSelectedEntry(entry)}
-                      className="view-btn"
-                    >
-                      👁️ View
-                    </button>
+                    <p className="entry-description">{entry.description}</p>
+                    <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
+
+                    {/* Mini account table preview */}
+                    <table className="journal-table preview-table">
+                      <thead>
+                        <tr>
+                          <th>Account</th>
+                          <th>Debit</th>
+                          <th>Credit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {entry.entries
+                          .filter(e => e.accountId || e.debit > 0 || e.credit > 0)
+                          .sort((a,b) => b.debit - a.debit) // debits first
+                          .map((e, idx) => (
+                            <tr key={idx}>
+                              <td>{e.accountId} - {e.accountName}</td>
+                              <td className="text-right">{formatCurrency(e.debit)}</td>
+                              <td className="text-right">{formatCurrency(e.credit)}</td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   </div>
+                  <button onClick={() => setSelectedEntry(entry)} className="view-btn">👁️ View</button>
                 </div>
               ))
             )}
