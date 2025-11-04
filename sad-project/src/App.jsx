@@ -15,6 +15,7 @@ import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
+import Reports from "./pages/Reports";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -303,6 +304,13 @@ function App() {
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
         />
+        {/* ✅ Financial Reports Route */}
+      <Route
+        path="/reports"
+        element={
+          isLoggedIn ? <Reports /> : <Navigate to="/" replace />
+        }
+      />
       </Routes>
     </Router>
   );

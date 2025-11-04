@@ -504,6 +504,9 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
           </button>
+          <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
+          </button>
           <div className="nav-right">
           <button
              className="nav-button email-button"
