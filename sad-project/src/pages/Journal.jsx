@@ -470,6 +470,9 @@ const Journal = () => {
         <button className="nav-button" onClick={() => navigate("/ledger")}>
           📙 Ledger
         </button>
+        <button className="nav-button" onClick={() => navigate("/reports")}>
+          📊 Financial Reports
+        </button>
       </nav>
 
       {error && (

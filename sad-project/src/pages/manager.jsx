@@ -5,6 +5,7 @@ import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 
+
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Reports",
       description: "Generate financial reports",
       icon: "📊",
+      path: "/Reports",
     },
     {
       title: "Journal Entries",
@@ -131,6 +133,9 @@ export default function Manager({ setIsLoggedIn }) {
           </button>
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
+          </button>
+          <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
           </button>
         </nav>
       </header>

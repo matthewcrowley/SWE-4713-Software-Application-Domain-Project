@@ -232,6 +232,9 @@ const Ledger = () => {
         <button className="nav-button" onClick={() => navigate("/journalentries")}>
           📖 Journal Entries
         </button>
+        <button className="nav-button" onClick={() => navigate("/reports")}>
+          📊 Financial Reports
+        </button>
       </nav>
 
       {/* ===== Error Message ===== */}
