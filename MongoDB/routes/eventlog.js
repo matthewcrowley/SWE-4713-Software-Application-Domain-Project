@@ -12,8 +12,8 @@ router.get('/', async (req, res) => {
 
     const formattedLogs = eventlogs.map(log => ({
       ...log,
-      before: log.before ? JSON.stringify(log.before, null, 2) : null,
-      after: log.after ? JSON.stringify(log.after, null, 2) : null,
+      beforeImage: log.before ? JSON.stringify(log.before, null, 2) : null,
+      afterImage: log.after ? JSON.stringify(log.after, null, 2) : null,
       timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : new Date().toLocaleString(),
     }));
 
