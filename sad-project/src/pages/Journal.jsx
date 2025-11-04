@@ -569,7 +569,11 @@ const Journal = () => {
                           .sort((a,b) => b.debit - a.debit) // debits first
                           .map((e, idx) => (
                             <tr key={idx}>
-                              <td>{e.accountId} - {e.accountName}</td>
+                              <td>
+                                <span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
+                                  {e.accountId} - {e.accountName}
+                                  </span>
+                              </td>
                               <td className="text-right">{formatCurrency(e.debit)}</td>
                               <td className="text-right">{formatCurrency(e.credit)}</td>
                             </tr>
@@ -845,21 +849,20 @@ const Journal = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {selectedEntry.entries.filter(entry => 
-                  entry.accountId || entry.debit > 0 || entry.credit > 0)
-                  .map((entry, idx) => (
-                    <tr key={idx}>
-                      <td>{entry.accountId} - {entry.accountName}</td>
-                      <td className="text-right">{entry.debit > 0 ? `$${parseFloat(entry.debit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                      <td className="text-right">{entry.credit > 0 ? `$${parseFloat(entry.credit).toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          }) ?? '0.00'}` : '-'}</td>
-                    </tr>
-                  ))}
+                  {selectedEntry.entries
+                          .filter(e => e.accountId || e.debit > 0 || e.credit > 0)
+                          .sort((a,b) => b.debit - a.debit) // debits first
+                          .map((e, idx) => (
+                            <tr key={idx}>
+                              <td>
+                                <span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
+                                  {e.accountId} - {e.accountName}
+                                  </span>
+                              </td>
+                              <td className="text-right">{formatCurrency(e.debit)}</td>
+                              <td className="text-right">{formatCurrency(e.credit)}</td>
+                            </tr>
+                          ))}
                 </tbody>
               </table>
 
