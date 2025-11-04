@@ -20,7 +20,7 @@ const AccountLedger = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [filteredEntries, setFilteredEntries] = useState([]);
+  const [filteredEntries, setFilteredEntries] = useState([]); 
 
   // Fetch current user
   useEffect(() => {
@@ -248,16 +248,25 @@ const AccountLedger = () => {
                     <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>
-                        <Link to={`/journalentries/${entry.journalId}`}>{index + 1}</Link>
+                        <Link to={`/journalentries`} onClick={() => onSelectEntry(entry)}>{index + 1}</Link>
                       </TableCell>
                       <TableCell>{entry.description}</TableCell>
                       <TableCell align="right">
-                        {entry.debit !== 0 ? `$${entry.debit.toLocaleString()}` : ''}
+                        {entry.debit !== 0 ? `$${entry.debit.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : ''}
                       </TableCell>
                       <TableCell align="right">
-                        {entry.credit !== 0 ? `$${entry.credit.toLocaleString()}` : ''}
+                        {entry.credit !== 0 ? `$${entry.credit.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}` : ''}
                       </TableCell>
-                      <TableCell align="right">${entry.balance.toLocaleString()}</TableCell>
+                      <TableCell align="right">${entry.balance.toLocaleString('en-US', {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2
+                          }) ?? '0.00'}</TableCell>
                     </TableRow>
                   ))
                 ) : (

@@ -591,7 +591,8 @@ const Journal = () => {
                       </tbody>
                     </table>
                   </div>
-                  <button onClick={() => setSelectedEntry(entry)} className="view-btn">👁️ View</button>
+                  {/*When clicked it will add journal id to the url without changing the window*/}
+                  <button onClick={() => {setSelectedEntry(entry); window.history.pushState(null, '', `/journalentries/${entry._id}`);}} className="view-btn">👁️ View</button>
                 </div>
               ))
             )}
@@ -828,7 +829,7 @@ const Journal = () => {
                 <h2>Journal Entry JE-{selectedEntry.journalEntryNumber || selectedEntry._id.slice(-6)}</h2>
                 <StatusBadge status={selectedEntry.status} />
               </div>
-              <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); }} className="close-btn">
+              <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); window.history.pushState(null, '', '/journalentries'); }} className="close-btn">
                 ×
               </button>
             </div>
