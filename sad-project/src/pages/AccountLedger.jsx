@@ -248,7 +248,10 @@ const AccountLedger = () => {
                     <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>
-                        <Link to={`/journalentries`} onClick={() => onSelectEntry(entry)}>{index + 1}</Link>
+                         <span
+                            style={{ cursor: 'pointer', color: '#1976d2'}}
+                            onClick={() => navigate(`/journalentries/${entry.journalId}`)}
+                          > {index + 1} </span>
                       </TableCell>
                       <TableCell>{entry.description}</TableCell>
                       <TableCell align="right">

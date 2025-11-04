@@ -4,7 +4,7 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -18,6 +18,7 @@ const Journal = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [rejectionComment, setRejectionComment] = useState('');
 
   // Fetch current users
   useEffect(() => {
@@ -44,7 +45,26 @@ const Journal = () => {
     ]
   });
 
-  const [rejectionComment, setRejectionComment] = useState('');
+  // When PR is clicked in ledger --- open corresponding journal entry modal
+
+  const { journalEntryId } = useParams(); // grab :id from URL
+
+  useEffect(() => {
+    if (!journalEntryId) return;
+
+    // Check if already loaded in state
+    const entry = journalEntries.find(e => e._id === journalEntryId);
+    if (entry) {
+      setSelectedEntry(entry);
+    } else {
+      // Otherwise fetch it from API
+      fetch(`http://localhost:3000/api/journal-entries/${journalEntryId}`)
+        .then(res => res.json())
+        .then(data => setSelectedEntry(data))
+        .catch(err => console.error(err));
+    }
+  }, [journalEntryId, journalEntries]);
+
 
   // Fetch Chart of Accounts
   useEffect(() => {

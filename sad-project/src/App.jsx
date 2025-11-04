@@ -296,6 +296,13 @@ function App() {
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
           />
+
+        {/* PR Journal entry*/}
+        <Route 
+          path="/journalentries/:journalEntryId" 
+          element={<Journal />} 
+          />
+          
       </Routes>
     </Router>
   );
