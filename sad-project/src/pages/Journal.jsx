@@ -4,6 +4,7 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
+import { Link } from "react-router-dom";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -571,7 +572,16 @@ const Journal = () => {
                             <tr key={idx}>
                               <td>
                                 <span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
-                                  {e.accountId} - {e.accountName}
+                                  <Link
+                                      to={`/ledger/${e.accountId}`}
+                                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                                      style={{
+                                        textDecoration: "none",
+                                        color: "#1976d2",
+                                        cursor: "pointer",
+                                        fontWeight: 500,
+                                      }}
+                                    > {e.accountId} </Link> - {e.accountName}
                                   </span>
                               </td>
                               <td className="text-right">{formatCurrency(e.debit)}</td>
@@ -856,7 +866,16 @@ const Journal = () => {
                             <tr key={idx}>
                               <td>
                                 <span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
-                                  {e.accountId} - {e.accountName}
+                                  <Link
+                                      to={`/ledger/${e.accountId}`}
+                                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                                      style={{
+                                        textDecoration: "none",
+                                        color: "#1976d2",
+                                        cursor: "pointer",
+                                        fontWeight: 500,
+                                      }}
+                                    > {e.accountId} </Link> - {e.accountName}
                                   </span>
                               </td>
                               <td className="text-right">{formatCurrency(e.debit)}</td>
