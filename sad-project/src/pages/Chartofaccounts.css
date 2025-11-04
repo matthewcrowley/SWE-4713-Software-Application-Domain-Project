@@ -220,4 +220,112 @@
 .accounts-table {
   color: black !important;
 }
+
+.email-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* darker backdrop */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Popup container */
+.email-dialog {
+  background: #ffffff;
+  padding: 25px 30px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  color: #222; /* text color */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Title */
+.email-dialog h3 {
+  margin-top: 0;
+  text-align: center;
+  color: #222;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+/* Labels */
+.email-dialog label {
+  display: block;
+  margin-bottom: 6px;
+  color: #333; /* darker text for readability */
+  font-weight: 500;
+  font-size: 0.95em;
+}
+
+/* Inputs & Textarea */
+.email-dialog input,
+.email-dialog textarea {
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95em;
+  color: #222;
+  background-color: #f9f9f9;
+  transition: border-color 0.2s ease;
+}
+
+.email-dialog input:focus,
+.email-dialog textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  background-color: #fff;
+}
+
+/* Buttons */
+.email-dialog-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.email-dialog-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Send button */
+.email-dialog-buttons button:first-child {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.email-dialog-buttons button:first-child:hover {
+  background-color: #0056b3;
+}
+
+/* Cancel button */
+.email-dialog-buttons button:last-child {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+.email-dialog-buttons button:last-child:hover {
+  background-color: #d6d6d6;
+}
+
+/* Status message */
+.email-status {
+  font-size: 0.9em;
+  color: #007bff;
+  text-align: center;
+  margin-bottom: 10px;
+}
 }

@@ -16,38 +16,37 @@ const Eventlog = () => {
 
   const handleGenerateReport = () => {
     console.log('Generating report...');
-    // You can implement report generation here
   };
 
-// Fetch current users
+  // Fetch current user
   useEffect(() => {
-        const fetchCurrentUser = async () => {
-          try {
-            const response = await fetch("http://localhost:3000/api/curUser");
-            const data = await response.json();
-            setCurrentUser(data.currentUser || []);
-              
-          } catch (err) {
-            console.warn("Could not fetch /api/curUser:", err);
-          }
-        };
-        fetchCurrentUser();
-      }, []);
-
-
-  // Fetch event logs from API
-  useEffect(() => {
-    fetch('http://localhost:3000/api/eventlog')
-      .then((res) => res.json())
-      .then((data) => {
-        setLogs(data);
-        setLoading(false);
-      })
-      .catch((e) => {
-        console.error('Failed to fetch event logs', e);
-        setLoading(false);
-      });
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || null);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
   }, []);
+
+  // Fetch event logs
+  useEffect(() => {
+  fetch('http://localhost:3000/api/eventlog')
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Eventlog API response:", data); // <- Check this
+      setLogs(data);
+      setLoading(false);
+    })
+    .catch((e) => {
+      console.error('Failed to fetch event logs', e);
+      setLoading(false);
+    });
+}, []);
+
 
   // Sort logs by timestamp
   useEffect(() => {
@@ -59,19 +58,51 @@ const Eventlog = () => {
     setSortedLogs(sorted);
   }, [logs, sortOrder]);
 
+  <tbody>
+  {sortedLogs.map((log) => (
+    <tr key={log._id}>
+      <td>{log._id}</td>
+      <td>{log.userId}</td>
+      <td>{log.action}</td>
+      <td>{new Date(log.timestamp).toLocaleString()}</td>
+      <td>
+        {log.before ? (
+          <div>
+            <div><strong>First Name:</strong> {log.before.firstName}</div>
+            <div><strong>Last Name:</strong> {log.before.lastName}</div>
+            <div><strong>DOB:</strong> {log.before.dob}</div>
+            <div><strong>Address:</strong> {log.before.address}</div>
+            <div><strong>Email:</strong> {log.before.email}</div>
+            <div><strong>Username:</strong> {log.before.username}</div>
+          </div>
+        ) : (
+          <em>New Account</em>
+        )}
+      </td>
+      <td>
+        {log.after && (
+          <div>
+            <div><strong>First Name:</strong> {log.after.firstName}</div>
+            <div><strong>Last Name:</strong> {log.after.lastName}</div>
+            <div><strong>DOB:</strong> {log.after.dob}</div>
+            <div><strong>Address:</strong> {log.after.address}</div>
+            <div><strong>Email:</strong> {log.after.email}</div>
+            <div><strong>Username:</strong> {log.after.username}</div>
+          </div>
+        )}
+      </td>
+    </tr>
+  ))}
+</tbody>
+
   return (
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <img 
-                  src={logo} 
-                  alt="Sweet Ledger Logo" 
-                  className="header-logo"
-                />
-                <h1 className="admin-title">Event Log</h1>
-              </div>
-        
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
+          <h1 className="admin-title">Event Log</h1>
+        </div>
 
         <div className="header-actions">
           <Button
@@ -84,87 +115,108 @@ const Eventlog = () => {
         </div>
       </header>
 
-       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
+      <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
         <div className="button-container">
-            <Calendar title="Calander" />
-            <span className="tooltiptext">Click here to open the calendar</span>
-          </div>
-          <button
-            className="nav-button"
-            onClick={() => {
-              if (currentUser.role === "Manager") navigate("/manager");
-              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
-              else navigate("/administrator");
-            }}>
-            🏠 Dashboard
-          </button>
-          <button className="nav-button"
+          <Calendar title="Calendar" />
+          <span className="tooltiptext">Click here to open the calendar</span>
+        </div>
+        <button
+          className="nav-button"
           onClick={() => {
-              if (currentUser.role === "Manager") navigate("/AccountView");
-              else if (currentUser.role === "Accountant") navigate("/AccountView");
-              else navigate("/accountmanagement");
-            }}>
-            👤 Account Management
-          </button>
-          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart of Accounts
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
-        </nav>
+            if (currentUser?.role === "Manager") navigate("/manager");
+            else if (currentUser?.role === "Accountant") navigate("/regularaccountuser");
+            else navigate("/administrator");
+          }}
+        >
+          🏠 Dashboard
+        </button>
+        <button
+          className="nav-button"
+          onClick={() => {
+            if (currentUser?.role === "Manager" || currentUser?.role === "Accountant") navigate("/AccountView");
+            else navigate("/accountmanagement");
+          }}
+        >
+          👤 Account Management
+        </button>
+        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+          📋 Chart of Accounts
+        </button>
+        <button className="nav-button" onClick={() => navigate("/ledger")}>
+          📙 Ledger
+        </button>
+      </nav>
 
       <div className="admin-section">
         <h2>Event Log</h2>
         <p>View all account changes, including before and after states.</p>
 
         {loading ? (
-          <p>Loading event logs...</p>
-        ) : sortedLogs.length === 0 ? (
-          <p>No event logs found.</p>
-        ) : (
-          <table className="eventlog-table" border="1" cellPadding="8">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>User ID</th>
-                <th>Action</th>
-                <th
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
-                </th>
-                <th>Before</th>
-                <th>After</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedLogs.map((log) => (
-                <tr key={log._id}>
-                  <td>{log._id}</td>
-                  <td>{log.userId}</td>
-                  <td>{log.action}</td>
-                  <td>{new Date(log.timestamp).toLocaleString()}</td>
-                  <td>
-                    {log.before ? (
-                      <pre>{JSON.stringify(log.before, null, 2)}</pre>
-                    ) : (
-                      <em>New Account</em>
-                    )}
-                  </td>
-                  <td>
-                    {log.after ? (
-                      <pre>{JSON.stringify(log.after, null, 2)}</pre>
-                    ) : (
-                      <em>Deleted</em>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+  <p>Loading event logs...</p>
+) : sortedLogs.length === 0 ? (
+  <p>No event logs found.</p>
+) : (
+  <table className="eventlog-table" border="1" cellPadding="8">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Action</th>
+        <th
+          style={{ cursor: 'pointer' }}
+          onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+        >
+          Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
+        </th>
+        <th>Before</th>
+        <th>After</th>
+      </tr>
+    </thead>
+    <tbody>
+      {sortedLogs.map((log) => (
+        <tr key={log._id}>
+          <td>{log._id}</td>
+          <td>{log.userId}</td>
+          <td>{log.action}</td>
+          <td>{new Date(log.timestamp).toLocaleString()}</td>
+
+          {/* Before snapshot */}
+          <td>
+            {log.before ? (
+              <div>
+                <div><strong>First Name:</strong> {log.before.firstName}</div>
+                <div><strong>Last Name:</strong> {log.before.lastName}</div>
+                <div><strong>DOB:</strong> {log.before.dob}</div>
+                <div><strong>Address:</strong> {log.before.address}</div>
+                <div><strong>Email:</strong> {log.before.email}</div>
+                <div><strong>Username:</strong> {log.before.username}</div>
+              </div>
+            ) : (
+              <em>New Account</em>
+            )}
+          </td>
+
+          {/* After snapshot */}
+          <td>
+  { (log.after || log.afterImage) ? (
+    <div>
+      <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
+      <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
+      <div><strong>DOB:</strong> {(log.after || log.afterImage)?.dob}</div>
+      <div><strong>Address:</strong> {(log.after || log.afterImage)?.address}</div>
+      <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
+      <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
+    </div>
+  ) : (
+    <em>No After Snapshot</em>
+  )}
+</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
       </div>
     </div>
   );

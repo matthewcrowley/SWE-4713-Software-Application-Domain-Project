@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Button, TextField, Dialog, DialogTitle, DialogContent, 
-  DialogActions, Table, TableHead, TableBody, TableRow, TableCell,
+  DialogActions, Table, TableHead, TableBody, TableRow, Typography, TableCell,
   MenuItem, Select, FormControl, InputLabel, Tabs, Tab, Box
 } from '@mui/material';
 import './chartofaccounts.css';
@@ -239,6 +239,53 @@ const handleSave = async (accountId) => {
   });
 };
 
+const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [emailForm, setEmailForm] = useState({
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [message, setMessage] = useState("");
+
+  // Open popup
+  const openEmailDialog = () => setShowEmailDialog(true);
+
+  // Close popup
+  const closeEmailDialog = () => {
+    setShowEmailDialog(false);
+    setMessage("");
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailForm.email || !emailForm.subject || !emailForm.message) {
+      setMessage("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:3000/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(emailForm),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage(`Email sent successfully to ${emailForm.email}.`);
+        setTimeout(() => {
+          setShowEmailDialog(false);
+          setEmailForm({ email: "", subject: "", message: "" });
+        }, 1000);
+      } else {
+        setMessage("Failed to send email: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      setMessage("Server error while sending email.");
+    }
+  };
+
   // ===== Render Before/After Comparison =====
   const renderBeforeAfterComparison = (log) => {
     if (!log.before && log.after) {
@@ -356,6 +403,49 @@ const handleSave = async (accountId) => {
     );
   }
 
+  <Dialog open={showEmailDialog} onClose={() => setShowEmailDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Send Email to {emailForm.username}</DialogTitle>
+        <DialogContent>
+          <Box mt={2}>
+            <TextField
+              fullWidth
+              label="To"
+              value={emailForm.email}
+              margin="normal"
+              disabled
+            />
+            <TextField
+              fullWidth
+              label="Subject *"
+              name="subject"
+              value={emailForm.subject}
+              onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Message *"
+              name="message"
+              value={emailForm.message}
+              onChange={(e) => setEmailForm({ ...emailForm, message: e.target.value })}
+              margin="normal"
+              multiline
+              rows={6}
+              required
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowEmailDialog(false)} className="btn cancel">
+            Cancel
+          </Button>
+          <Button onClick={handleSendEmail} className="btn" style={{ backgroundColor: '#2196f3' }}>
+            Send Email
+          </Button>
+        </DialogActions>
+      </Dialog>
+
   return (
     <div className="admin-container">
       {/* ===== Header ===== */}
@@ -414,7 +504,113 @@ const handleSave = async (accountId) => {
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
           </button>
+          <div className="nav-right">
+          <button
+             className="nav-button email-button"
+             onClick={() => openEmailDialog()}
+             style={{
+             background: 'none',
+             border: 'none',
+             color: '#007BFF', // Bootstrap blue
+              textDecoration: 'underline',
+              cursor: 'pointer',
+             padding: 0,
+              font: 'inherit'
+            }}
+          >
+           Email Admin or Manager
+            </button>
+          </div>
         </nav>
+
+          {showEmailDialog && (
+  <Box
+    sx={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1300, // above MUI modals
+    }}
+  >
+    <Box
+      sx={{
+        backgroundColor: '#fff',
+        p: 3,
+        borderRadius: 2,
+        boxShadow: 6,
+        width: 400,
+        color: '#222',
+      }}
+    >
+      <Typography variant="h6" textAlign="center" mb={2}>
+        Send Email to Admin or Manager
+      </Typography>
+
+      <TextField
+        label="Email"
+        type="email"
+        value={emailForm.email}
+        onChange={(e) =>
+          setEmailForm({ ...emailForm, email: e.target.value })
+        }
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Subject"
+        value={emailForm.subject}
+        onChange={(e) =>
+          setEmailForm({ ...emailForm, subject: e.target.value })
+        }
+        fullWidth
+        margin="normal"
+      />
+
+      <TextField
+        label="Message"
+        value={emailForm.message}
+        onChange={(e) =>
+          setEmailForm({ ...emailForm, message: e.target.value })
+        }
+        multiline
+        rows={5}
+        fullWidth
+        margin="normal"
+      />
+
+      {message && (
+        <Typography
+          variant="body2"
+          color="primary"
+          textAlign="center"
+          mt={1}
+        >
+          {message}
+        </Typography>
+      )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, gap: 1 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleSendEmail}
+        >
+          Send
+        </Button>
+        <Button variant="outlined" onClick={closeEmailDialog}>
+          Cancel
+        </Button>
+      </Box>
+    </Box>
+  </Box>
+)}
 
 
       {/* ===== Error Message ===== */}
@@ -730,8 +926,7 @@ const handleSave = async (accountId) => {
               </tbody>
           </table>
         )}
-      </div>
-  );
+      </div>  
 
       {/* ===== All Accounts Report Dialog ===== */}
       <Dialog open={openReport} onClose={handleCloseReport} maxWidth="lg" fullWidth>

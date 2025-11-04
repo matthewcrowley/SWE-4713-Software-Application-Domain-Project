@@ -20,6 +20,7 @@ const Journal = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [entryTypeFilter, setEntryTypeFilter] = useState('all'); // 'all', 'regular', 'adjusting'
 
+
   // Fetch current users
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -619,7 +620,44 @@ const Journal = () => {
                       </div>
                       <p className="entry-description">{entry.description}</p>
                       <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
+                      <div className="entry-accounts" style={{ color: '#000' }}>
+                      <strong>Accounts:</strong>
+                      <ul>
+                        {(() => {
+                          const accounts = Array.isArray(entry.entries[0]) 
+                            ? entry.entries.flat() 
+                            : entry.entries;
+                          const filteredAccounts = accounts.filter(e => e.accountName);
+
+                          return filteredAccounts.map((e, index) => (
+                            <li key={index}>
+                              {e.accountName} — 
+                              Debit: {e.debit?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0.00'} | 
+                              Credit: {e.credit?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0.00'}
+                            </li>
+                          ));
+                        })()}
+                      </ul>
+
+                    {(() => {
+                      const accounts = Array.isArray(entry.entries[0]) 
+                        ? entry.entries.flat() 
+                        : entry.entries;
+                      const filteredAccounts = accounts.filter(e => e.accountName);
+                      const totalDebit = filteredAccounts.reduce((sum, e) => sum + (e.debit || 0), 0);
+                      const totalCredit = filteredAccounts.reduce((sum, e) => sum + (e.credit || 0), 0);
+
+                      return (
+                        <p>
+                          <strong>Total Debit:</strong> {totalDebit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} | 
+                          <strong>Total Credit:</strong> {totalCredit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                        </p>
+                          );
+                        })()}
+                      </div> 
                     </div>
+
+                    
                     <button
                       onClick={() => setSelectedEntry(entry)}
                       className="view-btn"
