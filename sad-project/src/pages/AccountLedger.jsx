@@ -87,7 +87,6 @@ const AccountLedger = () => {
 
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     navigate("/");
   };
 
@@ -235,7 +234,7 @@ const AccountLedger = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Date</TableCell>
-                <TableCell>Reference No.</TableCell>
+                <TableCell>Post Reference</TableCell>
                 <TableCell>Description</TableCell>
                 <TableCell align="right">Debit</TableCell>
                 <TableCell align="right">Credit</TableCell>
@@ -247,7 +246,7 @@ const AccountLedger = () => {
                   filteredEntries.map((entry, index) => (
                     <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
                       <TableCell>{entry.date}</TableCell>
-                      <TableCell>
+                      <TableCell align='center'>
                          <span
                             style={{ cursor: 'pointer', color: '#1976d2'}}
                             onClick={() => navigate(`/journalentries/${entry.journalId}`)}

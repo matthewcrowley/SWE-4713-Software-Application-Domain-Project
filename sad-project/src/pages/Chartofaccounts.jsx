@@ -565,16 +565,16 @@ const handleSave = async (accountId) => {
           <table className="account-table" border="1" cellPadding="8" style={{color: 'black'}}>
             <thead>
               <tr>
-                {currentUser?.role === 'Admin' && <th style={{ alignItems: 'center', textAlign: 'center' }}>Select to Edit</th>}
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Number</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Name</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Type</th>
-                <th>Subcategory</th>
-                <th>Balance</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Created By</th>
-                <th>Date Created</th>
-                <th>Comments</th>
-                {selectedRadioId !== null && <th></th>}
+                {currentUser?.role === 'Admin' && <th style={{ textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Select to Edit</th>}
+                <th style={{ textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Account Number</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Account Name</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Account Type</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Subcategory</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Balance</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Created By</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Date Created</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Comments</th>
+                {selectedRadioId !== null && <th style={{background: 'orange'}}></th>}
               </tr>
             </thead>
               <tbody>
@@ -595,7 +595,7 @@ const handleSave = async (accountId) => {
 
                     {editingAccountId === account._id ? (
                       <>
-                        <td>
+                        <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
                             <TextField
                               value={editedAccount.account_number}
                               onChange={(e) =>
@@ -730,8 +730,8 @@ const handleSave = async (accountId) => {
                             </Link>
                         </td>
                         <td>{account.account_name}</td>
-                        <td>{account.type}</td>
-                        <td>{account.subcategory}</td>
+                        <td style={{textAlign:"center"}}>{account.type}</td>
+                        <td style={{textAlign:"center"}}>{account.subcategory}</td>
                         <td style={{ textAlign: "right" }}>
                           $
                           {account.balance.toLocaleString("en-US", {
@@ -739,7 +739,7 @@ const handleSave = async (accountId) => {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>{account.created_by}</td>
+                        <td style={{textAlign:"center"}}>{account.created_by}</td>
                         <td>{account.timestamp}</td>
                         <td>{account.comments}</td>
                         {selectedRadioId === account._id && ( <td>

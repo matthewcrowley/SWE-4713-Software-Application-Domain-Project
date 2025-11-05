@@ -34,11 +34,28 @@ export default function AccountManagement() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [editingUser, setEditingUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [editForm, setEditForm] = useState({
     username: "",
     email: "",
     role: "User",
   });
+
+  // Fetch current user
+    useEffect(() => {
+          const fetchCurrentUser = async () => {
+            try {
+              const response = await fetch("http://localhost:3000/api/curUser");
+              const data = await response.json();
+              setCurrentUser(data.currentUser || []);
+                
+            } catch (err) {
+              console.warn("Could not fetch /api/curUser:", err);
+            }
+          };
+          fetchCurrentUser();
+        }, []);
+        
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -140,6 +157,11 @@ export default function AccountManagement() {
 
   const handleEditChange = (e) => {
     setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    navigate("/");
   };
 
   const saveUserUpdate = async () => {
