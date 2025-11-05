@@ -36,6 +36,7 @@ app.use('/api/curUser', curUserRoutes);
 connectToDB()
   .then(() => {
     db = getDB();
+    app.locals.db = db;
     app.listen(3000, () => {
       console.log('Server listening on port 3000');
     });
