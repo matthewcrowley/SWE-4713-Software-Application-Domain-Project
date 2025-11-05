@@ -62,6 +62,9 @@ const AccountLedger = () => {
 
     let entries = ledgerData.entries;
 
+    // Sort by postedBy date (oldest first)
+    entries.sort((a, b) => new Date(a.postedAt) - new Date(b.postedAt));
+
     // Filter by date range
     if (startDate) {
       entries = entries.filter(e => new Date(e.date) >= new Date(startDate));

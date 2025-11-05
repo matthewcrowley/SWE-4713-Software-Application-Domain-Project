@@ -142,7 +142,7 @@ router.put('/:id/approve', async (req, res) => {
       if (account) {
         let newBalance = account.balance || 0;
 
-        if (['Asset', 'Expense'].includes(account.accountCategory)) {
+        if (['Asset', 'Expense'].includes(account.type)) {
           newBalance += entry.debit - entry.credit;
         } else {
           newBalance += entry.credit - entry.debit;
