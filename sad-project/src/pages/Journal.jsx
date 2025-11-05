@@ -1,10 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
-import { Link, useParams } from "react-router-dom";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -381,27 +380,6 @@ const Journal = () => {
       newDebits += line.debit;
       newCredits += line.credit;
 
-        const account = chartOfAccounts.find(acc => acc.account_number === accountId);
-        if (!account) {
-          console.warn(`⚠️ Account ${accountId} not found, skipping.`);
-          continue;
-        }
-
-        let newBalance = parseFloat(account.balance) || 0;
-        let newDebits = parseFloat(account.debits) || 0;
-        let newCredits = parseFloat(account.credits) || 0;
-
-        if (account.normal_side === "L") {
-          newBalance += debitVal;
-          newBalance -= creditVal;
-        } else {
-          newBalance -= debitVal;
-          newBalance += creditVal;
-        }
-
-        newDebits += debitVal;
-        newCredits += creditVal;
-
         await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -729,10 +707,6 @@ const Journal = () => {
 						👁️ View
 					  </button>
 					</div>
-
-                  {/*When clicked it will add journal id to the url without changing the window*/}
-                  <button onClick={() => {setSelectedEntry(entry); window.history.pushState(null, '', `/journalentries/${entry._id}`);}} className="view-btn">👁️ View</button>
-                </div>
               ))
             )}
           </div>
