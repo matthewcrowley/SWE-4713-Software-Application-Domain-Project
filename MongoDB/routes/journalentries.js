@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db');
 const {ObjectId} = require('mongodb');
+const multer = require('multer');
+const upload = multer();
 
 
 //Get all journal entries
@@ -35,23 +37,47 @@ router.get('/:id', async (req, res) => {
 });
 
 //Create a new journal entry
-router.post('/', async (req, res) => {
+router.post('/', upload.array('attachments', 10), async (req, res) => {
   try {
     const db = getDB();
-    const newEntry = req.body;
 
-    if (!newEntry.description || !newEntry.entries) {
-      return res.status(400).json({ message: 'Description and entries are required.' });
+    console.log("Incoming body:", req.body); // debug
+
+    const { date, description, createdBy, status, isAdjustingEntry } = req.body;
+    const entries = JSON.parse(req.body.entries || '[]');
+
+    // Validate required fields
+    if (!date || !description || entries.length < 2) {
+      return res.status(400).json({
+        error: 'Date, description, and at least 2 entries are required.',
+      });
     }
 
-    newEntry.status = newEntry.status || 'pending';
-    newEntry.createdAt = new Date();
+    const attachments = (req.files || []).map(f => ({
+      originalname: f.originalname,
+      mimetype: f.mimetype,
+      size: f.size,
+    }));
+
+    const newEntry = {
+      date,
+      description,
+      createdBy,
+      status: status || 'pending',
+      isAdjustingEntry: isAdjustingEntry === 'true' || isAdjustingEntry === true,
+      entries,
+      attachments,
+      createdAt: new Date(),
+    };
 
     const result = await db.collection('journal').insertOne(newEntry);
-    res.status(201).json({ message: 'Journal entry created successfully.', id: result.insertedId });
+    res.status(201).json({
+      message: 'Journal entry created successfully.',
+      id: result.insertedId,
+    });
   } catch (err) {
     console.error('Error creating journal entry:', err);
-    res.status(500).json({ message: 'Failed to create journal entry.' });
+    res.status(500).json({ error: 'Failed to create journal entry.' });
   }
 });
 
