@@ -44,7 +44,7 @@ export default function Manager({ setIsLoggedIn }) {
       path: "/EventLog",
     },
     {
-      title: "Reports",
+      title: "Financial Reports",
       description: "Generate financial reports",
       icon: "📊",
       path: "/Reports",
