@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useState } from "react";
+import { socket } from "./socket";
+import { useEffect } from "react";
 import "./style.css";
 import NewUser from "./NewUser";
 import ForgotPassword from "./ForgotPassword";
@@ -22,6 +24,25 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   var role = " "; // Placeholder for user role management
   var curUsername; 
+
+  useEffect(() => {
+  const handleConnect = () => {
+    console.log("Connected to Socket.io:", socket.id);
+  };
+
+  const handleNewAdjustingEntry = (data) => {
+    console.log("Received new adjusting entry:", data);
+  };
+
+  socket.on("connect", handleConnect);
+  socket.on("new-adjusting-entry", handleNewAdjustingEntry);
+
+  // Cleanup when component unmounts
+  return () => {
+    socket.off("connect", handleConnect);
+    socket.off("new-adjusting-entry", handleNewAdjustingEntry);
+  };
+}, []);
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {

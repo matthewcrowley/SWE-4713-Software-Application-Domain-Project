@@ -71,6 +71,16 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
     };
 
     const result = await db.collection('journal').insertOne(newEntry);
+    if (newEntry.isAdjustingEntry) {
+      const io = req.app.get('io');
+      console.log('Emitting new-adjusting-entry:', newEntry)
+      io.emit('new-adjusting-entry', {
+        id: result.insertedId,
+        description: newEntry.description,
+        createdBy: newEntry.createdBy,
+        date: newEntry.date,
+      });
+    }
     res.status(201).json({
       message: 'Journal entry created successfully.',
       id: result.insertedId,
