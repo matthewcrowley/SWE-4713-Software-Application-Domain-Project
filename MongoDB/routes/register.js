@@ -3,13 +3,13 @@ const dbRoute = express.Router();
 const { getDB } = require('../db');
 const logEvent = require('../utils/logEvent');
 
-dbRoute.post('/', async (q, r) => {
+dbRoute.post('/', async (req, res) => {
   try {
     const mongoDB = getDB();
-    const { firstName, lastName, address, dob, email, username, passwordHash } = q.body;
+    const { firstName, lastName, address, dob, email, username, passwordHash } = req.body;
 
     if (!firstName || !lastName || !email || !username || !passwordHash) {
-      return r.status(400).json({ success: false, message: 'Missing the required inputs' });
+      return res.status(400).json({ success: false, message: 'Missing required inputs' });
     }
 
     const newUser = {
@@ -29,26 +29,30 @@ dbRoute.post('/', async (q, r) => {
 
     const result = await mongoDB.collection('users').insertOne(newUser);
 
+    // Fetch the actual inserted document from MongoDB
+    const insertedUser = await mongoDB.collection('users').findOne({ _id: result.insertedId });
+
     await logEvent(mongoDB, {
-      userId: result.insertedId,
+      userId: insertedUser._id,
       action: 'New user registered',
       timestamp: new Date(),
       before: null,
-      after: {
-        firstName,
-        lastName,
-        address,
-        dob,
-        email,
-        username,
-      },
+      after: { 
+        firstName: insertedUser.firstName,
+        lastName: insertedUser.lastName,
+        address: insertedUser.address,
+        dob: insertedUser.dob,
+        email: insertedUser.email,
+        username: insertedUser.username,
+       _id: insertedUser._id.toString(),
+      }
     });
 
-    r.json({ success: true, insertedId: result.insertedId });
+    res.json({ success: true, insertedId: insertedUser._id });
 
   } catch (e) {
     console.error('Error inserting user:', e);
-    r.status(500).json({ success: false, message: 'There was an error with the server.' });
+    res.status(500).json({ success: false, message: 'Server error.' });
   }
 });
 

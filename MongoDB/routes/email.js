@@ -24,7 +24,7 @@ dbRoute.post('/', async (q, r) => {
     from: '"SweetLedger Admin" <matthewcrowley2002@gmail.com>',
     to: email,
     subject,
-    text: `Hi ${username},\n\n${message}`,
+    text: `Hi,\n\n${message}`,
   });
 
     r.json({success: true});

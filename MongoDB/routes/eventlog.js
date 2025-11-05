@@ -1,23 +1,27 @@
 const express = require('express');
 const router = express.Router();
-const { getDB } = require('../db');
 
-router.get('/', async (r, s) => {
+router.get('/', async (req, res) => {
   try {
-    const db = getDB();
-    const eventlogs = await db.collection('eventlogs').find({}).toArray();
+    const db = req.app.locals.db;
+    const eventlogs = await db
+      .collection('eventlogs')
+      .find({})
+      .sort({ timestamp: -1 })
+      .toArray();
 
     const formattedLogs = eventlogs.map(log => ({
       ...log,
-      before: log.beforeImage || null,
-      after: log.afterImage || null,
+      beforeImage: log.before ? JSON.stringify(log.before, null, 2) : null,
+      afterImage: log.after ? JSON.stringify(log.after, null, 2) : null,
+      timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : new Date().toLocaleString(),
     }));
 
-    s.json(formattedLogs);
+    res.json(formattedLogs);
 
-  } catch (e) {
-    console.error('The system failed to fetch the event logs:', e);
-    s.status(500).json({ error: 'Failed to fetch event logs' });
+  } catch (err) {
+    console.error('Failed to fetch event logs:', err);
+    res.status(500).json({ error: 'Failed to fetch event logs' });
   }
 });
 

@@ -16,6 +16,7 @@ import Ledger from "./pages/Ledger";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
 import AccountLedger from "./pages/AccountLedger"; 
+import Reports from "./pages/Reports";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -107,7 +108,7 @@ function App() {
 
           } else {
 
-            // ❌ Wrong credentials — track failed attempts
+            // Wrong credentials — track failed attempts
             const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
             failedAttempts[username] = (failedAttempts[username] || 0) + 1;
 
@@ -270,7 +271,7 @@ function App() {
           }
         />
 
-         <Route
+        <Route
           path="/eventlog"
           element={
             isLoggedIn ? <Eventlog /> : <Navigate to="/" replace />
@@ -284,6 +285,7 @@ function App() {
           }
         />
 
+        {/* ✅ Journal Entry Routes - with optional highlighting parameter */}
         <Route
           path="/JournalEntries"
           element={
@@ -291,7 +293,15 @@ function App() {
           }
         />
         <Route
-          path="/Ledger"
+          path="/journal/:highlightEntryId?"
+          element={
+            isLoggedIn ? <Journal /> : <Navigate to="/" replace />
+          }
+        />
+
+        {/* ✅ Ledger Routes - with account ID parameter */}
+        <Route
+          path="/ledger"
           element={
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
@@ -302,7 +312,19 @@ function App() {
           path="/journalentries/:journalEntryId" 
           element={<Journal />} 
           />
-          
+        <Route
+          path="/ledger/:accountId"
+          element={
+            isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
+          }
+        />
+        {/* ✅ Financial Reports Route */}
+      <Route
+        path="/reports"
+        element={
+          isLoggedIn ? <Reports /> : <Navigate to="/" replace />
+        }
+      />
       </Routes>
     </Router>
   );

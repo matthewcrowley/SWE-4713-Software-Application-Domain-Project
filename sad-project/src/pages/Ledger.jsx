@@ -24,12 +24,27 @@ const Ledger = () => {
   const [filteredEntries, setFilteredEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Filter/Search State
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+
+  // ===== Fetch Current User =====
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // ===== Fetch Ledger Entries from API =====
   useEffect(() => {
@@ -125,9 +140,14 @@ const Ledger = () => {
     }
   };
 
-  // ===== Navigate to Journal Entry =====
+  // ===== Navigate to Journal Entry with Highlighting =====
   const handlePostReferenceClick = (journalId) => {
-    navigate(`/journal-entry/${journalId}`);
+    if (!journalId) {
+      console.warn('No journal ID provided');
+      return;
+    }
+    // Navigate to journal with the entry ID to highlight
+    navigate(`/journal/${journalId}`);
   };
 
   const handleBackToChart = () => {
@@ -165,38 +185,6 @@ const Ledger = () => {
               </p>
             )}
           </div>
-          <nav className="dashboard-nav">
-          <div className="button-container">
-            <Calendar title="Calander" />
-            <span className="tooltiptext">Click here to open the calendar</span>
-          </div>
-          <button className="nav-button"
-          onClick={() => {
-              if (currentUser.role === "Manager") navigate("/manager");
-              else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
-              else navigate("/administrator");
-            }}>
-            🏠 Dashboard
-          </button>
-          <button className="nav-button"
-          onClick={() => {
-              if (currentUser.role === "Manager") navigate("/AccountView");
-              else if (currentUser.role === "Accountant") navigate("/AccountView");
-              else navigate("/accountmanagement");
-            }}>
-            👤 Account Management
-          </button>
-          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart of Accounts
-          </button>
-          <button className="nav-button" onClick={() => navigate("/eventlog")}>
-            📝 Event Log
-          </button>
-          <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
-          </button>
-        </nav>
-
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -212,6 +200,42 @@ const Ledger = () => {
           </div>
         </div>
       </header>
+
+      {/* ===== Navigation Bar ===== */}
+      <nav className="dashboard-nav">
+        <div className="button-container">
+          <Calendar title="Calendar" />
+          <span className="tooltiptext">Click here to open the calendar</span>
+        </div>
+        <button className="nav-button"
+          onClick={() => {
+            if (currentUser?.role === "Manager") navigate("/manager");
+            else if (currentUser?.role === "Accountant") navigate("/regularaccountuser");
+            else navigate("/administrator");
+          }}>
+          🏠 Dashboard
+        </button>
+        <button className="nav-button"
+          onClick={() => {
+            if (currentUser?.role === "Manager") navigate("/AccountView");
+            else if (currentUser?.role === "Accountant") navigate("/AccountView");
+            else navigate("/accountmanagement");
+          }}>
+          👤 Account Management
+        </button>
+        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+          📋 Chart of Accounts
+        </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+          📝 Event Log
+        </button>
+        <button className="nav-button" onClick={() => navigate("/journalentries")}>
+          📖 Journal Entries
+        </button>
+        <button className="nav-button" onClick={() => navigate("/reports")}>
+          📊 Financial Reports
+        </button>
+      </nav>
 
       {/* ===== Error Message ===== */}
       {error && (
@@ -238,10 +262,16 @@ const Ledger = () => {
               <strong>Category:</strong> {account.accountCategory || 'N/A'}
             </div>
             <div className="summary-item">
-              <strong>Initial Balance:</strong> ${account.initialBalance?.toLocaleString() ?? '0.00'}
+              <strong>Initial Balance:</strong> ${account.initialBalance?.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              }) ?? '0.00'}
             </div>
             <div className="summary-item">
-              <strong>Current Balance:</strong> ${account.balance?.toLocaleString() ?? '0.00'}
+              <strong>Current Balance:</strong> ${account.balance?.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              }) ?? '0.00'}
             </div>
           </div>
         </Paper>
@@ -353,7 +383,10 @@ const Ledger = () => {
                   <TableCell align="right">-</TableCell>
                   <TableCell align="right">-</TableCell>
                   <TableCell align="right">
-                    <strong>${account.initialBalance?.toLocaleString() ?? '0.00'}</strong>
+                    <strong>${account.initialBalance?.toLocaleString('en-US', {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2
+                    }) ?? '0.00'}</strong>
                   </TableCell>
                 </TableRow>
               )}
@@ -363,13 +396,26 @@ const Ledger = () => {
                 <TableRow key={`${entry._id}-${index}`} className="ledger-entry-row">
                   <TableCell>{new Date(entry.date).toLocaleDateString()}</TableCell>
                   <TableCell>
-                    <span 
-                      className="clickable-post-reference"
-                      onClick={() => handlePostReferenceClick(entry.journalId)}
-                      title="Click to view journal entry"
-                    >
-                      {entry.postReference}
-                    </span>
+                    {entry.journalId ? (
+                      <span 
+                        className="clickable-post-reference"
+                        onClick={() => handlePostReferenceClick(entry.journalId)}
+                        title="Click to view journal entry"
+                        style={{
+                          color: '#f7941d',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          textDecoration: 'underline',
+                          transition: 'color 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.target.style.color = '#e6830c'}
+                        onMouseLeave={(e) => e.target.style.color = '#f7941d'}
+                      >
+                        {entry.postReference}
+                      </span>
+                    ) : (
+                      <span>{entry.postReference}</span>
+                    )}
                   </TableCell>
                   <TableCell>{entry.description || '-'}</TableCell>
                   <TableCell align="right">
