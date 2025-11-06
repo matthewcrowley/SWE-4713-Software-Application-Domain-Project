@@ -10,15 +10,15 @@ const NotificationBell = ({ count = 0, onClick }) => {
       <IconButton
         onClick={onClick}
         sx={{
-          color: "#ff6b02e2", // Darker bell color
+          color: "#ff6b02e2",
           "&:hover": {
-            color: "#f36100ae", // Even darker on hover
+            color: "#f36100ae",
           },
         }}
       >
         <Badge
           badgeContent={count}
-          color="error" // bright red badge
+          color="error"
           sx={{
             "& .MuiBadge-badge": {
               fontWeight: "bold",
@@ -27,7 +27,7 @@ const NotificationBell = ({ count = 0, onClick }) => {
               height: "20px",
               borderRadius: "50%",
               color: "#ffffffff",
-              backgroundColor: "#d32f2f", // custom darker red
+              backgroundColor: "#d32f2f",
             },
           }}
         >

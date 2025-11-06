@@ -5,10 +5,9 @@ const path = require('path');
 const { ObjectId } = require('mongodb');
 const { getDB } = require('../db');
 
-// Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/') // Make sure this folder exists
+    cb(null, 'uploads/')
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -30,7 +29,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: fileFilter
 });
 
@@ -110,7 +109,6 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
       ? (lastEntry[0].journalEntryNumber || 0) + 1 
       : 1;
 
-    // Get filenames of uploaded files
     const attachments = req.files ? req.files.map(file => file.filename) : [];
 
     const newJournalEntry = {
@@ -125,7 +123,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
       })),
       status: status || 'pending',
       isAdjustingEntry: isAdjustingEntry === 'true',
-      attachments: attachments, // Store filenames
+      attachments: attachments,
       createdBy: createdBy, 
       createdAt: new Date(),
       reviewedBy: null,

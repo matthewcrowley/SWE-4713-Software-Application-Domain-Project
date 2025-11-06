@@ -214,7 +214,7 @@ const Journal = () => {
     entries: [
       ...prev.entries,
       {
-        type, // 👈 This is what determines where it shows
+        type,
         accountId: '',
         accountName: '',
         debit: type === 'debit' ? '' : 0,
@@ -233,11 +233,9 @@ const Journal = () => {
     }
   };
 
-  // Handle file uploads (multiple files)
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     
-    // Validate file types
     const allowedTypes = [
       'application/pdf',
       'application/msword',
