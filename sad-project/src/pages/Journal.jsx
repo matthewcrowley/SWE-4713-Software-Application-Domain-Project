@@ -4,6 +4,8 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
+import { socket } from "../socket";
+import NotificationsWrapper from "../components/NotificationsWrapper";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -316,6 +318,10 @@ const Journal = () => {
         method: 'POST',
         body: formData // Send as FormData instead of JSON
       });
+
+      if (newEntry.isAdjustingEntry === true) {
+        socket.emit("new-adjusting-entry", { id: Date.now(), description: newEntry.description });
+      }
 
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
@@ -982,6 +988,7 @@ const Journal = () => {
               <button
                 onClick={submitEntry}
                 disabled={!totals.balanced}
+                
                 className="btn"
               >
                 Submit for Approval
