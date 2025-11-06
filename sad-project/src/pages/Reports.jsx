@@ -224,7 +224,7 @@ const Reports = () => {
       }
 
       if (balance !== 0 || parseFloat(account.balance) !== 0) {
-        const finalBalance = balance + (parseFloat(account.balance) || 0);
+        const finalBalance = account.balance
         
         if (account.type === 'Asset') {
           assets.push({
@@ -249,6 +249,17 @@ const Reports = () => {
           });
         }
       }
+    });
+
+     // Add retained earnings to equity section
+    const retainedEarningsReport = generateRetainedEarnings();
+    const retainedEarningsAmount = retainedEarningsReport.endingRE || 0;
+
+    equity.push({
+      accountNumber: 'RE',
+      accountName: 'Retained Earnings',
+      subcategory: 'Equity',
+      amount: retainedEarningsAmount
     });
 
     const totalAssets = assets.reduce((sum, a) => sum + a.amount, 0);
@@ -709,7 +720,10 @@ const Reports = () => {
             <Select
               value={reportType}
               label="Report Type"
-              onChange={(e) => setReportType(e.target.value)}
+              onChange={(e) => {
+                setReportType(e.target.value); 
+                {/*When switing to new report set generated report as null*/}
+                setGeneratedReport(null);}}
             >
               <MenuItem value="trialBalance">Trial Balance</MenuItem>
               <MenuItem value="incomeStatement">Income Statement</MenuItem>
