@@ -11,6 +11,11 @@ export default function NotificationsWrapper() {
   const handleBellClick = () => setIsOpen((prev) => !prev);
 
   useEffect(() => {
+  console.log("Notifications updated:", notifications);
+  console.log("Current count:", notifications.length);
+}, [notifications]);
+
+  useEffect(() => {
     const handleNewEntry = (entry) => {
         console.log("Listener triggered with:", entry);
       setNotifications((prev) => [entry, ...prev]);
@@ -41,12 +46,8 @@ console.log("Notifications length:", notifications.length);
             </div>
           ) : (
             notifications.map((n) => (
-              <div key={n.id} className="notification-item">
-                <strong>{n.createdBy}</strong> submitted: <br />
-                {n.description}
-                <div className="notification-date">
-                  {new Date(n.date).toLocaleDateString()}
-                </div>
+              <div key={n.id} className="notification-item" style={{ color: "black" }}>
+                There is a new Adjusting Journal Entry that requires your attention!
               </div>
             ))
           )}
