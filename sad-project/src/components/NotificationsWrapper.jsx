@@ -1,6 +1,5 @@
-// src/components/NotificationsWrapper.jsx
 import { useEffect, useState } from "react";
-import { socket } from "../socket"; // singleton socket
+import { socket } from "../socket";
 import NotificationBell from "./NotificationBell";
 import "./NotificationsWrapper.css";
 

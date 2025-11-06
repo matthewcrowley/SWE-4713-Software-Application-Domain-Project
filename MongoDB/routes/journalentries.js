@@ -41,7 +41,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
   try {
     const db = getDB();
 
-    console.log("Incoming body:", req.body); // debug
+    console.log("Incoming body:", req.body);
 
     const { date, description, createdBy, status, isAdjustingEntry } = req.body;
     const entries = JSON.parse(req.body.entries || '[]');
@@ -121,7 +121,7 @@ router.put('/:id/approve', async (req, res) => {
 
    // Post entries to ledger only if accountId exists
     const ledgerEntries = journalEntry.entries
-      .filter(entry => entry.accountId && entry.accountId.trim() !== '') // skip empty accountId
+      .filter(entry => entry.accountId && entry.accountId.trim() !== '')
       .map(entry => {
         // fetch account info from chart_of_accounts
         const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
@@ -170,7 +170,6 @@ router.put('/:id/approve', async (req, res) => {
       }
     }
 
-    // Log the event
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'APPROVE',
@@ -220,7 +219,6 @@ router.put('/:id/reject', async (req, res) => {
       }
     );
 
-    // Log rejection event
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'REJECT',
