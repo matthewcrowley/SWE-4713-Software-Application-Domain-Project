@@ -132,7 +132,7 @@ export default function Accountview() {
       <div className="admin-content">
         {/* ========== USER MANAGEMENT ========== */}
         <div className="admin-section">
-          <h6 style={{ marginBottom: '16px' }}>
+          <h6 style={{ marginBottom: '16px', color: 'black' }}>
             User Management
           </h6>
           {loading ? (
