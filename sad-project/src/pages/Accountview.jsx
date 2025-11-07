@@ -169,7 +169,7 @@ export default function Accountview() {
           )}
         </div>
 
-        {/* ========== ACCOUNT MANAGEMENT ========== */}
+{/*  
         <div className="admin-section">
         <h2>Accounts</h2>
         <p>Manage your accounts here.</p>
@@ -208,7 +208,7 @@ export default function Accountview() {
           </table>
         )}
       </div>
-
+*/}
         {message && <p className="status-message">{message}</p>}
       </div>
     </div>
