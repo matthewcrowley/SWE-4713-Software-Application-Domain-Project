@@ -180,7 +180,7 @@ const AccountLedger = () => {
                     accountName = entryWithName?.accountName || 'Ledger';
                   }
 
-                  return `${accountNumber} - ${accountName}`;
+                  return <span style={{color: 'black'}}>{`${accountNumber} - ${accountName}`}</span>;
                 })()}
               </h2>
 
