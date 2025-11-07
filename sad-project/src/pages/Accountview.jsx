@@ -140,7 +140,7 @@ export default function Accountview() {
           ) : users.length === 0 ? (
             <p>No users found.</p>
           ) : (
-            <table className="user-table">
+            <table className="user-table" style={{ color: 'black' }}>
               <thead>
                 <tr>
                   <th>Username</th>
