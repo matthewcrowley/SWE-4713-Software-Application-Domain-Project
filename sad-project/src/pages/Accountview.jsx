@@ -154,7 +154,7 @@ export default function Accountview() {
                   <tr key={u.id}>
                     <td>{u.username}</td>
                     <td>{u.email}</td>
-                    <td>{u.role}</td>
+                    <td>{u.role ? u.role : "No Role"}</td>
                     <td
                       className={
                         u.active ? "status-active" : "status-inactive"
