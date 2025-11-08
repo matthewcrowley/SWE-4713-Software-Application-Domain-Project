@@ -47,6 +47,7 @@ export default function Administrator({ setIsLoggedIn }) {
       title: "Reports",
       description: "Generate financial reports",
       icon: "📊",
+      path: "/reports",
     },
     {
       title: "Search",
