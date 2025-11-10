@@ -123,29 +123,37 @@ const Eventlog = () => {
         <button
           className="nav-button"
           onClick={() => {
-            if (currentUser?.role === "Manager") navigate("/manager");
-            else if (currentUser?.role === "Accountant") navigate("/regularaccountuser");
-            else navigate("/administrator");
-          }}
-        >
-          🏠 Dashboard
-        </button>
-        <button
-          className="nav-button"
-          onClick={() => {
-            if (currentUser?.role === "Manager" || currentUser?.role === "Accountant") navigate("/AccountView");
-            else navigate("/accountmanagement");
-          }}
-        >
-          👤 Account Management
-        </button>
-        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-          📋 Chart of Accounts
-        </button>
-        <button className="nav-button" onClick={() => navigate("/ledger")}>
-          📙 Ledger
-        </button>
-      </nav>
+				if (currentUser?.role === "Manager") navigate("/manager");
+					  else if (currentUser?.role === "Accountant") navigate("/regularaccountuser");
+					  else navigate("/administrator");
+					}}
+				  >
+					🏠 Dashboard
+				  </button>
+				  <button
+					className="nav-button"
+					onClick={() => {
+					  if (currentUser?.role === "Manager" || currentUser?.role === "Accountant") navigate("/AccountView");
+					  else navigate("/accountmanagement");
+					}}
+				  >
+					👤 Account Management
+				  </button>
+				  <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+					📋 Chart of Accounts
+				  </button>
+				  {currentUser?.role !== 'Admin' && (
+					<button className="nav-button" onClick={() => navigate("/journalentries")}>
+					  📖 Journalize
+					</button>
+				  )}
+				  <button className="nav-button" onClick={() => navigate("/eventlog")}>
+					📝 Event Log
+				  </button>
+				  <button className="nav-button" onClick={() => navigate("/ledger")}>
+					📙 Ledger
+				  </button>
+				</nav>
 
       <div className="admin-section">
         <h2>Event Log</h2>

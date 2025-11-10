@@ -9,6 +9,7 @@ import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
+import { Link } from "react-router-dom";
 
 const Chartofaccounts = () => {
   const navigate = useNavigate();
@@ -129,6 +130,19 @@ const handleCancel = () => {
   setEditingAccountId(null);
   setEditedAccount({});
 };
+
+// Handle account creation 
+ const handleAddAccount = async (e) => {
+    e.preventDefault();
+    const newAccount = {
+      ...accountForm,
+      initialBalance: formatMoney(accountForm.initialBalance),
+      debit: formatMoney(accountForm.debit),
+      credit: formatMoney(accountForm.credit),
+      balance: formatMoney(accountForm.balance),
+      dateAdded: new Date().toISOString(),
+    };
+ }
 
 // Save edited account
 const handleSave = async (accountId) => {
@@ -495,11 +509,14 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
             }}>
             👤 Account Management
           </button>
+          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+            📋 Chart of Accounts
+          </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
           </button>
           {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
+            📖 Journalize
           </button>}
           <button className="nav-button" onClick={() => navigate("/ledger")}>
             📙 Ledger
@@ -736,7 +753,10 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
       </div>
 
       <div className="admin-section">
-        <h2>Chart of Accounts</h2>
+        <div style={{display: 'flex', justifyContent: 'space-between'}}>
+          <h2>Chart of Accounts</h2>
+          <Button className="add-account">Add Account</Button>
+        </div>
         <p>Manage your accounts here.</p>
 
         {loading ? (
@@ -747,16 +767,16 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <table className="account-table" border="1" cellPadding="8" style={{color: 'black'}}>
             <thead>
               <tr>
-                {currentUser?.role === 'Admin' && <th style={{ alignItems: 'center', textAlign: 'center' }}>Select to Edit</th>}
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Number</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Name</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Account Type</th>
-                <th>Subcategory</th>
-                <th>Balance</th>
-                <th style={{ alignItems: 'center', textAlign: 'center' }}>Created By</th>
-                <th>Date Created</th>
-                <th>Comments</th>
-                {selectedRadioId !== null && <th></th>}
+                {currentUser?.role === 'Admin' && <th style={{ textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Select to Edit</th>}
+                <th style={{ textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Account Number</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold'}}>Account Name</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Account Type</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Subcategory</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Balance</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Created By</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Date Created</th>
+                <th style={{textAlign: 'center', background: 'orange', color: 'white', fontWeight: 'bold' }}>Comments</th>
+                {selectedRadioId !== null && <th style={{background: 'orange'}}></th>}
               </tr>
             </thead>
               <tbody>
@@ -777,17 +797,17 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
 
                     {editingAccountId === account._id ? (
                       <>
-                        <td>
-                          <TextField
-                            value={editedAccount.account_number}
-                            onChange={(e) =>
-                              setEditedAccount({
-                                ...editedAccount,
-                                account_number: e.target.value,
-                              })
-                            }
-                            size="small"
-                          />
+                        <td style={{ textAlign: 'center', verticalAlign: 'middle' }}>
+                            <TextField
+                              value={editedAccount.account_number}
+                              onChange={(e) =>
+                                setEditedAccount({
+                                  ...editedAccount,
+                                  account_number: e.target.value,
+                                })
+                              }
+                              size="small"
+                            />
                         </td>
                         <td>
                           <TextField
@@ -897,10 +917,23 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                       </>
                     ) : (
                       <>
-                        <td>{account.account_number}</td>
+                        <td>
+                            <Link
+                              to={`/ledger/${account.account_number}`}
+                              onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {account.account_number}
+                            </Link>
+                        </td>
                         <td>{account.account_name}</td>
-                        <td>{account.type}</td>
-                        <td>{account.subcategory}</td>
+                        <td style={{textAlign:"center"}}>{account.type}</td>
+                        <td style={{textAlign:"center"}}>{account.subcategory}</td>
                         <td style={{ textAlign: "right" }}>
                           $
                           {account.balance.toLocaleString("en-US", {
@@ -908,7 +941,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>{account.created_by}</td>
+                        <td style={{textAlign:"center"}}>{account.created_by}</td>
                         <td>{account.timestamp}</td>
                         <td>{account.comments}</td>
                         {selectedRadioId === account._id && ( <td>

@@ -224,8 +224,8 @@ const Reports = () => {
       }
 
       if (balance !== 0 || parseFloat(account.balance) !== 0) {
-        const finalBalance = balance + (parseFloat(account.balance) || 0);
-        
+        const finalBalance = account.balance
+
         if (account.type === 'Asset') {
           assets.push({
             accountNumber: account.account_number,
@@ -251,9 +251,29 @@ const Reports = () => {
       }
     });
 
-    const totalAssets = assets.reduce((sum, a) => sum + a.amount, 0);
+     // Add retained earnings to equity section
+    const retainedEarningsReport = generateRetainedEarnings();
+    const retainedEarningsAmount = retainedEarningsReport.endingRE || 0;
+
+    equity.push({
+      accountNumber: 'RE',
+      accountName: 'Retained Earnings',
+      subcategory: 'Equity',
+      amount: retainedEarningsAmount
+    });
+
+    var totalAssets = assets.reduce((sum, a) => sum + a.amount, 0);
     const totalLiabilities = liabilities.reduce((sum, l) => sum + l.amount, 0);
     const totalEquity = equity.reduce((sum, e) => sum + e.amount, 0);
+
+    // ✅ Subtract twice the accumulated depreciation amount from total assets
+    const accumulatedDepAccount = assets.find(a => 
+      a.accountName.toLowerCase().includes('accumulated depreciation')
+    );
+
+    if (accumulatedDepAccount) {
+      totalAssets -= 2 * Math.abs(accumulatedDepAccount.amount);
+    }
 
     return {
       type: 'Balance Sheet',
@@ -709,7 +729,10 @@ const Reports = () => {
             <Select
               value={reportType}
               label="Report Type"
-              onChange={(e) => setReportType(e.target.value)}
+              onChange={(e) => {
+                setReportType(e.target.value); 
+                {/*When switing to new report set generated report as null*/}
+                setGeneratedReport(null);}}
             >
               <MenuItem value="trialBalance">Trial Balance</MenuItem>
               <MenuItem value="incomeStatement">Income Statement</MenuItem>

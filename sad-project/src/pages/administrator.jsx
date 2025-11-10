@@ -47,6 +47,7 @@ export default function Administrator({ setIsLoggedIn }) {
       title: "Reports",
       description: "Generate financial reports",
       icon: "📊",
+      path: "/reports",
     },
     {
       title: "Search",
@@ -120,9 +121,6 @@ export default function Administrator({ setIsLoggedIn }) {
           </button>
           <button className="nav-button" onClick={() => navigate("/eventlog")}>
             📝 Event Log
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
           </button>
         </nav>
       </header>

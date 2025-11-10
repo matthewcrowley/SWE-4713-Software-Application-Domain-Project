@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db');
 const {ObjectId} = require('mongodb');
+const multer = require('multer');
+const upload = multer();
 
 
 //Get all journal entries
@@ -35,23 +37,57 @@ router.get('/:id', async (req, res) => {
 });
 
 //Create a new journal entry
-router.post('/', async (req, res) => {
+router.post('/', upload.array('attachments', 10), async (req, res) => {
   try {
     const db = getDB();
-    const newEntry = req.body;
 
-    if (!newEntry.description || !newEntry.entries) {
-      return res.status(400).json({ message: 'Description and entries are required.' });
+    console.log("Incoming body:", req.body);
+
+    const { date, description, createdBy, status, isAdjustingEntry } = req.body;
+    const entries = JSON.parse(req.body.entries || '[]');
+
+    // Validate required fields
+    if (!date || !description || entries.length < 2) {
+      return res.status(400).json({
+        error: 'Date, description, and at least 2 entries are required.',
+      });
     }
 
-    newEntry.status = newEntry.status || 'pending';
-    newEntry.createdAt = new Date();
+    const attachments = (req.files || []).map(f => ({
+      originalname: f.originalname,
+      mimetype: f.mimetype,
+      size: f.size,
+    }));
+
+    const newEntry = {
+      date,
+      description,
+      createdBy,
+      status: status || 'pending',
+      isAdjustingEntry: isAdjustingEntry === 'true' || isAdjustingEntry === true,
+      entries,
+      attachments,
+      createdAt: new Date(),
+    };
 
     const result = await db.collection('journal').insertOne(newEntry);
-    res.status(201).json({ message: 'Journal entry created successfully.', id: result.insertedId });
+    if (newEntry.isAdjustingEntry) {
+      const io = req.app.get('io');
+      console.log('Emitting new-adjusting-entry:', newEntry)
+      io.emit('new-adjusting-entry', {
+        id: result.insertedId,
+        description: newEntry.description,
+        createdBy: newEntry.createdBy,
+        date: newEntry.date,
+      });
+    }
+    res.status(201).json({
+      message: 'Journal entry created successfully.',
+      id: result.insertedId,
+    });
   } catch (err) {
     console.error('Error creating journal entry:', err);
-    res.status(500).json({ message: 'Failed to create journal entry.' });
+    res.status(500).json({ error: 'Failed to create journal entry.' });
   }
 });
 
@@ -83,21 +119,31 @@ router.put('/:id/approve', async (req, res) => {
       }
     );
 
-    // Post entries to ledger
-    const ledgerEntries = journalEntry.entries.map(entry => ({
-      date: journalEntry.date,
-      accountId: entry.accountId,
-      accountName: entry.accountName,
-      description: journalEntry.description,
-      journalId: id,
-      journalEntryNumber: journalEntry.journalEntryNumber,
-      debit: entry.debit,
-      credit: entry.credit,
-      postedAt: new Date(),
-      postedBy: req.user?.id || 'Manager',
-    }));
+   // Post entries to ledger only if accountId exists
+    const ledgerEntries = journalEntry.entries
+      .filter(entry => entry.accountId && entry.accountId.trim() !== '')
+      .map(entry => {
+        // fetch account info from chart_of_accounts
+        const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
-    await db.collection('ledger').insertMany(ledgerEntries);
+        return {
+          date: journalEntry.date,
+          accountId: entry.accountId,
+          accountName: entry.accountName || (account ? account.accountName : 'Unknown Account'),
+          description: journalEntry.description,
+          journalId: id,
+          journalEntryNumber: journalEntry.journalEntryNumber || null,
+          debit: entry.debit,
+          credit: entry.credit,
+          postedAt: new Date(),
+          postedBy: req.user?.id || 'Manager',
+        };
+      });
+
+    // Only insert if there are valid entries
+    if (ledgerEntries.length > 0) {
+      await db.collection('ledger').insertMany(ledgerEntries);
+    }
 
     // Update account balances
     for (const entry of journalEntry.entries) {
@@ -106,7 +152,7 @@ router.put('/:id/approve', async (req, res) => {
       if (account) {
         let newBalance = account.balance || 0;
 
-        if (['Asset', 'Expense'].includes(account.accountCategory)) {
+        if (['Asset', 'Expense'].includes(account.type)) {
           newBalance += entry.debit - entry.credit;
         } else {
           newBalance += entry.credit - entry.debit;
@@ -124,7 +170,6 @@ router.put('/:id/approve', async (req, res) => {
       }
     }
 
-    // Log the event
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'APPROVE',
@@ -174,7 +219,6 @@ router.put('/:id/reject', async (req, res) => {
       }
     );
 
-    // Log rejection event
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'REJECT',

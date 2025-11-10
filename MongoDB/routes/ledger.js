@@ -26,21 +26,21 @@ router.get('/:accountId', async (req, res) => {
     const ledgerEntries = await db
       .collection('ledger')
       .find(query)
-      .sort({ date: 1 })
+      .sort({ postedAt: 1 })
       .toArray();
 
     console.log(`Found ${ledgerEntries.length} entries for account ${accountId}`);
 
     //Fetch account info (optional)
-    const account = await db.collection('accounts').findOne({ accountNumber: accountId.toString() })
-      || { accountNumber: accountId, accountName: 'Unknown Account' };
+    const account = await db.collection('chart_of_accounts').findOne({ account_number: accountId.toString() })
+      || { account_number: accountId, accountName: 'Unknown Account' };
 
     //Calculate running balance
     let runningBalance = account.initialBalance || 0;
-    const normalSide = account.normalSide?.toLowerCase() || 'debit';
+    const normalSide = account.normal_side || 'L';
 
     const entriesWithBalance = ledgerEntries.map(entry => {
-      if (normalSide === 'debit') {
+      if (normalSide === 'L') {
         runningBalance += (entry.debit || 0) - (entry.credit || 0);
       } else {
         runningBalance += (entry.credit || 0) - (entry.debit || 0);

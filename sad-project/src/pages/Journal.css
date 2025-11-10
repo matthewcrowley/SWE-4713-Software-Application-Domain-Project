@@ -493,7 +493,7 @@
 }
 
 .text-right {
-  text-align: right;
+  text-align: center;
 }
 
 /* ===== Journal Table ===== */
@@ -732,5 +732,49 @@
 
   .file-name {
   color: black !important;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.welcome-text {
+  color: #7F8C8D;
+  font-size: 14px;
+}
+
+.username {
+  color: #2C3E50;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.admin-badge {
+  display: inline-block;
+  background-color: #E67E22;
+  color: white;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-left: 8px;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-left: 8px;
+}
+
+.logout-button:hover {
+  background-color: #c0392b;
 }
 }

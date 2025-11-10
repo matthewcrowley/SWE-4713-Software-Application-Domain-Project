@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useState } from "react";
+import { socket } from "./socket";
+import { useEffect } from "react";
 import "./style.css";
 import NewUser from "./NewUser";
 import ForgotPassword from "./ForgotPassword";
@@ -15,12 +17,32 @@ import Chartofaccounts from "./pages/Chartofaccounts";
 import Ledger from "./pages/Ledger";
 import Journal from './pages/Journal';
 import HelpButton from "./components/HelpButton";
+import AccountLedger from "./pages/AccountLedger"; 
 import Reports from "./pages/Reports";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   var role = " "; // Placeholder for user role management
   var curUsername; 
+
+  useEffect(() => {
+  const handleConnect = () => {
+    console.log("Connected to Socket.io:", socket.id);
+  };
+
+  const handleNewAdjustingEntry = (data) => {
+    console.log("Received new adjusting entry:", data);
+  };
+
+  socket.on("connect", handleConnect);
+  socket.on("new-adjusting-entry", handleNewAdjustingEntry);
+
+  // Cleanup when component unmounts
+  return () => {
+    socket.off("connect", handleConnect);
+    socket.off("new-adjusting-entry", handleNewAdjustingEntry);
+  };
+}, []);
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {
@@ -255,6 +277,13 @@ function App() {
           }
         />
 
+        <Route
+          path="/ledger/:accountId"
+          element={
+            isLoggedIn ? <AccountLedger /> : <Navigate to="/" replace />
+          }
+        />
+
         {/* View Accounts Page (Read-Only for Regular Users) */}
         <Route
           path="/Accountview"
@@ -297,7 +326,13 @@ function App() {
           element={
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
-        />
+          />
+
+        {/* PR Journal entry*/}
+        <Route 
+          path="/journalentries/:journalEntryId" 
+          element={<Journal />} 
+          />
         <Route
           path="/ledger/:accountId"
           element={

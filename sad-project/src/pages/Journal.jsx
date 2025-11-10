@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
+import { socket } from "../socket";
+import NotificationsWrapper from "../components/NotificationsWrapper";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -18,8 +20,8 @@ const Journal = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
+  const [rejectionComment, setRejectionComment] = useState('');
   const [entryTypeFilter, setEntryTypeFilter] = useState('all'); // 'all', 'regular', 'adjusting'
-
 
   // Fetch current users
   useEffect(() => {
@@ -64,7 +66,26 @@ const Journal = () => {
     ]
   });
 
-  const [rejectionComment, setRejectionComment] = useState('');
+  // When PR is clicked in ledger --- open corresponding journal entry modal
+
+  const { journalEntryId } = useParams(); // grab :id from URL
+
+  useEffect(() => {
+    if (!journalEntryId) return;
+
+    // Check if already loaded in state
+    const entry = journalEntries.find(e => e._id === journalEntryId);
+    if (entry) {
+      setSelectedEntry(entry);
+    } else {
+      // Otherwise fetch it from API
+      fetch(`http://localhost:3000/api/journal-entries/${journalEntryId}`)
+        .then(res => res.json())
+        .then(data => setSelectedEntry(data))
+        .catch(err => console.error(err));
+    }
+  }, [journalEntryId, journalEntries]);
+
 
   // Fetch Chart of Accounts
   useEffect(() => {
@@ -103,6 +124,14 @@ const Journal = () => {
     const creditTotal = newEntry.entries.reduce((sum, e) => sum + (parseFloat(e.credit) || 0), 0);
     return { debit: debitTotal, credit: creditTotal, balanced: debitTotal === creditTotal && debitTotal > 0 };
   }, [newEntry.entries]);
+
+  const formatCurrency = (value) => {
+  if (!value || value <= 0) return '-';
+  return `$${parseFloat(value).toLocaleString('en-US', { 
+    minimumFractionDigits: 2, 
+    maximumFractionDigits: 2 
+  })}`;
+};
 
   // Filter entries by status, date, search term, and entry type
   const filteredEntries = useMemo(() => {
@@ -161,12 +190,12 @@ const Journal = () => {
 
   // Handle account selection
   const handleAccountChange = (index, accountId) => {
-    const account = chartOfAccounts.find(a => a._id === accountId || a.accountNumber === accountId);
+    const account = chartOfAccounts.find(a => a._id === accountId || a.account_number === accountId);
     const updated = [...newEntry.entries];
     updated[index] = { 
       ...updated[index], 
-      accountId: account?.accountNumber || accountId, 
-      accountName: account?.accountName || '' 
+      accountId: account?.account_number || accountId, 
+      accountName: account?.account_name || '' 
     };
     setNewEntry({ ...newEntry, entries: updated });
   };
@@ -180,21 +209,21 @@ const Journal = () => {
 
   // Add line
   const addLine = (type) => {
-    setNewEntry((prev) => ({
-      ...prev,
-      entries: [
-        ...prev.entries,
-        {
-          type,
-          accountId: '',
-          accountName: '',
-          debit: type === 'debit' ? '' : 0,
-          credit: type === 'credit' ? '' : 0,
-          attachment: null,
-        },
-      ],
-    }));
-  };
+  setNewEntry((prev) => ({
+    ...prev,
+    entries: [
+      ...prev.entries,
+      {
+        type,
+        accountId: '',
+        accountName: '',
+        debit: type === 'debit' ? '' : 0,
+        credit: type === 'credit' ? '' : 0,
+        attachment: null,
+      },
+    ],
+  }));
+};
 
   // Remove line
   const removeLine = (index) => {
@@ -204,11 +233,9 @@ const Journal = () => {
     }
   };
 
-  // Handle file uploads (multiple files)
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     
-    // Validate file types
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -290,6 +317,10 @@ const Journal = () => {
         body: formData // Send as FormData instead of JSON
       });
 
+      if (newEntry.isAdjustingEntry === true) {
+        socket.emit("new-adjusting-entry", { id: Date.now(), description: newEntry.description });
+      }
+
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
       await fetchJournalEntries();
@@ -318,41 +349,40 @@ const Journal = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to approve journal entry');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to approve journal entry');
+    }
+
+    const approvedEntry = journalEntries.find((e) => e._id === entryId);
+    if (!approvedEntry) {
+      throw new Error('Approved entry not found in local data.');
+    }
+
+    // Update each account's balance
+    for (const line of approvedEntry.entries) {
+      const { accountId, debit = 0, credit = 0 } = line;
+
+      // Match account by account_number
+      const account = chartOfAccounts.find(acc => acc.account_number === line.accountId);
+      if (!account) {
+        console.warn(`⚠️ Account ${accountId} not found, skipping.`);
+        continue;
       }
 
-      const approvedEntry = journalEntries.find((e) => e._id === entryId);
-      if (!approvedEntry) {
-        throw new Error('Approved entry not found in local data.');
+      let newBalance = account.balance; 
+      let newDebits = account.debits
+      let newCredits = account.credits
+
+      if (account.normal_side === "L") {
+        newBalance += line.debit;
+        newBalance -= line.credit;
+      } else {
+        newBalance -= line.debit;
+        newBalance += line.credit;
       }
 
-      // Update each account's balance
-      for (const line of approvedEntry.entries) {
-        const { accountId, debit = 0, credit = 0 } = line;
-        const debitVal = parseFloat(debit) || 0;
-        const creditVal = parseFloat(credit) || 0;
-
-        const account = chartOfAccounts.find(acc => acc.account_number === accountId);
-        if (!account) {
-          console.warn(`⚠️ Account ${accountId} not found, skipping.`);
-          continue;
-        }
-
-        let newBalance = parseFloat(account.balance) || 0;
-        let newDebits = parseFloat(account.debits) || 0;
-        let newCredits = parseFloat(account.credits) || 0;
-
-        if (account.normal_side === "L") {
-          newBalance += debitVal;
-          newBalance -= creditVal;
-        } else {
-          newBalance -= debitVal;
-          newBalance += creditVal;
-        }
-
-        newDebits += debitVal;
-        newCredits += creditVal;
+      newDebits += line.debit;
+      newCredits += line.credit;
 
         await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
           method: 'PUT',
@@ -448,32 +478,39 @@ const Journal = () => {
         <button
           className="nav-button"
           onClick={() => {
-            if (currentUser.role === "Manager") navigate("/manager");
-            else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
-          }}>
-          🏠 Dashboard
-        </button>
-        <button className="nav-button"
-          onClick={() => {
-            if (currentUser.role === "Manager") navigate("/AccountView");
-            else if (currentUser.role === "Accountant") navigate("/AccountView");
-            else navigate("/accountmanagement");
-          }}>
-          👤 Account Management
-        </button>
-        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-          📋 Chart of Accounts
-        </button>
-        <button className="nav-button" onClick={() => navigate("/eventlog")}>
-          📝 Event Log
-        </button>
-        <button className="nav-button" onClick={() => navigate("/ledger")}>
-          📙 Ledger
-        </button>
-        <button className="nav-button" onClick={() => navigate("/reports")}>
-          📊 Financial Reports
-        </button>
-      </nav>
+              if (currentUser.role === "Manager") navigate("/manager");
+			  else if (currentUser.role === "Accountant") navigate("/regularaccountuser");
+			}}
+		  >
+			🏠 Dashboard
+		  </button>
+		  <button
+			className="nav-button"
+			onClick={() => {
+			  if (currentUser.role === "Manager" || currentUser.role === "Accountant") navigate("/AccountView");
+			  else navigate("/accountmanagement");
+			}}
+		  >
+			👤 Account Management
+		  </button>
+		  <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+			📋 Chart of Accounts
+		  </button>
+		  <button className="nav-button" onClick={() => navigate("/eventlog")}>
+			📝 Event Log
+		  </button>
+		  {currentUser.role !== 'Admin' && (
+			<button className="nav-button" onClick={() => navigate("/journalentries")}>
+			  📖 Journalize
+			</button>
+		  )}
+		  <button className="nav-button" onClick={() => navigate("/ledger")}>
+			📙 Ledger
+		  </button>
+		  <button className="nav-button" onClick={() => navigate("/reports")}>
+			📊 Financial Reports
+		  </button>
+		</nav>
 
       {error && (
         <div className="admin-section">
@@ -606,69 +643,74 @@ const Journal = () => {
               </div>
             ) : (
               filteredEntries.map(entry => (
-                <div 
-                  key={entry._id} 
-                  id={`entry-${entry._id}`}
-                  className={`entry-card ${highlightEntryId === entry._id ? 'highlighted' : ''}`}
-                >
-                  <div className="entry-header">
-                    <div className="entry-info">
-                      <div className="entry-meta">
-                        <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
-                        <StatusBadge status={entry.status} />
-                        {entry.isAdjustingEntry && (
-                          <span className="adjusting-badge">Adjusting Entry</span>
-                        )}
-                        <span className="entry-date">{new Date(entry.date).toLocaleDateString()}</span>
-                      </div>
-                      <p className="entry-description">{entry.description}</p>
-                      <p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
-                      <div className="entry-accounts" style={{ color: '#000' }}>
-                      <strong>Accounts:</strong>
-                      <ul>
-                        {(() => {
-                          const accounts = Array.isArray(entry.entries[0]) 
-                            ? entry.entries.flat() 
-                            : entry.entries;
-                          const filteredAccounts = accounts.filter(e => e.accountName);
+					<div key={entry._id} id={`entry-${entry._id}`} className={`entry-card ${highlightEntryId === entry._id ? 'highlighted' : ''}`}>
+					  <div className="entry-info">
+						<div className="entry-meta">
+						  <span className="entry-id">JE-{entry.journalEntryNumber || entry._id.slice(-6)}</span>
+						  <StatusBadge status={entry.status} />
+						  {entry.isAdjustingEntry && <span className="adjusting-badge">Adjusting Entry</span>}
+						  <span className="entry-date">{new Date(...entry.date.split('-').map((v,i) => i===1 ? v-1 : v)).toLocaleDateString()}</span>
+						</div>
+						<p className="entry-description">{entry.description}</p>
+						<p className="entry-creator">Created by {entry.createdBy || 'Unknown'}</p>
 
-                          return filteredAccounts.map((e, index) => (
-                            <li key={index}>
-                              {e.accountName} — 
-                              Debit: {e.debit?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0.00'} | 
-                              Credit: {e.credit?.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) || '$0.00'}
-                            </li>
-                          ));
-                        })()}
-                      </ul>
+						<table className="journal-table preview-table">
+						  <thead>
+							<tr>
+							  <th>Account</th>
+							  <th>Debit</th>
+							  <th>Credit</th>
+							</tr>
+						  </thead>
+						  <tbody>
+							{entry.entries
+							  .filter(e => e.accountId || e.debit > 0 || e.credit > 0)
+							  .sort((a,b) => b.debit - a.debit)
+							  .map((e, idx) => (
+								<tr key={idx}>
+								  <td>
+									<span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
+									  <Link
+										to={`/ledger/${e.accountId}`}
+										onClick={(e) => e.stopPropagation()}
+										style={{ textDecoration: "none", color: "#1976d2", cursor: "pointer", fontWeight: 500 }}
+									  >
+										{e.accountId}
+									  </Link> - {e.accountName}
+									</span>
+								  </td>
+								  <td className="text-right">{formatCurrency(e.debit)}</td>
+								  <td className="text-right">{formatCurrency(e.credit)}</td>
+								</tr>
+							  ))}
+						  </tbody>
+						</table>
 
-                    {(() => {
-                      const accounts = Array.isArray(entry.entries[0]) 
-                        ? entry.entries.flat() 
-                        : entry.entries;
-                      const filteredAccounts = accounts.filter(e => e.accountName);
-                      const totalDebit = filteredAccounts.reduce((sum, e) => sum + (e.debit || 0), 0);
-                      const totalCredit = filteredAccounts.reduce((sum, e) => sum + (e.credit || 0), 0);
+						{(() => {
+						  const accounts = Array.isArray(entry.entries[0]) ? entry.entries.flat() : entry.entries;
+						  const filteredAccounts = accounts.filter(e => e.accountName);
+						  const totalDebit = filteredAccounts.reduce((sum, e) => sum + (e.debit || 0), 0);
+						  const totalCredit = filteredAccounts.reduce((sum, e) => sum + (e.credit || 0), 0);
+						  return (
+							<p>
+							  <strong>Total Debit:</strong> {totalDebit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} | 
+							  <strong>Total Credit:</strong> {totalCredit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+							</p>
+						  );
+						})()}
 
-                      return (
-                        <p>
-                          <strong>Total Debit:</strong> {totalDebit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })} | 
-                          <strong>Total Credit:</strong> {totalCredit.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                        </p>
-                          );
-                        })()}
-                      </div> 
-                    </div>
+					  </div>
 
-                    
-                    <button
-                      onClick={() => setSelectedEntry(entry)}
-                      className="view-btn"
-                    >
-                      👁️ View
-                    </button>
-                  </div>
-                </div>
+					  <button
+						onClick={() => {
+						  setSelectedEntry(entry);
+						  window.history.pushState(null, '', `/journalentries/${entry._id}`);
+						}}
+						className="view-btn"
+					  >
+						👁️ View
+					  </button>
+					</div>
               ))
             )}
           </div>
@@ -944,6 +986,7 @@ const Journal = () => {
               <button
                 onClick={submitEntry}
                 disabled={!totals.balanced}
+                
                 className="btn"
               >
                 Submit for Approval
@@ -965,7 +1008,7 @@ const Journal = () => {
                   <span className="adjusting-badge" style={{ marginLeft: '0.5rem' }}>Adjusting Entry</span>
                 )}
               </div>
-              <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); }} className="close-btn">
+              <button onClick={() => { setSelectedEntry(null); setRejectionComment(''); window.history.pushState(null, '', '/journalentries'); }} className="close-btn">
                 ×
               </button>
             </div>
@@ -974,7 +1017,7 @@ const Journal = () => {
               <div className="detail-grid">
                 <div className="detail-item">
                   <span className="detail-label">Date:</span>
-                  <p className="detail-value">{new Date(selectedEntry.date).toLocaleDateString()}</p>
+                  <p className="detail-value">{new Date(...selectedEntry.date.split('-').map((v,i) => i === 1 ? v-1 : v)).toLocaleDateString()}</p>
                 </div>
                 <div className="detail-item">
                   <span className="detail-label">Created By:</span>
@@ -1028,42 +1071,28 @@ const Journal = () => {
                 </thead>
                 <tbody>
                   {selectedEntry.entries
-                    .filter(entry => entry.accountId || entry.debit > 0 || entry.credit > 0)
-                    .map((entry, idx) => (
-                      <tr key={idx}>
-                        <td>
-                          <span
-                            className="clickable-account"
-                            onClick={() => navigate(`/ledger/${entry.accountId}`)}
-                            style={{ 
-                              cursor: 'pointer', 
-                              color: '#2563eb',
-                              textDecoration: 'underline',
-                              fontWeight: '500'
-                            }}
-                            title="Click to view ledger for this account"
-                          >
-                            {entry.accountId} - {entry.accountName}
-                          </span>
-                        </td>
-                        <td className="text-right">
-                          {entry.debit > 0
-                            ? `${parseFloat(entry.debit).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`
-                            : '-'}
-                        </td>
-                        <td className="text-right">
-                          {entry.credit > 0
-                            ? `${parseFloat(entry.credit).toLocaleString('en-US', {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}`
-                            : '-'}
-                        </td>
-                      </tr>
-                    ))}
+                          .filter(e => e.accountId || e.debit > 0 || e.credit > 0)
+                          .sort((a,b) => b.debit - a.debit) // debits first
+                          .map((e, idx) => (
+                            <tr key={idx}>
+                              <td>
+                                <span style={{ paddingLeft: e.credit > 0 ? 16 : 0, display: 'inline-block' }}>
+                                  <Link
+                                      to={`/ledger/${e.accountId}`}
+                                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                                      style={{
+                                        textDecoration: "none",
+                                        color: "#1976d2",
+                                        cursor: "pointer",
+                                        fontWeight: 500,
+                                      }}
+                                    > {e.accountId} </Link> - {e.accountName}
+                                  </span>
+                              </td>
+                              <td className="text-right">{formatCurrency(e.debit)}</td>
+                              <td className="text-right">{formatCurrency(e.credit)}</td>
+                            </tr>
+                          ))}
                 </tbody>
               </table>
 

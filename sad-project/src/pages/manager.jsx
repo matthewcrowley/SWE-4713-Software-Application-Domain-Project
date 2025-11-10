@@ -4,6 +4,7 @@ import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
+import NotificationsWrapper from "../components/NotificationsWrapper";
 
 
 export default function Manager({ setIsLoggedIn }) {
@@ -104,6 +105,7 @@ export default function Manager({ setIsLoggedIn }) {
               </div>
               <span className="manager-badge">Manager</span>
             </div>
+            <NotificationsWrapper />
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>
@@ -129,10 +131,7 @@ export default function Manager({ setIsLoggedIn }) {
             📝 Event Log
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
-            📖 Journal Entries
-          </button>
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
+            📖 Journalize
           </button>
           <button className="nav-button" onClick={() => navigate("/reports")}>
             📊 Financial Reports

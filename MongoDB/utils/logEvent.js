@@ -1,5 +1,5 @@
 // utils/logEvent.js
-async function logEvent(db, { userId, action, collectionName, documentId, before, after }) {
+async function logEvent(db, { userId, action, collectionName, documentId, beforeImage, afterImage }) {
   try {
     await db.collection('eventlogs').insertOne({
       userId,
@@ -7,8 +7,8 @@ async function logEvent(db, { userId, action, collectionName, documentId, before
       action,
       collection: collectionName || 'users',
       documentId: documentId || null,
-      before: before || null,
-      after: after || null,
+      beforeImage: beforeImage || null,
+      afterImage: afterImage || null,
     });
   } catch (err) {
     console.error('Failed to log event:', err);

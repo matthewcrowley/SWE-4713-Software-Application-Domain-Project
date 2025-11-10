@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SweetLedger")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a12624331943edf6ffcef74690c1f8e085f56f85")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+17c6af8dc9dfcf6c14396036e1d9d237d4316018")]
 [assembly: System.Reflection.AssemblyProductAttribute("SweetLedger")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SweetLedger")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
