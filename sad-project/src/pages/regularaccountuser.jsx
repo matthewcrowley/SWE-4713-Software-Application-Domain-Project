@@ -9,7 +9,19 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
 
-   useEffect(() => {
+  // Financial ratios state
+  const [ratios, setRatios] = useState(null);
+  const [ratiosLoading, setRatiosLoading] = useState(false);
+  const [ratiosError, setRatiosError] = useState('');
+
+  // Helper to make keys readable
+  const formatKey = (k) =>
+    k
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/[_-]/g, ' ')
+      .replace(/^./, (s) => s.toUpperCase());
+
+  useEffect(() => {
       const fetchCurrentUser = async () => {
         try {
           const response = await fetch("http://localhost:3000/api/curUser");
@@ -22,6 +34,73 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       };
       fetchCurrentUser();
     }, []);
+
+  // Fetch financial ratios for the dashboard
+  useEffect(() => {
+    const fetchRatios = async () => {
+      setRatiosLoading(true);
+      const url = "http://localhost:3000/api/financial-ratios";
+      const maxAttempts = 3;
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s timeout
+        try {
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`HTTP ${res.status} ${txt}`);
+          }
+          const data = await res.json();
+          if (!data || Object.keys(data).length === 0) {
+            throw new Error("Empty ratios payload");
+          }
+          setRatios(data);
+          setRatiosError("");
+          try {
+            localStorage.setItem("financialRatiosCache", JSON.stringify(data));
+          } catch (err) {
+            console.warn("Could not cache financial ratios:", err);
+          }
+          return; // success
+        } catch (err) {
+          clearTimeout(timeoutId);
+          console.warn(`Attempt ${attempt} failed to fetch financial ratios:`, err);
+          if (attempt < maxAttempts) {
+            // exponential backoff before retrying
+            await sleep(400 * Math.pow(2, attempt));
+            continue;
+          }
+
+          // final attempt failed — try cache then fallback
+          try {
+            const cached = localStorage.getItem("financialRatiosCache");
+            if (cached) {
+              setRatios(JSON.parse(cached));
+              setRatiosError("Loaded cached ratios (offline)");
+              return;
+            }
+          } catch (err) {
+            console.warn("Could not read cached financial ratios:", err);
+          }
+          
+          const fallback = {
+            currentRatio: 1.75,
+            quickRatio: 1.2,
+            debtToEquity: 0.45,
+            grossProfitMargin: 0.33,
+          };
+          setRatios(fallback);
+          setRatiosError("Loaded fallback ratios (couldn't reach server)");
+        } finally {
+          setRatiosLoading(false);
+        }
+      }
+    };
+    fetchRatios();
+  }, []);
 
   const services = [
     {
@@ -111,7 +190,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
         {/* Navigation */}
         <nav className="dashboard-nav">
           <div className="button-container">
-            <Calendar title="Calander" />
+            <Calendar title="Calender" />
             <span className="tooltiptext">Click here to open the calendar</span>
           </div>
           <button className="nav-button" onClick={() => navigate("/regularaccountuser")}>
@@ -136,6 +215,47 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       <main className="dashboard-main">
         <h1 className="dashboard-title">Accountant Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
+      {/* Financial Ratios Dashboard */}
+      <section className="ratios-section">
+        <h2 className="section-title">Financial Ratios</h2>
+        {ratiosLoading ? (
+          <div>Loading ratios...</div>
+        ) : ratiosError ? (
+          <div className="error">{ratiosError}</div>
+        ) : ratios ? (
+          <div className="ratios-grid">
+            {Object.entries(ratios).map(([key, value]) => {
+              // Make sure value is a valid number
+              let safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
+
+              // List of ratios to display as percentages
+              const percentageRatios = [
+                "grossProfitMargin",
+                "operatingProfitMargin",
+                "netProfitMargin",
+                "returnOnAssets",
+                "returnOnEquity",
+                "returnOnCommonEquity",
+                "dividendYield"
+              ];
+
+              // Format value
+              const displayValue = percentageRatios.includes(key)
+                ? (safeValue * 100).toFixed(2) + "%"
+                : safeValue.toFixed(2);
+
+              return (
+                <div key={key} className="ratio-card">
+                  <div className="ratio-title">{formatKey(key)}</div>
+                  <div className="ratio-value">{displayValue}</div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div>No ratios available.</div>
+        )}
+      </section>
 
         {/* Service Cards */}
         <div className="service-grid">

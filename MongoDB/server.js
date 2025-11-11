@@ -13,6 +13,8 @@ const journalEntriesRoute = require('./routes/journalentries');
 const ledgerRoutes = require('./routes/ledger');
 const curUserRoutes = require('./routes/curUser');
 const { updateAccount } = require('./eventLogger');
+const financialRatiosRoute = require('./routes/financialRatios');
+
 
 let db;
 
@@ -34,6 +36,8 @@ app.use('/api/accounts', chartOfAccountsRoute);
 app.use('/api/journal-entries', journalEntriesRoute);
 app.use('/api/ledger', ledgerRoutes); 
 app.use('/api/curUser', curUserRoutes);
+app.use('/api/financial-ratios', financialRatiosRoute);
+
 
 connectToDB()
   .then(() => {
