@@ -1,13 +1,18 @@
 const express = require("express");
 const router = express.Router();
+const {getDB} = require('../db');
+const {ObjectId} = require('mongodb');
 
 router.get("/", async (req, res) => {
   try {
-    const db = req.app.locals.db;
+    const db = getDB();
     
     // Fetch accounts and journal entries
-    const accounts = await db.collection("accounts").find({}).toArray();
-    const journalEntries = await db.collection("journalEntries").find({ status: "Approved" }).toArray();
+    const accounts = await db.collection('chart_of_accounts').find({}).toArray();
+    const journalEntries = await db.collection('journal').find({ status: "approved" }).toArray();
+    console.log('Accounts fetched:', accounts.length);
+    console.log('Journal entries fetched:', journalEntries.length);
+
 
     // If no accounts, return zeros
     if (!accounts || accounts.length === 0) {
@@ -47,36 +52,32 @@ router.get("/", async (req, res) => {
 
     // Process journal entries to calculate balances
     journalEntries.forEach(entry => {
-      if (entry.debits && Array.isArray(entry.debits)) {
-        entry.debits.forEach(debit => {
-          const accountData = accountBalances.get(debit.account_number);
-          if (accountData) {
-            const amount = parseFloat(debit.amount) || 0;
-            // Debits increase Assets/Expenses, decrease Liabilities/Equity/Revenue
-            if (accountData.type === 'Asset' || accountData.type === 'Expense') {
-              accountData.balance += amount;
-            } else {
-              accountData.balance -= amount;
-            }
-          }
-        });
-      }
+    if (!entry.entries || !Array.isArray(entry.entries)) return;
 
-      if (entry.credits && Array.isArray(entry.credits)) {
-        entry.credits.forEach(credit => {
-          const accountData = accountBalances.get(credit.account_number);
-          if (accountData) {
-            const amount = parseFloat(credit.amount) || 0;
-            // Credits increase Liabilities/Equity/Revenue, decrease Assets/Expenses
-            if (accountData.type === 'Liability' || accountData.type === 'Equity' || accountData.type === 'Revenue') {
-              accountData.balance += amount;
-            } else {
-              accountData.balance -= amount;
-            }
-          }
-        });
-      }
-    });
+    entry.entries.forEach(e => {
+    const accountData = accountBalances.get(e.accountId);
+
+    if (!accountData) {
+      console.warn("Unknown account:", e.accountId);
+      return;
+    }
+
+    const debit = parseFloat(e.debit) || 0;
+    const credit = parseFloat(e.credit) || 0;
+
+    if (accountData.type === 'Asset' || accountData.type === 'Expense') {
+      accountData.balance += debit;
+      accountData.balance -= credit;
+    } else {
+      accountData.balance -= debit;
+      accountData.balance += credit;
+    }
+  });
+});
+
+    accountBalances.forEach((acc, num) => {
+  console.log(`Account ${num} (${acc.name}) balance:`, acc.balance);
+});
 
     // Safe division helper
     const safeDivide = (num, den) => 
@@ -96,6 +97,7 @@ router.get("/", async (req, res) => {
     // Helper to find specific accounts
     const findAccountBalance = (searchTerm) => {
       for (let [accountNumber, accountData] of accountBalances) {
+        console.log('Checking account:', accountData.name);
         if (accountData.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
           return Math.abs(accountData.balance);
         }
@@ -109,6 +111,7 @@ router.get("/", async (req, res) => {
     const totalAssets = sumByType('Asset');
     const totalLiabilities = sumByType('Liability');
     const totalEquity = sumByType('Equity');
+    accounts.forEach(acc => console.log(acc.account_number, acc.type));
 
     // Find specific accounts
     const inventory = findAccountBalance('inventory');
