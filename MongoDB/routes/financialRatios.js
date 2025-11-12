@@ -5,8 +5,9 @@ router.get("/", async (req, res) => {
   try {
     const db = req.app.locals.db;
     
-    // Fetch accounts
+    // Fetch accounts and journal entries
     const accounts = await db.collection("accounts").find({}).toArray();
+    const journalEntries = await db.collection("journalEntries").find({ status: "Approved" }).toArray();
 
     // If no accounts, return zeros
     if (!accounts || accounts.length === 0) {
@@ -31,49 +32,104 @@ router.get("/", async (req, res) => {
       });
     }
 
+    // Calculate balances from journal entries
+    const accountBalances = new Map();
+    
+    // Initialize all accounts with zero balance
+    accounts.forEach(account => {
+      accountBalances.set(account.account_number, {
+        balance: 0,
+        type: account.type,
+        subcategory: account.subcategory,
+        name: account.account_name
+      });
+    });
+
+    // Process journal entries to calculate balances
+    journalEntries.forEach(entry => {
+      if (entry.debits && Array.isArray(entry.debits)) {
+        entry.debits.forEach(debit => {
+          const accountData = accountBalances.get(debit.account_number);
+          if (accountData) {
+            const amount = parseFloat(debit.amount) || 0;
+            // Debits increase Assets/Expenses, decrease Liabilities/Equity/Revenue
+            if (accountData.type === 'Asset' || accountData.type === 'Expense') {
+              accountData.balance += amount;
+            } else {
+              accountData.balance -= amount;
+            }
+          }
+        });
+      }
+
+      if (entry.credits && Array.isArray(entry.credits)) {
+        entry.credits.forEach(credit => {
+          const accountData = accountBalances.get(credit.account_number);
+          if (accountData) {
+            const amount = parseFloat(credit.amount) || 0;
+            // Credits increase Liabilities/Equity/Revenue, decrease Assets/Expenses
+            if (accountData.type === 'Liability' || accountData.type === 'Equity' || accountData.type === 'Revenue') {
+              accountData.balance += amount;
+            } else {
+              accountData.balance -= amount;
+            }
+          }
+        });
+      }
+    });
+
     // Safe division helper
     const safeDivide = (num, den) => 
       den && den !== 0 ? num / den : 0;
 
-    // Helper to sum account balances by type
+    // Helper to sum balances by type
     const sumByType = (type) => {
-      return accounts
-        .filter(a => a.type?.toLowerCase() === type.toLowerCase())
-        .reduce((sum, a) => sum + (parseFloat(a.balance) || 0), 0);
+      let sum = 0;
+      accountBalances.forEach(account => {
+        if (account.type?.toLowerCase() === type.toLowerCase()) {
+          sum += Math.abs(account.balance);
+        }
+      });
+      return sum;
     };
 
     // Helper to find specific accounts
-    const findAccount = (searchTerm) => {
-      return accounts.find(a => 
-        a.account_name?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    const findAccountBalance = (searchTerm) => {
+      for (let [accountNumber, accountData] of accountBalances) {
+        if (accountData.name?.toLowerCase().includes(searchTerm.toLowerCase())) {
+          return Math.abs(accountData.balance);
+        }
+      }
+      return 0;
     };
 
     // Calculate totals from account balances
-    const totalRevenue = Math.abs(sumByType('Revenue'));
-    const totalExpenses = Math.abs(sumByType('Expense'));
-    const totalAssets = Math.abs(sumByType('Asset'));
-    const totalLiabilities = Math.abs(sumByType('Liability'));
-    const totalEquity = Math.abs(sumByType('Equity'));
+    const totalRevenue = sumByType('Revenue');
+    const totalExpenses = sumByType('Expense');
+    const totalAssets = sumByType('Asset');
+    const totalLiabilities = sumByType('Liability');
+    const totalEquity = sumByType('Equity');
 
     // Find specific accounts
-    const inventoryAccount = findAccount('inventory');
-    const receivableAccount = findAccount('receivable');
-    const cogsAccount = findAccount('cost of goods') || findAccount('cogs');
-    
-    const inventory = Math.abs(parseFloat(inventoryAccount?.balance) || 0);
-    const accountsReceivable = Math.abs(parseFloat(receivableAccount?.balance) || 0);
-    const cogs = Math.abs(parseFloat(cogsAccount?.balance) || 0);
+    const inventory = findAccountBalance('inventory');
+    const accountsReceivable = findAccountBalance('receivable');
+    const cogs = findAccountBalance('cost of goods') || findAccountBalance('cogs');
 
     // Calculate derived figures
     const grossProfit = totalRevenue - cogs;
     const netIncome = totalRevenue - totalExpenses;
-    const currentAssets = accounts
-      .filter(a => a.type === 'Asset' && a.subcategory?.toLowerCase().includes('current'))
-      .reduce((sum, a) => sum + Math.abs(parseFloat(a.balance) || 0), 0);
-    const currentLiabilities = accounts
-      .filter(a => a.type === 'Liability' && a.subcategory?.toLowerCase().includes('current'))
-      .reduce((sum, a) => sum + Math.abs(parseFloat(a.balance) || 0), 0);
+    
+    let currentAssets = 0;
+    let currentLiabilities = 0;
+    
+    accountBalances.forEach(account => {
+      if (account.type === 'Asset' && account.subcategory?.toLowerCase().includes('current')) {
+        currentAssets += Math.abs(account.balance);
+      }
+      if (account.type === 'Liability' && account.subcategory?.toLowerCase().includes('current')) {
+        currentLiabilities += Math.abs(account.balance);
+      }
+    });
 
     // Compute financial ratios
     const ratios = {
