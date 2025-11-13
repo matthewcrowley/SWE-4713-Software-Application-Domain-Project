@@ -147,20 +147,19 @@ const AccountLedger = () => {
                 }}>
                 👤 Account Management
               </button>
-
               <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
                 📋 Chart of Accounts
               </button>
-
               <button className="nav-button" onClick={() => navigate("/eventlog")}>
                 📝 Event Log
               </button>
-
-              {currentUser?.role !== 'Admin' && (
-                <button className="nav-button" onClick={() => navigate("/journalentries")}>
-                  📖 Journalize
-                </button>
-              )}
+              <button className="nav-button" onClick={() => navigate("/journalentries")}>
+                📖 Journalize
+              </button>
+              <button className="nav-button" onClick={() => navigate("/reports")}>
+			          📊 Financial Reports
+		          </button>
+            
             </nav>
 
       {/* ===== Ledger Table ===== */}

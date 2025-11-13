@@ -518,12 +518,9 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/journalentries")}>
             📖 Journalize
           </button>}
-          <button className="nav-button" onClick={() => navigate("/ledger")}>
-            📙 Ledger
-          </button>
-          <button className="nav-button" onClick={() => navigate("/reports")}>
+          {currentUser.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/reports")}>
             📊 Financial Reports
-          </button>
+          </button>}
           <div className="nav-right">
           <button
              className="nav-button email-button"
@@ -918,7 +915,8 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                     ) : (
                       <>
                         <td>
-                            <Link
+                            {/* Only manager and accountant can route to ledger*/}
+                            {currentUser.role != 'Admin' && <Link
                               to={`/ledger/${account.account_number}`}
                               onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                               style={{
@@ -929,7 +927,10 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                               }}
                             >
                               {account.account_number}
-                            </Link>
+                            </Link> }
+
+                            {currentUser.role == 'Admin' && <p style={{ color: 'black'
+                            }}> {account.account_number} </p>}
                         </td>
                         <td>{account.account_name}</td>
                         <td style={{textAlign:"center"}}>{account.type}</td>

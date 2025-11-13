@@ -53,17 +53,6 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       icon: "➕",
       path: "/JournalEntries",
     },
-    {
-      title: "Search",
-      description: "Find accounts and transactions",
-      icon: "🔍",
-    },
-    {
-          title: "Ledger",
-          description: "Show ledger of Accounts",
-          icon: "📙",
-          path: "/Ledger"
-    },
   ];
 
   const handleLogout = () => {
@@ -128,6 +117,9 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
           </button>
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
             📖 Journalize
+          </button>
+          <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
           </button>
         </nav>
       </header>

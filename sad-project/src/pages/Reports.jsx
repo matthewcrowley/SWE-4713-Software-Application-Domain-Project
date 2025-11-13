@@ -704,15 +704,21 @@ const Reports = () => {
           }}>
           🏠 Dashboard
         </button>
+        <button className="nav-button" onClick={() => navigate("/AccountView")}>
+            👤 Account Management
+          </button>
         <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
           📋 Chart of Accounts
         </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+					📝 Event Log
+				</button>
         <button className="nav-button" onClick={() => navigate("/journalentries")}>
-          📖 Journal Entries
+          📖 Journalize
         </button>
-        <button className="nav-button" onClick={() => navigate("/ledger")}>
-          📙 Ledger
-        </button>
+        <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
+          </button>
       </nav>
 
       {error && <div className="error-message">{error}</div>}

@@ -124,6 +124,9 @@ export default function Accountview() {
           <button className="nav-button" onClick={() => navigate("/journalentries")}>
             📖 Journalize
           </button>
+          <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
+          </button>
         </nav>
 
     
