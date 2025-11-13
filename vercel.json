@@ -4,6 +4,6 @@
     { "src": "MongoDB/server.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "MongoDB/server.js" }
+    { "src": "/(.*)", "dest": "sad-project" }
   ]
 }
