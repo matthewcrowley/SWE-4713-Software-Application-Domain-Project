@@ -41,7 +41,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
   try {
     const db = getDB();
 
-    console.log("Incoming body:", req.body); // debug
+    console.log("Incoming body:", req.body);
 
     const { date, description, createdBy, status, isAdjustingEntry } = req.body;
     const entries = JSON.parse(req.body.entries || '[]');
@@ -71,6 +71,16 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
     };
 
     const result = await db.collection('journal').insertOne(newEntry);
+    if (newEntry.isAdjustingEntry) {
+      const io = req.app.get('io');
+      console.log('Emitting new-adjusting-entry:', newEntry)
+      io.emit('new-adjusting-entry', {
+        id: result.insertedId,
+        description: newEntry.description,
+        createdBy: newEntry.createdBy,
+        date: newEntry.date,
+      });
+    }
     res.status(201).json({
       message: 'Journal entry created successfully.',
       id: result.insertedId,
@@ -111,7 +121,7 @@ router.put('/:id/approve', async (req, res) => {
 
    // Post entries to ledger only if accountId exists
     const ledgerEntries = journalEntry.entries
-      .filter(entry => entry.accountId && entry.accountId.trim() !== '') // skip empty accountId
+      .filter(entry => entry.accountId && entry.accountId.trim() !== '')
       .map(entry => {
         // fetch account info from chart_of_accounts
         const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
@@ -160,7 +170,6 @@ router.put('/:id/approve', async (req, res) => {
       }
     }
 
-    // Log the event
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
       action: 'APPROVE',
@@ -210,15 +219,39 @@ router.put('/:id/reject', async (req, res) => {
       }
     );
 
-    // Log rejection event
     await db.collection('eventlogs').insertOne({
-      userId: req.user?.id || 'Manager',
-      action: 'REJECT',
-      targetType: 'journalEntry',
-      targetId: id,
-      details: `Rejected journal entry: ${journalEntry.description}. Reason: ${comment}`,
-      timestamp: new Date(),
-    });
+        userId: req.user?.id || 'Manager',
+        action: 'REJECT',
+        targetType: 'journalEntry',
+        targetId: id,
+        details: `Changed journal entry status from '${journalEntry.status}' to '${updatedEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
+        
+        before: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: journalEntry.status,
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
+
+        after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "rejected",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
+
+        timestamp: new Date().toISOString(),
+      });
 
     res.status(200).json({ message: 'Journal entry rejected' });
   } catch (error) {

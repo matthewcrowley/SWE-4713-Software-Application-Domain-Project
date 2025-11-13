@@ -4,6 +4,8 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
+import { socket } from "../socket";
+import NotificationsWrapper from "../components/NotificationsWrapper";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -212,7 +214,7 @@ const Journal = () => {
     entries: [
       ...prev.entries,
       {
-        type, // 👈 This is what determines where it shows
+        type,
         accountId: '',
         accountName: '',
         debit: type === 'debit' ? '' : 0,
@@ -231,11 +233,9 @@ const Journal = () => {
     }
   };
 
-  // Handle file uploads (multiple files)
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     
-    // Validate file types
     const allowedTypes = [
       'application/pdf',
       'application/msword',
@@ -316,6 +316,10 @@ const Journal = () => {
         method: 'POST',
         body: formData // Send as FormData instead of JSON
       });
+
+      if (newEntry.isAdjustingEntry === true) {
+        socket.emit("new-adjusting-entry", { id: Date.now(), description: newEntry.description });
+      }
 
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
@@ -984,6 +988,7 @@ const Journal = () => {
               <button
                 onClick={submitEntry}
                 disabled={!totals.balanced}
+                
                 className="btn"
               >
                 Submit for Approval

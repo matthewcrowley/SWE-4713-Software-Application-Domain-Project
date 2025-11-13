@@ -198,6 +198,64 @@
   background-color: #D35400;
 }
 
+/* Financial Ratios Section */
+.ratios-section {
+  margin: 32px 0 48px;
+  padding: 24px;
+  background: transparent;
+}
+
+.section-title {
+  font-size: 22px;
+  color: #2C3E50;
+  margin-bottom: 16px;
+  font-weight: 700;
+  text-align: left;
+}
+
+/* Grid for ratio cards */
+.ratios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* Individual ratio card */
+.ratio-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ratio-title {
+  color: #7F8C8D;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.ratio-value {
+  color: #2C3E50;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* Error state for ratios */
+.error {
+  color: #c0392b;
+  background: #fff0f0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-top {
@@ -225,6 +283,14 @@
 
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ratios-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .section-title {
+    text-align: center;
   }
 }
 

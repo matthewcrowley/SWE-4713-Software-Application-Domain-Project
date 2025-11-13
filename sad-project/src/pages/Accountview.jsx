@@ -112,9 +112,6 @@ export default function Accountview() {
             }}>
             🏠 Dashboard
           </button>
-          <button className="nav-button" onClick={() => navigate("/AccountView")}>
-            👤 Account Management
-          </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
             📋 Chart of Accounts
           </button>
@@ -135,7 +132,7 @@ export default function Accountview() {
       <div className="admin-content">
         {/* ========== USER MANAGEMENT ========== */}
         <div className="admin-section">
-          <h6 style={{ marginBottom: '16px' }}>
+          <h6 style={{ marginBottom: '16px', color: 'black' }}>
             User Management
           </h6>
           {loading ? (
@@ -143,7 +140,7 @@ export default function Accountview() {
           ) : users.length === 0 ? (
             <p>No users found.</p>
           ) : (
-            <table className="user-table">
+            <table className="user-table" style={{ color: 'black' }}>
               <thead>
                 <tr>
                   <th>Username</th>
@@ -157,7 +154,7 @@ export default function Accountview() {
                   <tr key={u.id}>
                     <td>{u.username}</td>
                     <td>{u.email}</td>
-                    <td>{u.role}</td>
+                    <td>{u.role ? u.role : "No Role"}</td>  
                     <td
                       className={
                         u.active ? "status-active" : "status-inactive"
@@ -172,7 +169,7 @@ export default function Accountview() {
           )}
         </div>
 
-        {/* ========== ACCOUNT MANAGEMENT ========== */}
+{/*  
         <div className="admin-section">
         <h2>Accounts</h2>
         <p>Manage your accounts here.</p>
@@ -211,7 +208,7 @@ export default function Accountview() {
           </table>
         )}
       </div>
-
+*/}
         {message && <p className="status-message">{message}</p>}
       </div>
     </div>

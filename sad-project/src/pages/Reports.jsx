@@ -736,9 +736,10 @@ const Reports = () => {
               value={reportType}
               label="Report Type"
               onChange={(e) => {
-                setReportType(e.target.value); 
-                {/*When switing to new report set generated report as null*/}
-                setGeneratedReport(null);}}
+                setReportType(e.target.value);
+                // When switching to a new report set generated report as null
+                setGeneratedReport(null);
+              }}
             >
               <MenuItem value="trialBalance">Trial Balance</MenuItem>
               <MenuItem value="incomeStatement">Income Statement</MenuItem>

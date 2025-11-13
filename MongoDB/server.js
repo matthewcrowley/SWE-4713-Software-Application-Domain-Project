@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const {Server} = require('socket.io');
 const cors = require('cors');
 const app = express();
 const {connectToDB, getDB} = require('./db');
@@ -11,6 +13,8 @@ const journalEntriesRoute = require('./routes/journalentries');
 const ledgerRoutes = require('./routes/ledger');
 const curUserRoutes = require('./routes/curUser');
 const { updateAccount } = require('./eventLogger');
+const financialRatiosRoute = require('./routes/financialRatios');
+
 
 let db;
 
@@ -32,12 +36,32 @@ app.use('/api/accounts', chartOfAccountsRoute);
 app.use('/api/journal-entries', journalEntriesRoute);
 app.use('/api/ledger', ledgerRoutes); 
 app.use('/api/curUser', curUserRoutes);
+app.use('/api/financial-ratios', financialRatiosRoute);
+
 
 connectToDB()
   .then(() => {
     db = getDB();
     app.locals.db = db;
-    app.listen(3000, () => {
+    const server = http.createServer(app);
+    const io = new Server(server, {
+      cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST'],
+        credentials: true
+      }
+    });
+
+    app.set('io', io);
+
+    io.on('connection', (socket) => {
+      console.log('User connected:', socket.id);
+      socket.on('disconnect', () => {
+        console.log('User disconnected:', socket.id);
+      });
+    });
+
+    server.listen(3000, () => {
       console.log('Server listening on port 3000');
     });
   })
