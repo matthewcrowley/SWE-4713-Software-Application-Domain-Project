@@ -6,7 +6,6 @@ import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 import NotificationsWrapper from "../components/NotificationsWrapper";
 
-
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
@@ -23,86 +22,128 @@ export default function Manager({ setIsLoggedIn }) {
       .replace(/[_-]/g, ' ')
       .replace(/^./, (s) => s.toUpperCase());
 
-   useEffect(() => {
-      const fetchCurrentUser = async () => {
-        try {
-          const response = await fetch("http://localhost:3000/api/curUser");
-          const data = await response.json();
-          setCurrentUser(data.currentUser || []);
-          
-        } catch (err) {
-          console.warn("Could not fetch /api/curUser:", err);
-        }
-      };
-      fetchCurrentUser();
-    }, []);
+  // Define threshold ranges for each ratio
+  const getRatioStatus = (key, value) => {
+    const thresholds = {
+      // Profitability Ratios (higher is better)
+      grossProfitMargin: { good: 0.30, warning: 0.20 },
+      operatingProfitMargin: { good: 0.15, warning: 0.10 },
+      netProfitMargin: { good: 0.10, warning: 0.05 },
+      returnOnAssets: { good: 0.10, warning: 0.05 },
+      returnOnEquity: { good: 0.15, warning: 0.10 },
+      returnOnCommonEquity: { good: 0.15, warning: 0.10 },
 
-    // Fetch financial ratios for the dashboard
-      useEffect(() => {
-        const fetchRatios = async () => {
-          setRatiosLoading(true);
-          const url = "http://localhost:3000/api/financial-ratios";
-          const maxAttempts = 3;
-    
-          const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-          for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 7000); // 7s timeout
-            try {
-              const res = await fetch(url, { signal: controller.signal });
-              clearTimeout(timeoutId);
-              if (!res.ok) {
-                const txt = await res.text().catch(() => "");
-                throw new Error(`HTTP ${res.status} ${txt}`);
-              }
-              const data = await res.json();
-              if (!data || Object.keys(data).length === 0) {
-                throw new Error("Empty ratios payload");
-              }
-              setRatios(data);
-              setRatiosError("");
-              try {
-                localStorage.setItem("financialRatiosCache", JSON.stringify(data));
-              } catch (err) {
-                console.warn("Could not cache financial ratios:", err);
-              }
-              return; // success
-            } catch (err) {
-              clearTimeout(timeoutId);
-              console.warn(`Attempt ${attempt} failed to fetch financial ratios:`, err);
-              if (attempt < maxAttempts) {
-                // exponential backoff before retrying
-                await sleep(400 * Math.pow(2, attempt));
-                continue;
-              }
-    
-              // final attempt failed — try cache then fallback
-              try {
-                const cached = localStorage.getItem("financialRatiosCache");
-                if (cached) {
-                  setRatios(JSON.parse(cached));
-                  setRatiosError("Loaded cached ratios (offline)");
-                  return;
-                }
-              } catch (err) {
-                console.warn("Could not read cached financial ratios:", err);
-              }
-              
-              const fallback = {
-                currentRatio: 1.75,
-                quickRatio: 1.2,
-                debtToEquity: 0.45,
-                grossProfitMargin: 0.33,
-              };
-              setRatios(fallback);
-              setRatiosError("Loaded fallback ratios (couldn't reach server)");
-            } finally {
-              setRatiosLoading(false);
-            }
+      // Liquidity Ratios (range-based)
+      currentRatio: { good: 1.5, warning: 1.0, tooHigh: 3.0 },
+      quickRatio: { good: 1.0, warning: 0.75, tooHigh: 2.5 },
+      inventoryToNetWorkingCapital: { good: 0.5, warning: 0.7, tooHigh: 1.0 },
+
+      // Leverage Ratios (lower is better)
+      debtToAssets: { good: 0.40, warning: 0.60 },
+      debtToEquity: { good: 0.50, warning: 1.0 },
+      longTermDebtToEquity: { good: 0.30, warning: 0.60 },
+      timesInterestEarned: { good: 5.0, warning: 2.5 },
+
+      // Activity Ratios (higher is better)
+      inventoryTurnover: { good: 6.0, warning: 4.0 },
+      fixedAssetTurnover: { good: 2.0, warning: 1.0 },
+      totalAssetTurnover: { good: 1.0, warning: 0.5 },
+      accountsReceivableTurnover: { good: 8.0, warning: 5.0 },
+      averageCollectionPeriod: { good: 45, warning: 60 }, // lower is better for collection period
+    };
+
+    const threshold = thresholds[key];
+    if (!threshold) return 'neutral';
+
+    // Special handling for different ratio types
+    if (key === 'currentRatio' || key === 'quickRatio') {
+      // Range-based: too low or too high is bad
+      if (value >= threshold.good && value <= threshold.tooHigh) return 'good';
+      if (value >= threshold.warning || (value > threshold.tooHigh && value <= threshold.tooHigh * 1.2)) return 'warning';
+      return 'danger';
+    }
+
+    if (key === 'inventoryToNetWorkingCapital') {
+      // Lower is better, but zero is problematic
+      if (value <= threshold.good && value > 0) return 'good';
+      if (value <= threshold.warning) return 'warning';
+      return 'danger';
+    }
+
+    if (key === 'debtToAssets' || key === 'debtToEquity' || key === 'longTermDebtToEquity' || key === 'averageCollectionPeriod') {
+      // Lower is better
+      if (value <= threshold.good) return 'good';
+      if (value <= threshold.warning) return 'warning';
+      return 'danger';
+    }
+
+    // For most ratios, higher is better
+    if (value >= threshold.good) return 'good';
+    if (value >= threshold.warning) return 'warning';
+    return 'danger';
+  };
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
+  // Fetch financial ratios for the dashboard
+  useEffect(() => {
+    const fetchRatios = async () => {
+      setRatiosLoading(true);
+      const url = "http://localhost:3000/api/financial-ratios";
+      const maxAttempts = 3;
+
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 7000);
+        try {
+          const res = await fetch(url, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (!res.ok) {
+            const txt = await res.text().catch(() => "");
+            throw new Error(`HTTP ${res.status} ${txt}`);
           }
-        };
-        fetchRatios();
-      }, []);
+          const data = await res.json();
+          if (!data || Object.keys(data).length === 0) {
+            throw new Error("Empty ratios payload");
+          }
+          setRatios(data);
+          setRatiosError("");
+          return;
+        } catch (err) {
+          clearTimeout(timeoutId);
+          console.warn(`Attempt ${attempt} failed to fetch financial ratios:`, err);
+          if (attempt < maxAttempts) {
+            await sleep(400 * Math.pow(2, attempt));
+            continue;
+          }
+
+          const fallback = {
+            currentRatio: 1.75,
+            quickRatio: 1.2,
+            debtToEquity: 0.45,
+            grossProfitMargin: 0.33,
+          };
+          setRatios(fallback);
+          setRatiosError("Loaded fallback ratios (couldn't reach server)");
+        } finally {
+          setRatiosLoading(false);
+        }
+      }
+    };
+    fetchRatios();
+  }, []);
 
   const services = [
     {
@@ -115,7 +156,7 @@ export default function Manager({ setIsLoggedIn }) {
       title: "Chart of Accounts",
       description: "View and filter all accounts",
       icon: "📄",
-      path: "/ChartofAccounts", 
+      path: "/ChartofAccounts",
     },
     {
       title: "Event Logs",
@@ -142,7 +183,6 @@ export default function Manager({ setIsLoggedIn }) {
     navigate("/");
   };
 
-  // Navigate to a service (only Account Management has a route for now)
   const handleServiceClick = (service) => {
     if (service.path) {
       navigate(service.path);
@@ -154,7 +194,6 @@ export default function Manager({ setIsLoggedIn }) {
   return (
     <div className="dashboard-container">
       <HelpButton />
-      {/* Header */}
       <header className="dashboard-header">
         <div className="header-top">
           <div className="logo-section">
@@ -180,7 +219,6 @@ export default function Manager({ setIsLoggedIn }) {
           </div>
         </div>
 
-        {/* Navigation */}
         <nav className="dashboard-nav">
           <div className="button-container">
             <Calendar title="Calander" />
@@ -207,54 +245,51 @@ export default function Manager({ setIsLoggedIn }) {
         </nav>
       </header>
 
-      {/* Main Content */}
       <main className="dashboard-main">
         <h1 className="dashboard-title">Manager Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
 
-       {/* Financial Ratios Dashboard */}
-      <section className="ratios-section">
-        <h2 className="section-title">Financial Ratios</h2>
-        {ratiosLoading ? (
-          <div>Loading ratios...</div>
-        ) : ratiosError ? (
-          <div className="error">{ratiosError}</div>
-        ) : ratios ? (
-          <div className="ratios-grid">
-            {Object.entries(ratios).map(([key, value]) => {
-              // Make sure value is a valid number
-              let safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
+        <section className="ratios-section">
+          <h2 className="section-title">Financial Ratios</h2>
+          {ratiosLoading ? (
+            <div>Loading ratios...</div>
+          ) : ratiosError ? (
+            <div className="error">{ratiosError}</div>
+          ) : ratios ? (
+            <div className="ratios-grid">
+              {Object.entries(ratios).map(([key, value]) => {
+                let safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
 
-              // List of ratios to display as percentages
-              const percentageRatios = [
-                "grossProfitMargin",
-                "operatingProfitMargin",
-                "netProfitMargin",
-                "returnOnAssets",
-                "returnOnEquity",
-                "returnOnCommonEquity",
-                "dividendYield"
-              ];
+                const percentageRatios = [
+                  "grossProfitMargin",
+                  "operatingProfitMargin",
+                  "netProfitMargin",
+                  "returnOnAssets",
+                  "returnOnEquity",
+                  "returnOnCommonEquity",
+                  "dividendYield"
+                ];
 
-              // Format value
-              const displayValue = percentageRatios.includes(key)
-                ? (safeValue * 100).toFixed(2) + "%"
-                : safeValue.toFixed(2);
+                const displayValue = percentageRatios.includes(key)
+                  ? (safeValue * 100).toFixed(2) + "%"
+                  : safeValue.toFixed(2);
 
-              return (
-                <div key={key} className="ratio-card">
-                  <div className="ratio-title">{formatKey(key)}</div>
-                  <div className="ratio-value">{displayValue}</div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div>No ratios available.</div>
-        )}
-      </section>
+                const status = getRatioStatus(key, safeValue);
 
-        {/* Service Cards */}
+                return (
+                  <div key={key} className={`ratio-card ratio-${status}`}>
+                    <div className="ratio-title">{formatKey(key)}</div>
+                    <div className="ratio-value">{displayValue}</div>
+                    <div className={`ratio-indicator ${status}`}></div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div>No ratios available.</div>
+          )}
+        </section>
+
         <div className="service-grid">
           {services.map((service, index) => (
             <div key={index} className="service-card">
