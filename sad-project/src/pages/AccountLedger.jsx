@@ -248,11 +248,12 @@ const AccountLedger = () => {
                   filteredEntries.map((entry, index) => (
                     <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
                       <TableCell>{entry.date}</TableCell>
-                      <TableCell align='center'>
+                      <TableCell align='left'>
                          <span
-                            style={{ cursor: 'pointer', color: '#1976d2'}}
+                            style={{ cursor: 'pointer', color: '#1976d2', paddingLeft: '50px'}}
                             onClick={() => navigate(`/journalentries/${entry.journalId}`)}
-                          > {index + 1} </span>
+
+                          > {"JE-"+ (index + 1)} </span>
                       </TableCell>
                       <TableCell>{entry.description}</TableCell>
                       <TableCell align="right">
