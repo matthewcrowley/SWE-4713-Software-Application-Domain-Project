@@ -2,11 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "backend/server.js",
+      "src": "MongoDB/server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "frontend/package.json",
+      "src": "sad-project/package.json",
       "use": "@vercel/static-build"
     }
   ],
