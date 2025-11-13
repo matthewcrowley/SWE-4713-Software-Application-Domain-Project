@@ -43,23 +43,6 @@ export default function Administrator({ setIsLoggedIn }) {
       icon: "📈",
       path: "/eventlog",
     },
-    {
-      title: "Reports",
-      description: "Generate financial reports",
-      icon: "📊",
-      path: "/reports",
-    },
-    {
-      title: "Search",
-      description: "Find accounts and transactions",
-      icon: "🔍",
-    },
-    {
-      title: "Ledger",
-      description: "Show ledger of Accounts",
-      icon: "📙",
-      path: "/Ledger"
-    },
 
   ];
 
