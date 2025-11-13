@@ -177,6 +177,28 @@ router.put('/:id/approve', async (req, res) => {
       targetId: id,
       details: `Approved journal entry: ${journalEntry.description}`,
       timestamp: new Date(),
+
+      before: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "pending",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+        },
+
+        after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "approved",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
     });
 
     res.status(200).json({ message: 'Journal entry approved and posted to ledger' });
@@ -224,18 +246,16 @@ router.put('/:id/reject', async (req, res) => {
         action: 'REJECT',
         targetType: 'journalEntry',
         targetId: id,
-        details: `Changed journal entry status from '${journalEntry.status}' to '${updatedEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
+        details: `Changed journal entry status from '${journalEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
         
         before: {
           _id: journalEntry._id,
           date: journalEntry.date,
           description: journalEntry.description,
-          status: journalEntry.status,
+          status: "pending",
           createdBy: journalEntry.createdBy,
           entries: journalEntry.entries,
           createdAt: journalEntry.createdAt,
-          reviewedAt: journalEntry.reviewedAt,
-          reviewedBy: journalEntry.reviewedBy,
         },
 
         after: {
@@ -246,6 +266,7 @@ router.put('/:id/reject', async (req, res) => {
           createdBy: journalEntry.createdBy,
           entries: journalEntry.entries,
           createdAt: journalEntry.createdAt,
+          comment: journalEntry.comment,
           reviewedAt: journalEntry.reviewedAt,
           reviewedBy: journalEntry.reviewedBy,
         },

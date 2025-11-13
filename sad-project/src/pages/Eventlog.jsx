@@ -164,20 +164,20 @@ const Eventlog = () => {
 ) : sortedLogs.length === 0 ? (
   <p>No event logs found.</p>
 ) : (
-  <table className="eventlog-table" border="1" cellPadding="8">
+  <table className="eventlog-table" border="1" cellPadding="8" style={{ width: '100%', tableLayout: 'fixed' }}>
     <thead>
       <tr>
-        <th>ID</th>
-        <th>User ID</th>
-        <th>Action</th>
+        <th style={{ width: '20%' }}>ID</th>
+        <th style={{ width: '10%' }} >User ID</th>
+        <th style={{ width: '8%' }}>Action</th>
         <th
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', width: '10%' }}
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
         >
           Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
         </th>
-        <th>Before</th>
-        <th>After</th>
+        <th style={{ width: '25%' }}>Before</th>
+        <th style={{ width: '25%' }}>After</th>
       </tr>
     </thead>
     <tbody>
@@ -190,35 +190,91 @@ const Eventlog = () => {
 
           {/* Before snapshot */}
           <td>
-            {log.before ? (
+          {log.before ? (
+            log.targetType === 'journalEntry' ? (
+              <div>
+                <div><strong>Date:</strong> {log.before.date}</div>
+                <div><strong>Description:</strong> {log.before.description}</div>
+                <div><strong>Status:</strong> {log.before.status}</div>
+                <div><strong>Created By:</strong> {log.before.createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {log.before.entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At: </strong>{log.before.createdAt}</div>
+              </div>
+            ) : (
+              // fallback for other types (like user accounts)
               <div>
                 <div><strong>First Name:</strong> {log.before.firstName}</div>
                 <div><strong>Last Name:</strong> {log.before.lastName}</div>
-                <div><strong>DOB:</strong> {log.before.dob}</div>
-                <div><strong>Address:</strong> {log.before.address}</div>
                 <div><strong>Email:</strong> {log.before.email}</div>
                 <div><strong>Username:</strong> {log.before.username}</div>
               </div>
-            ) : (
-              <em>New Account</em>
-            )}
-          </td>
+            )
+          ) : (
+            <em>New Record</em>
+          )}
+        </td>
 
-          {/* After snapshot */}
-          <td>
-  { (log.after || log.afterImage) ? (
-    <div>
-      <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
-      <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
-      <div><strong>DOB:</strong> {(log.after || log.afterImage)?.dob}</div>
-      <div><strong>Address:</strong> {(log.after || log.afterImage)?.address}</div>
-      <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
-      <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
-    </div>
-  ) : (
-    <em>No After Snapshot</em>
-  )}
-</td>
+        <td>
+          {(log.after || log.afterImage) ? (
+            log.targetType === 'journalEntry' ? (
+              <div>
+                <div><strong>Date:</strong> {(log.after || log.afterImage).date}</div>
+                <div><strong>Description:</strong> {(log.after || log.afterImage).description}</div>
+                <div><strong>Status:</strong> {(log.after || log.afterImage).status}</div>
+                <div><strong>Created By:</strong> {(log.after || log.afterImage).createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {(log.after || log.afterImage).entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At: </strong>{log.after.createdAt}</div>
+                {log.after.comment != null && <div><strong>Comment: </strong>{log.after.comment || "Rejected"}</div>}
+                <div><strong>Reviewed By: </strong>{log.after.reviewedBy || "jdeer1025"}</div>
+                <div><strong>Reviewed At: </strong>{log.after.reviewedBy || "jdeer1025"}</div>
+              </div>
+            ) : (
+              <div>
+                <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
+                <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
+                <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
+                <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
+              </div>
+            )
+          ) : (
+            <em>Deleted Record</em>
+          )}
+        </td>
+
         </tr>
       ))}
     </tbody>
