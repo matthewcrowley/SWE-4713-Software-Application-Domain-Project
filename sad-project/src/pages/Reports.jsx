@@ -439,8 +439,8 @@ const Reports = () => {
           </Typography>
           <Typography variant="subtitle1" align="center" gutterBottom>
             {generatedReport.startDate && generatedReport.endDate
-              ? `For the Period: ${new Date(generatedReport.startDate).toLocaleDateString()} - ${new Date(generatedReport.endDate).toLocaleDateString()}`
-              : `As of ${new Date(generatedReport.date).toLocaleDateString()}`}
+              ? `For the Period: ${new Date(generatedReport.startDate + 'T00:00:00').toLocaleDateString()} - ${new Date(generatedReport.endDate + 'T00:00:00').toLocaleDateString()}`
+              : `As of ${new Date(generatedReport.date + 'T00:00:00').toLocaleDateString()}`}
           </Typography>
         </div>
 
