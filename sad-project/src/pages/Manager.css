@@ -354,6 +354,29 @@
   display: inline-block;
 }
 
+/* Alerts Section */
+.alerts-section {
+  margin-top: 30px;
+}
+
+.alert-card {
+  padding: 18px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.alert-warning {
+  background: #fff8d6;
+  border-left: 6px solid #ffcb3d;
+}
+
+.alert-none {
+  background: #e8ffe8;
+  border-left: 6px solid #48c774;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-top {
