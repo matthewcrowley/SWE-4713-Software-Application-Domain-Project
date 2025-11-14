@@ -112,6 +112,9 @@ export default function Accountview() {
             }}>
             🏠 Dashboard
           </button>
+          <button className="nav-button" onClick={() => navigate("/AccountView")}>
+            👤 Account Management
+          </button>
           <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
             📋 Chart of Accounts
           </button>

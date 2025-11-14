@@ -147,20 +147,19 @@ const AccountLedger = () => {
                 }}>
                 👤 Account Management
               </button>
-
               <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
                 📋 Chart of Accounts
               </button>
-
               <button className="nav-button" onClick={() => navigate("/eventlog")}>
                 📝 Event Log
               </button>
-
-              {currentUser?.role !== 'Admin' && (
-                <button className="nav-button" onClick={() => navigate("/journalentries")}>
-                  📖 Journalize
-                </button>
-              )}
+              <button className="nav-button" onClick={() => navigate("/journalentries")}>
+                📖 Journalize
+              </button>
+              <button className="nav-button" onClick={() => navigate("/reports")}>
+			          📊 Financial Reports
+		          </button>
+            
             </nav>
 
       {/* ===== Ledger Table ===== */}
@@ -249,11 +248,12 @@ const AccountLedger = () => {
                   filteredEntries.map((entry, index) => (
                     <TableRow key={entry._id} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#fff' }}>
                       <TableCell>{entry.date}</TableCell>
-                      <TableCell align='center'>
+                      <TableCell align='left'>
                          <span
-                            style={{ cursor: 'pointer', color: '#1976d2'}}
+                            style={{ cursor: 'pointer', color: '#1976d2', paddingLeft: '50px'}}
                             onClick={() => navigate(`/journalentries/${entry.journalId}`)}
-                          > {index + 1} </span>
+
+                          > {"JE-"+ (index + 1)} </span>
                       </TableCell>
                       <TableCell>{entry.description}</TableCell>
                       <TableCell align="right">

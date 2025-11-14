@@ -142,17 +142,17 @@ const Eventlog = () => {
 				  <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
 					📋 Chart of Accounts
 				  </button>
+          <button className="nav-button" onClick={() => navigate("/eventlog")}>
+					📝 Event Log
+				  </button>
 				  {currentUser?.role !== 'Admin' && (
 					<button className="nav-button" onClick={() => navigate("/journalentries")}>
 					  📖 Journalize
 					</button>
 				  )}
-				  <button className="nav-button" onClick={() => navigate("/eventlog")}>
-					📝 Event Log
-				  </button>
-				  <button className="nav-button" onClick={() => navigate("/ledger")}>
-					📙 Ledger
-				  </button>
+          {currentUser?.role !== 'Admin' && <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
+          </button>}
 				</nav>
 
       <div className="admin-section">

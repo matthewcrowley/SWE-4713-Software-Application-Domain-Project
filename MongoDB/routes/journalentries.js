@@ -220,13 +220,38 @@ router.put('/:id/reject', async (req, res) => {
     );
 
     await db.collection('eventlogs').insertOne({
-      userId: req.user?.id || 'Manager',
-      action: 'REJECT',
-      targetType: 'journalEntry',
-      targetId: id,
-      details: `Rejected journal entry: ${journalEntry.description}. Reason: ${comment}`,
-      timestamp: new Date(),
-    });
+        userId: req.user?.id || 'Manager',
+        action: 'REJECT',
+        targetType: 'journalEntry',
+        targetId: id,
+        details: `Changed journal entry status from '${journalEntry.status}' to '${updatedEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
+        
+        before: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: journalEntry.status,
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
+
+        after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "rejected",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
+
+        timestamp: new Date().toISOString(),
+      });
 
     res.status(200).json({ message: 'Journal entry rejected' });
   } catch (error) {

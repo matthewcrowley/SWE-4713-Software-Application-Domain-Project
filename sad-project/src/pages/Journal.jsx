@@ -504,9 +504,6 @@ const Journal = () => {
 			  📖 Journalize
 			</button>
 		  )}
-		  <button className="nav-button" onClick={() => navigate("/ledger")}>
-			📙 Ledger
-		  </button>
 		  <button className="nav-button" onClick={() => navigate("/reports")}>
 			📊 Financial Reports
 		  </button>
@@ -737,16 +734,6 @@ const Journal = () => {
                     className="form-input"
                   />
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    value={newEntry.description}
-                    onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
-                    className="form-input"
-                    placeholder="Enter description"
-                  />
-                </div>
               </div>
 
               {/* Adjusting Entry Checkbox */}
@@ -759,60 +746,6 @@ const Journal = () => {
                   />
                   <span>This is an adjusting journal entry</span>
                 </label>
-              </div>
-
-              {/* File Upload Section */}
-              <div className="form-group">
-                <label className="form-label">Attachments (Optional)</label>
-                <input
-                  type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
-                  onChange={handleFileUpload}
-                  className="form-input"
-                  style={{ padding: '0.5rem' }}
-                />
-                <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
-                  Accepted: PDF, Word, Excel, CSV, JPG, PNG (Max 5MB each)
-                </p>
-                
-                {/* Display uploaded files */}
-                {newEntry.attachments.length > 0 && (
-                  <div className="attachments-list" style={{ marginTop: '1rem' }}>
-                    <strong style={{ fontSize: '0.9rem', color: '#2c3e50' }}>
-                      Uploaded Files ({newEntry.attachments.length}):
-                    </strong>
-                    <div style={{ marginTop: '0.5rem' }}>
-                      {newEntry.attachments.map((file, index) => (
-                        <div 
-                          key={index} 
-                          className="attachment-item"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            padding: '0.5rem',
-                            backgroundColor: '#f5f5f5',
-                            borderRadius: '4px',
-                            marginBottom: '0.5rem'
-                          }}
-                        >
-                          <span style={{ fontSize: '0.85rem', color: '#2c3e50' }}>
-                            📎 {file.name} ({(file.size / 1024).toFixed(2)} KB)
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeAttachment(index)}
-                            className="remove-line-btn"
-                            style={{ marginLeft: '0.5rem' }}
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="journal-table-container">
@@ -912,6 +845,7 @@ const Journal = () => {
                                     value={entry.accountId}
                                     onChange={(e) => handleAccountChange(entry.realIndex, e.target.value)}
                                     className="form-select"
+                                    style={{"marginLeft" : '50px'}}
                                   >
                                     <option value="">Select Account</option>
                                     {chartOfAccounts
@@ -978,6 +912,74 @@ const Journal = () => {
                 </div>
               )}
             </div>
+
+            <div className='modal-body'> 
+              <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <input
+                    type="text"
+                    value={newEntry.description}
+                    onChange={(e) => setNewEntry({ ...newEntry, description: e.target.value })}
+                    className="form-input"
+                    placeholder="Enter description"
+                  />
+                </div>
+              
+            {/* File Upload Section */}
+              <div className="form-group">
+                <label className="form-label">Attachments (Optional)</label>
+                <input
+                  type="file"
+                  multiple
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png"
+                  onChange={handleFileUpload}
+                  className="form-input"
+                  style={{ padding: '0.5rem' }}
+                />
+                <p style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.25rem' }}>
+                  Accepted: PDF, Word, Excel, CSV, JPG, PNG (Max 5MB each)
+                </p>
+                
+                {/* Display uploaded files */}
+                {newEntry.attachments.length > 0 && (
+                  <div className="attachments-list" style={{ marginTop: '1rem' }}>
+                    <strong style={{ fontSize: '0.9rem', color: '#2c3e50' }}>
+                      Uploaded Files ({newEntry.attachments.length}):
+                    </strong>
+                    <div style={{ marginTop: '0.5rem' }}>
+                      {newEntry.attachments.map((file, index) => (
+                        <div 
+                          key={index} 
+                          className="attachment-item"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '0.5rem',
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '4px',
+                            marginBottom: '0.5rem'
+                          }}
+                        >
+                          <span style={{ fontSize: '0.85rem', color: '#2c3e50' }}>
+                            📎 {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeAttachment(index)}
+                            className="remove-line-btn"
+                            style={{ marginLeft: '0.5rem' }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            
 
             <div className="modal-footer">
               <button onClick={() => setShowNewEntry(false)} className="btn cancel">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Button, TextField, FormControl, InputLabel, Select, MenuItem,
   Table, TableHead, TableBody, TableRow, TableCell, Paper, Box,
@@ -439,8 +439,8 @@ const Reports = () => {
           </Typography>
           <Typography variant="subtitle1" align="center" gutterBottom>
             {generatedReport.startDate && generatedReport.endDate
-              ? `For the Period: ${new Date(generatedReport.startDate).toLocaleDateString()} - ${new Date(generatedReport.endDate).toLocaleDateString()}`
-              : `As of ${new Date(generatedReport.date).toLocaleDateString()}`}
+              ? `For the Period: ${new Date(generatedReport.startDate + 'T00:00:00').toLocaleDateString()} - ${new Date(generatedReport.endDate + 'T00:00:00').toLocaleDateString()}`
+              : `As of ${new Date(generatedReport.date + 'T00:00:00').toLocaleDateString()}`}
           </Typography>
         </div>
 
@@ -460,7 +460,18 @@ const Reports = () => {
             <TableBody>
               {generatedReport.data.map((acc) => (
                 <TableRow key={acc.accountNumber}>
-                  <TableCell>{acc.accountNumber}</TableCell>
+                  <TableCell>
+                    <Link
+                      to={`/ledger/${acc.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "#1976d2",
+                            cursor: "pointer",
+                            }}
+                  > 
+                  {acc.accountNumber} 
+                  </Link>
+                  </TableCell>
                   <TableCell>{acc.accountName}</TableCell>
                   <TableCell align="right">
                     {acc.trialBalanceDebit > 0 
@@ -497,7 +508,18 @@ const Reports = () => {
               <TableBody>
                 {generatedReport.revenues.map((rev) => (
                   <TableRow key={rev.accountNumber}>
-                    <TableCell>{rev.accountName}</TableCell>
+                    <TableCell>
+                      <Link
+                      to={`/ledger/${rev.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "black",
+                            cursor: "pointer",
+                            }}
+                  > 
+                    {rev.accountName}
+                  </Link>
+                    </TableCell>
                     <TableCell align="right">
                       ${rev.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
@@ -519,7 +541,18 @@ const Reports = () => {
               <TableBody>
                 {generatedReport.expenses.map((exp) => (
                   <TableRow key={exp.accountNumber}>
-                    <TableCell>{exp.accountName}</TableCell>
+                    <TableCell>
+                      <Link
+                      to={`/ledger/${exp.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "black",
+                            cursor: "pointer",
+                            }}
+                      >
+                        {exp.accountName}
+                      </Link>
+                      </TableCell>
                     <TableCell align="right">
                       ${exp.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
@@ -560,7 +593,18 @@ const Reports = () => {
               <TableBody>
                 {generatedReport.assets.map((asset) => (
                   <TableRow key={asset.accountNumber}>
-                    <TableCell>{asset.accountName}</TableCell>
+                    <TableCell>
+                    <Link
+                      to={`/ledger/${asset.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "black",
+                            cursor: "pointer",
+                            }}
+                      >
+                        {asset.accountName}
+                      </Link>
+                      </TableCell>
                     <TableCell align="right">
                       ${asset.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
@@ -582,7 +626,18 @@ const Reports = () => {
               <TableBody>
                 {generatedReport.liabilities.map((liability) => (
                   <TableRow key={liability.accountNumber}>
-                    <TableCell>{liability.accountName}</TableCell>
+                    <TableCell>
+                      <Link
+                      to={`/ledger/${liability.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "black",
+                            cursor: "pointer",
+                            }}
+                      >
+                        {liability.accountName}
+                      </Link>
+                      </TableCell>
                     <TableCell align="right">
                       ${liability.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
@@ -604,7 +659,18 @@ const Reports = () => {
               <TableBody>
                 {generatedReport.equity.map((eq) => (
                   <TableRow key={eq.accountNumber}>
-                    <TableCell>{eq.accountName}</TableCell>
+                    <TableCell>
+                      <Link
+                      to={`/ledger/${eq.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "black",
+                            cursor: "pointer",
+                            }}
+                      >
+                        {eq.accountName}
+                      </Link>
+                      </TableCell>
                     <TableCell align="right">
                       ${eq.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
@@ -637,7 +703,7 @@ const Reports = () => {
           <Table className="report-table">
             <TableBody>
               <TableRow>
-                <TableCell>Beginning Retained Earnings</TableCell>
+                <TableCell>Retained Earnings, Beginning</TableCell>
                 <TableCell align="right">
                   ${generatedReport.beginningRE.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
@@ -704,15 +770,21 @@ const Reports = () => {
           }}>
           🏠 Dashboard
         </button>
+        <button className="nav-button" onClick={() => navigate("/AccountView")}>
+            👤 Account Management
+          </button>
         <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
           📋 Chart of Accounts
         </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+					📝 Event Log
+				</button>
         <button className="nav-button" onClick={() => navigate("/journalentries")}>
-          📖 Journal Entries
+          📖 Journalize
         </button>
-        <button className="nav-button" onClick={() => navigate("/ledger")}>
-          📙 Ledger
-        </button>
+        <button className="nav-button" onClick={() => navigate("/reports")}>
+            📊 Financial Reports
+          </button>
       </nav>
 
       {error && <div className="error-message">{error}</div>}
