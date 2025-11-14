@@ -22,7 +22,7 @@ const Eventlog = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || null);
       } catch (err) {
@@ -34,7 +34,7 @@ const Eventlog = () => {
 
   // Fetch event logs
   useEffect(() => {
-  fetch('http://localhost:3000/api/eventlog')
+  fetch('${import.meta.env.VITE_API_URL}/api/eventlog')
     .then((res) => res.json())
     .then((data) => {
       console.log("Eventlog API response:", data); // <- Check this

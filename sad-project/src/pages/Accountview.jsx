@@ -21,7 +21,7 @@ export default function Accountview() {
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("http://localhost:3000/api/curUser");
+            const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -36,7 +36,7 @@ export default function Accountview() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch("${import.meta.env.VITE_API_URL}/api/users");
         const data = await response.json();
         setUsers(data || []);
       } catch (error) {
@@ -52,7 +52,7 @@ export default function Accountview() {
   // Fetch accounts
   useEffect(() => {
       setLoading(true);
-      fetch('http://localhost:3000/api/accounts')
+      fetch('${import.meta.env.VITE_API_URL}/api/accounts')
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch accounts');
           return res.json();
