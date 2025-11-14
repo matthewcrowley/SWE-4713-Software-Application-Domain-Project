@@ -159,7 +159,7 @@ export default function Manager({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
+        const response = await fetch("http://localhost:3000/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -173,7 +173,7 @@ export default function Manager({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchRatios = async () => {
       setRatiosLoading(true);
-      const url = "${import.meta.env.VITE_API_URL}/api/financial-ratios";
+      const url = "http://localhost:3000/api/financial-ratios";
       const maxAttempts = 3;
 
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

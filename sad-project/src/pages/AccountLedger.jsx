@@ -26,7 +26,7 @@ const AccountLedger = () => {
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
+            const response = await fetch("http://localhost:3000/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -43,7 +43,7 @@ const AccountLedger = () => {
     const fetchLedger = async () => {
       try {
         console.log("Fetching ledger for account:", accountId);
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/ledger/${accountId}`);
+        const res = await fetch(`http://localhost:3000/api/ledger/${accountId}`);
         console.log("Response status:", res.status);
         const data = await res.json();
         console.log("Ledger data:", data);

@@ -27,7 +27,7 @@ const Journal = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
+        const response = await fetch("http://localhost:3000/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -79,7 +79,7 @@ const Journal = () => {
       setSelectedEntry(entry);
     } else {
       // Otherwise fetch it from API
-      fetch(`${import.meta.env.VITE_API_URL}/api/journal-entries/${journalEntryId}`)
+      fetch(`http://localhost:3000/api/journal-entries/${journalEntryId}`)
         .then(res => res.json())
         .then(data => setSelectedEntry(data))
         .catch(err => console.error(err));
@@ -95,7 +95,7 @@ const Journal = () => {
 
   const fetchChartOfAccounts = async () => {
     try {
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/accounts');
+      const response = await fetch('http://localhost:3000/api/accounts');
       if (!response.ok) throw new Error('Failed to fetch accounts');
       const data = await response.json();
       setChartOfAccounts(data);
@@ -107,7 +107,7 @@ const Journal = () => {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/journal-entries');
+      const response = await fetch('http://localhost:3000/api/journal-entries');
       if (!response.ok) throw new Error('Failed to fetch journal entries');
       const data = await response.json();
       setJournalEntries(data);
@@ -312,7 +312,7 @@ const Journal = () => {
         formData.append('attachments', file);
       });
 
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/journal-entries', {
+      const response = await fetch('http://localhost:3000/api/journal-entries', {
         method: 'POST',
         body: formData // Send as FormData instead of JSON
       });
@@ -343,7 +343,7 @@ const Journal = () => {
   // Approve entry
   const approveEntry = async (entryId) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/journal-entries/${entryId}/approve`, {
+      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/approve`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -384,7 +384,7 @@ const Journal = () => {
       newDebits += line.debit;
       newCredits += line.credit;
 
-        await fetch(`${import.meta.env.VITE_API_URL}/api/accounts/${account._id}`, {
+        await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -413,7 +413,7 @@ const Journal = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/journal-entries/${entryId}/reject`, {
+      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/reject`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ comment: rejectionComment })
@@ -1040,7 +1040,7 @@ const Journal = () => {
                     {selectedEntry.attachments.map((attachment, index) => (
                       <a
                         key={index}
-                        href={`${import.meta.env.VITE_API_URL}/api/uploads/${attachment}`}
+                        href={`http://localhost:3000/uploads/${attachment}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{

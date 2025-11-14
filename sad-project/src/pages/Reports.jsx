@@ -40,7 +40,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
+        const response = await fetch("http://localhost:3000/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || null);
       } catch (err) {
@@ -56,8 +56,8 @@ const Reports = () => {
       setLoading(true);
       try {
         const [accountsRes, journalRes] = await Promise.all([
-          fetch('${import.meta.env.VITE_API_URL}/api/accounts'),
-          fetch('${import.meta.env.VITE_API_URL}/api/journal-entries')
+          fetch('http://localhost:3000/api/accounts'),
+          fetch('http://localhost:3000/api/journal-entries')
         ]);
 
         if (!accountsRes.ok || !journalRes.ok) {
@@ -382,7 +382,7 @@ const Reports = () => {
     try {
       const reportHTML = document.getElementById('report-content').innerHTML;
       
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/email', {
+      const response = await fetch('http://localhost:3000/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -36,7 +36,7 @@ const Ledger = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
+        const response = await fetch("http://localhost:3000/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -57,7 +57,7 @@ const Ledger = () => {
         if (endDate) params.append('endDate', endDate);
 
         const queryString = params.toString();
-        const url = `${import.meta.env.VITE_API_URL}/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
+        const url = `http://localhost:3000/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch ledger data');
