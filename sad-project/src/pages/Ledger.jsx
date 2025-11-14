@@ -4,7 +4,7 @@ import {
   Button, TextField, Table, TableHead, TableBody, TableRow, TableCell,
   FormControl, InputLabel, Select, MenuItem, Paper
 } from '@mui/material';
-import './ledger.css';
+import './Ledger.css';
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';

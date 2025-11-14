@@ -398,6 +398,11 @@
     font-size: 32px;
   }
 
+  .notification-title {
+    font-size: 26px;
+    color: black
+  }
+
   .service-grid {
     grid-template-columns: 1fr;
   }
