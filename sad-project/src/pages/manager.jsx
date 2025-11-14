@@ -6,6 +6,79 @@ import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 import NotificationsWrapper from "../components/NotificationsWrapper";
 
+// Dashboard Notification Banner Component
+function DashboardNotificationBanner() {
+  const [alerts, setAlerts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchDashboardAlerts();
+  }, []);
+
+  const fetchDashboardAlerts = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/notifications");
+      const data = await response.json();
+      
+      // Filter high-priority notifications for dashboard display
+      const highPriorityAlerts = data.notifications
+        .filter(n => n.priority === "high")
+        .slice(0, 3); // Show max 3 alerts
+      
+      setAlerts(highPriorityAlerts);
+    } catch (err) {
+      console.error("Failed to fetch dashboard alerts:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dismissAlert = (alertId) => {
+    setAlerts(alerts.filter(a => a.id !== alertId));
+  };
+
+  const handleAlertClick = (alert) => {
+    if (alert.type === "journal_pending") {
+      navigate("/journalentries");
+    } else if (alert.type === "account_updated") {
+      navigate("/eventlog");
+    }
+  };
+
+  if (loading || alerts.length === 0) return null;
+
+  return (
+    <div className="dashboard-alerts">
+      {alerts.map(alert => (
+        <div 
+          key={alert.id} 
+          className={`dashboard-alert alert-${alert.type}`}
+          onClick={() => handleAlertClick(alert)}
+        >
+          <div className="alert-icon">
+            {alert.type === "journal_pending" ? "📝" : 
+             alert.type === "warning" ? "⚠️" : "ℹ️"}
+          </div>
+          <div className="alert-content">
+            <div className="alert-title">{alert.title}</div>
+            <div className="alert-message">{alert.message}</div>
+          </div>
+          <button 
+            className="alert-dismiss"
+            onClick={(e) => {
+              e.stopPropagation();
+              dismissAlert(alert.id);
+            }}
+          >
+            ×
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Manager({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
@@ -14,10 +87,6 @@ export default function Manager({ setIsLoggedIn }) {
   const [ratios, setRatios] = useState(null);
   const [ratiosLoading, setRatiosLoading] = useState(false);
   const [ratiosError, setRatiosError] = useState('');
-
-  // Manager alerts state
-  const [managerAlerts, setManagerAlerts] = useState(null);
-  const [alertsLoading, setAlertsLoading] = useState(false);
 
   // Helper to make keys readable
   const formatKey = (k) =>
@@ -122,12 +191,6 @@ export default function Manager({ setIsLoggedIn }) {
           if (!data || Object.keys(data).length === 0) {
             throw new Error("Empty ratios payload");
           }
-          for (let j = 0; j < data.length; j++) {
-            if (data.j == 0) {
-              
-            }
-            else {setRatios(data);}
-          }
           setRatios(data);
           setRatiosError("");
           return;
@@ -154,24 +217,6 @@ export default function Manager({ setIsLoggedIn }) {
     };
     fetchRatios();
   }, []);
-
-  useEffect(() => {
-  const fetchAlerts = async () => {
-    setAlertsLoading(true);
-    try {
-      const res = await fetch("http://localhost:3000/api/manager-alerts");
-      const data = await res.json();
-      setManagerAlerts(data);
-    } catch (err) {
-      console.warn("Failed to load manager alerts:", err);
-    } finally {
-      setAlertsLoading(false);
-    }
-  };
-
-  fetchAlerts();
-}, []);
-
 
   const services = [
     {
@@ -203,6 +248,17 @@ export default function Manager({ setIsLoggedIn }) {
       description: "Record transactions",
       icon: "➕",
       path: "/JournalEntries",
+    },
+    {
+      title: "Search",
+      description: "Find accounts and transactions",
+      icon: "🔍",
+    },
+    {
+      title: "Ledger",
+      description: "Show ledger of Accounts",
+      icon: "📙",
+      path: "/Ledger"
     },
   ];
 
@@ -277,6 +333,9 @@ export default function Manager({ setIsLoggedIn }) {
         <h1 className="dashboard-title">Manager Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
 
+        {/* Important Notifications Banner */}
+        <DashboardNotificationBanner />
+
         <section className="ratios-section">
           <h2 className="section-title">Financial Ratios</h2>
           {ratiosLoading ? (
@@ -317,23 +376,6 @@ export default function Manager({ setIsLoggedIn }) {
             <div>No ratios available.</div>
           )}
         </section>
-
-        <section className="alerts-section">
-          <h2 className="section-title">Manager Alerts</h2>
-
-          {alertsLoading ? (
-            <div>Checking for alerts...</div>
-          ) : managerAlerts && managerAlerts.hasAlerts ? (
-            <div className="alert-card alert-warning">
-              <strong>{managerAlerts.pendingJournalEntries}</strong> journal entries are waiting for approval.
-            </div>
-          ) : (
-            <div className="alert-card alert-none">
-              No pending alerts at this time.
-            </div>
-          )}
-        </section>
-
 
         <div className="service-grid">
           {services.map((service, index) => (
