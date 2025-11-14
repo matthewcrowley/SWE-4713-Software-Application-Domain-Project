@@ -13,9 +13,7 @@
   },
   "scripts": {
     "start": "node MongoDB/server.js",
-    "dev": "nodemon MongoDB/server.js",
-    "build-frontend": "cd sad-project && npm install && npm run build",
-    "build": "npm run build-frontend && rm -rf MongoDB/public && cp -r sad-project/dist MongoDB/public"
+    "dev": "nodemon MongoDB/server.js"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
