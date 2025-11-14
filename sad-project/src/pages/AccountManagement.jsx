@@ -23,7 +23,7 @@ import {
   Chip,
 } from "@mui/material";
 import defaultProfile from "../assets/defaultprofile.png";
-import "./accountmanagement.css";
+import "./AccountManagement.css";
 import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
