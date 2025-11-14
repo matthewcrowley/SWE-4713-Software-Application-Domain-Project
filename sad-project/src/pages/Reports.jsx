@@ -8,7 +8,7 @@ import {
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
-import "./reports.css";
+import "./Reports.css";
 
 const Reports = () => {
   const navigate = useNavigate();
