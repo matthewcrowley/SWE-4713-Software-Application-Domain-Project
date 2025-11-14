@@ -81,6 +81,29 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
         date: newEntry.date,
       });
     }
+
+    const journalEntry = await db.collection('journal').findOne({ _id: result.insertedId });
+
+    await db.collection('eventlogs').insertOne({
+      userId: req.user?.id || 'Manager',
+      action: 'Journal Entry Submitted',
+      targetType: 'journalEntry',
+      targetId: journalEntry._id,
+      details: `Pending journal entry: ${newEntry.description}`,
+      timestamp: new Date(),
+
+      before: "",
+
+      after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "pending",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+        },
+    });
     res.status(201).json({
       message: 'Journal entry created successfully.',
       id: result.insertedId,
@@ -172,7 +195,7 @@ router.put('/:id/approve', async (req, res) => {
 
     await db.collection('eventlogs').insertOne({
       userId: req.user?.id || 'Manager',
-      action: 'APPROVE',
+      action: 'Journal Entry Approved',
       targetType: 'journalEntry',
       targetId: id,
       details: `Approved journal entry: ${journalEntry.description}`,
@@ -243,7 +266,7 @@ router.put('/:id/reject', async (req, res) => {
 
     await db.collection('eventlogs').insertOne({
         userId: req.user?.id || 'Manager',
-        action: 'REJECT',
+        action: 'Journal Entry Rejected',
         targetType: 'journalEntry',
         targetId: id,
         details: `Changed journal entry status from '${journalEntry.status}'. Reason: ${comment || 'No reason provided.'}`,

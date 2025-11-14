@@ -169,15 +169,15 @@ const Eventlog = () => {
       <tr>
         <th style={{ width: '20%' }}>ID</th>
         <th style={{ width: '10%' }} >User ID</th>
-        <th style={{ width: '8%' }}>Action</th>
+        <th style={{ width: '15%' }}>Action</th>
         <th
-          style={{ cursor: 'pointer', width: '10%' }}
+          style={{ cursor: 'pointer', width: '13%' }}
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
         >
           Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
         </th>
-        <th style={{ width: '25%' }}>Before</th>
-        <th style={{ width: '25%' }}>After</th>
+        <th style={{ width: '20%' }}>Before</th>
+        <th style={{ width: '20%' }}>After</th>
       </tr>
     </thead>
     <tbody>
@@ -227,7 +227,7 @@ const Eventlog = () => {
               </div>
             )
           ) : (
-            <em>New Record</em>
+            <em></em>
           )}
         </td>
 
@@ -259,8 +259,8 @@ const Eventlog = () => {
                 </div>
                 <div><strong>Created At: </strong>{log.after.createdAt}</div>
                 {log.after.comment != null && <div><strong>Comment: </strong>{log.after.comment || "Rejected"}</div>}
-                <div><strong>Reviewed By: </strong>{log.after.reviewedBy || "jdeer1025"}</div>
-                <div><strong>Reviewed At: </strong>{log.after.reviewedBy || "jdeer1025"}</div>
+                {log.after.reviewedBy != null && <div><strong>Reviewed By: </strong>{log.after.reviewedBy}</div>}
+                {log.after.reviewedAt != null && <div><strong>Reviewed At: </strong>{log.after.reviewedAt}</div>}
               </div>
             ) : (
               <div>
