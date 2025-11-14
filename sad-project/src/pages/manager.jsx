@@ -118,6 +118,12 @@ export default function Manager({ setIsLoggedIn }) {
           if (!data || Object.keys(data).length === 0) {
             throw new Error("Empty ratios payload");
           }
+          for (let j = 0; j < data.length; j++) {
+            if (data.j == 0) {
+              
+            }
+            else {setRatios(data);}
+          }
           setRatios(data);
           setRatiosError("");
           return;
@@ -289,6 +295,8 @@ export default function Manager({ setIsLoggedIn }) {
             <div>No ratios available.</div>
           )}
         </section>
+
+        <h1 className="notific-title">Important Notifications</h1>
 
         <div className="service-grid">
           {services.map((service, index) => (
