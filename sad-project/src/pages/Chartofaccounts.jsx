@@ -4,7 +4,7 @@ import {
   DialogActions, Table, TableHead, TableBody, TableRow, Typography, TableCell,
   MenuItem, Select, FormControl, InputLabel, Tabs, Tab, Box
 } from '@mui/material';
-import './chartofaccounts.css';
+import './Chartofaccounts.css';
 import logo from "../assets/sweetledger.jpeg";
 import { useNavigate } from 'react-router-dom';
 import HelpButton from '../components/HelpButton';
