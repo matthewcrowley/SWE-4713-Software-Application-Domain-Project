@@ -79,7 +79,7 @@ function App() {
       console.log("Hashed password:", hashed);
 
       try {
-          const response = await fetch("http://localhost:3000/api/users");
+          const response = await fetch("${import.meta.env.VITE_API_URL}/api/users");
           const data = await response.json();
           const user = data.find((u) => u.username === username);  
           
@@ -96,7 +96,7 @@ function App() {
 
             // POST current user info to /api/curUser
             try {
-              const curUserResponse = await fetch("http://localhost:3000/api/curUser", {
+              const curUserResponse = await fetch("${import.meta.env.VITE_API_URL}/api/curUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -140,7 +140,7 @@ function App() {
               localStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
               setMessage("Account suspended after 3 failed login attempts.");
 
-              await fetch(`http://localhost:3000/api/users/${username}`, {
+              await fetch(`${import.meta.env.VITE_API_URL}/api/users/${username}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ suspended: true }),

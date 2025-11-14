@@ -45,7 +45,7 @@ export default function AccountManagement() {
     useEffect(() => {
           const fetchCurrentUser = async () => {
             try {
-              const response = await fetch("http://localhost:3000/api/curUser");
+              const response = await fetch("${import.meta.env.VITE_API_URL}/api/curUser");
               const data = await response.json();
               setCurrentUser(data.currentUser || []);
                 
@@ -123,7 +123,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch("${import.meta.env.VITE_API_URL}/api/users");
         const data = await response.json();
         setUsers(data || []);
       } catch (error) {
@@ -140,7 +140,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/accounts");
+        const response = await fetch("${import.meta.env.VITE_API_URL}/api/accounts");
         const data = await response.json();
         setAccounts(data || []);
       } catch (error) {
@@ -167,7 +167,7 @@ export default function AccountManagement() {
   const saveUserUpdate = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${editingUser}`,
+        `${import.meta.env.VITE_API_URL}/api/users/${editingUser}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -195,7 +195,7 @@ export default function AccountManagement() {
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${user.id}/status`,
+        `${import.meta.env.VITE_API_URL}/api/users/${user.id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -238,7 +238,7 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/users", {
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -271,7 +271,7 @@ export default function AccountManagement() {
   // Generate User Report
   const generateUserReport = async () => {
     try {
-    const response = await fetch("http://localhost:3000/api/users");
+    const response = await fetch("${import.meta.env.VITE_API_URL}/api/users");
     const data = await response.json();
 
     if (Array.isArray(data)) {
@@ -306,7 +306,7 @@ export default function AccountManagement() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${suspendUser.id}/suspend`,
+        `${import.meta.env.VITE_API_URL}/api/users/${suspendUser.id}/suspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -339,7 +339,7 @@ export default function AccountManagement() {
   // Generate Expired Passwords Report
   const generateExpiredPasswordsReport = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/users/expired-passwords");
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/users/expired-passwords");
       const data = await response.json();
       
       if (data.success) {
@@ -378,7 +378,7 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/email", {
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(emailForm),
@@ -426,7 +426,7 @@ export default function AccountManagement() {
     };
 
     try {
-      const response = await fetch("http://localhost:3000/api/accounts", {
+      const response = await fetch("${import.meta.env.VITE_API_URL}/api/accounts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newAccount),

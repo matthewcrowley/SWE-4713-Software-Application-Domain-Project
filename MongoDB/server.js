@@ -85,4 +85,15 @@ app.put('/api/accounts/:id', async (q, res) => {
   } catch (e) {
     res.status(500).send({ error: e.message });
   }
+
+  const path = require('path');
+
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../sad-project/dist')));
+
+// Catch-all route to serve index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../sad-project/dist', 'index.html'));
+});
+
 });
