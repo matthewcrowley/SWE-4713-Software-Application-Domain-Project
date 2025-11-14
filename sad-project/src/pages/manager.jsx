@@ -15,6 +15,10 @@ export default function Manager({ setIsLoggedIn }) {
   const [ratiosLoading, setRatiosLoading] = useState(false);
   const [ratiosError, setRatiosError] = useState('');
 
+  // Manager alerts state
+  const [managerAlerts, setManagerAlerts] = useState(null);
+  const [alertsLoading, setAlertsLoading] = useState(false);
+
   // Helper to make keys readable
   const formatKey = (k) =>
     k
@@ -150,6 +154,24 @@ export default function Manager({ setIsLoggedIn }) {
     };
     fetchRatios();
   }, []);
+
+  useEffect(() => {
+  const fetchAlerts = async () => {
+    setAlertsLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/manager-alerts");
+      const data = await res.json();
+      setManagerAlerts(data);
+    } catch (err) {
+      console.warn("Failed to load manager alerts:", err);
+    } finally {
+      setAlertsLoading(false);
+    }
+  };
+
+  fetchAlerts();
+}, []);
+
 
   const services = [
     {
@@ -296,7 +318,22 @@ export default function Manager({ setIsLoggedIn }) {
           )}
         </section>
 
-        <h1 className="notific-title">Important Notifications</h1>
+        <section className="alerts-section">
+          <h2 className="section-title">Manager Alerts</h2>
+
+          {alertsLoading ? (
+            <div>Checking for alerts...</div>
+          ) : managerAlerts && managerAlerts.hasAlerts ? (
+            <div className="alert-card alert-warning">
+              <strong>{managerAlerts.pendingJournalEntries}</strong> journal entries are waiting for approval.
+            </div>
+          ) : (
+            <div className="alert-card alert-none">
+              No pending alerts at this time.
+            </div>
+          )}
+        </section>
+
 
         <div className="service-grid">
           {services.map((service, index) => (
