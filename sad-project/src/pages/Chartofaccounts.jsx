@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 const Chartofaccounts = () => {
   const navigate = useNavigate();
 
-  // ===== State Variables =====
+  // State Variables
   const [accounts, setAccounts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -53,7 +53,7 @@ const [editedAccount, setEditedAccount] = useState({});
       }, []);
 
 
-  // ===== Fetch Accounts from MongoDB Backend =====
+  // Fetch Accounts from MongoDB Backend
   useEffect(() => {
     setLoading(true);
     fetch('http://localhost:3000/api/accounts')
@@ -75,7 +75,7 @@ const [editedAccount, setEditedAccount] = useState({});
   }, []);
 
 
-  // ===== Fetch Event Logs for Specific Account =====
+  // Fetch Event Logs for Specific Account
   const fetchAccountEventLogs = async (accountId, accountNumber) => {
     setLogsLoading(true);
     try {
@@ -118,7 +118,7 @@ const [editedAccount, setEditedAccount] = useState({});
     }
   };
 
-  // ===== Handlers =====
+  // Handlers
   // Enter edit mode
 const handleEdit = (account) => {
   setEditingAccountId(account._id);
@@ -300,7 +300,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
     }
   };
 
-  // ===== Render Before/After Comparison =====
+  // Render Before/After Comparison
   const renderBeforeAfterComparison = (log) => {
     if (!log.before && log.after) {
       // Account was created
@@ -462,7 +462,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   return (
     <div className="admin-container">
-      {/* ===== Header ===== */}
+      {/* Header */}
       <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img 
@@ -630,14 +630,14 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
 )}
 
 
-      {/* ===== Error Message ===== */}
+      {/* Error Message */}
       {error && (
         <div className="admin-section">
           <div className="error-message">{error}</div>
         </div>
       )}
 
-      {/* ===== Main Section ===== */}
+      {/* Main Section */}
       <div className="admin-section">
         <h2>Search and Filter Accounts</h2>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -691,7 +691,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           )}
         </div>
 
-        {/* ===== Search Results ===== */}
+        {/* Search Results */}
         {filteredAccounts.length > 0 ? (
           <>
             <p style={{ color: '#666', marginBottom: '1rem', fontSize: '0.95rem' }}>
@@ -965,7 +965,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
         )}
       </div>  
 
-      {/* ===== All Accounts Report Dialog ===== */}
+      {/* All Accounts Report Dialog */}
       <Dialog open={openReport} onClose={handleCloseReport} maxWidth="lg" fullWidth>
         <DialogTitle>All Accounts Report</DialogTitle>
         <DialogContent>
@@ -1011,7 +1011,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
         </DialogActions>
       </Dialog>
 
-      {/* ===== Individual Account Details Dialog with Tabs ===== */}
+      {/* Individual Account Details Dialog with Tabs */}
       <Dialog open={openDetails} onClose={handleCloseDetails} maxWidth="lg" fullWidth>
         <DialogTitle>
           Account Details - {selectedAccount?.accountNumber} {selectedAccount?.accountName}

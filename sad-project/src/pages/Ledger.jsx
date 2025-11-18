@@ -32,7 +32,7 @@ const Ledger = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // ===== Fetch Current User =====
+  // Fetch Current User
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -46,7 +46,7 @@ const Ledger = () => {
     fetchCurrentUser();
   }, []);
 
-  // ===== Fetch Ledger Entries from API =====
+  // Fetch Ledger Entries from API
   useEffect(() => {
     const fetchLedgerData = async () => {
       setLoading(true);
@@ -78,7 +78,7 @@ const Ledger = () => {
     fetchLedgerData();
   }, [accountId, startDate, endDate]);
 
-  // ===== Handle Search and Filter =====
+  // Handle Search and Filter
   const handleSearch = () => {
     let results = [...ledgerEntries];
 
@@ -140,7 +140,7 @@ const Ledger = () => {
     }
   };
 
-  // ===== Navigate to Journal Entry with Highlighting =====
+  // Navigate to Journal Entry with Highlighting
   const handlePostReferenceClick = (journalId) => {
     if (!journalId) {
       console.warn('No journal ID provided');
@@ -201,7 +201,7 @@ const Ledger = () => {
         </div>
       </header>
 
-      {/* ===== Navigation Bar ===== */}
+      {/* Navigation Bar */}
       <nav className="dashboard-nav">
         <div className="button-container">
           <Calendar title="Calendar" />
@@ -237,14 +237,14 @@ const Ledger = () => {
         </button>
       </nav>
 
-      {/* ===== Error Message ===== */}
+      {/* Error Message */}
       {error && (
         <div className="ledger-section">
           <div className="error-message">{error}</div>
         </div>
       )}
 
-      {/* ===== Account Summary ===== */}
+      {/* Account Summary */}
       {account && (
         <Paper className="ledger-section account-summary">
           <h2>Account Summary</h2>
@@ -277,7 +277,7 @@ const Ledger = () => {
         </Paper>
       )}
 
-      {/* ===== Search and Filter Section ===== */}
+      {/* Search and Filter Section */}
       <div className="ledger-section">
         <h2>Filter and Search Ledger Entries</h2>
         
@@ -357,7 +357,7 @@ const Ledger = () => {
         )}
       </div>
 
-      {/* ===== Ledger Entries Table ===== */}
+      {/* Ledger Entries Table */}
       <div className="ledger-section">
         <h2>Ledger Entries ({filteredEntries.length})</h2>
         

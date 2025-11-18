@@ -336,7 +336,7 @@ const Reports = () => {
     };
   };
 
-  // ===== Handle Generate Report =====
+  // Handle Generate Report
   const handleGenerateReport = () => {
     setError('');
     
@@ -367,12 +367,12 @@ const Reports = () => {
     setGeneratedReport(report);
   };
 
-  // ===== Print Report =====
+  // Print Report 
   const handlePrint = () => {
     window.print();
   };
 
-  // ===== Email Report =====
+  // Email Report
   const handleSendEmail = async () => {
     if (!emailForm.email || !emailForm.subject) {
       setEmailMessage('Please fill in all required fields');
@@ -410,7 +410,7 @@ const Reports = () => {
     }
   };
 
-  // ===== Save Report =====
+  // Save Report
   const handleSaveReport = () => {
     const reportContent = document.getElementById('report-content').innerText;
     const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -424,7 +424,7 @@ const Reports = () => {
     URL.revokeObjectURL(url);
   };
 
-  // ===== Render Report =====
+  // Render Report
   const renderReport = () => {
     if (!generatedReport) return null;
 
