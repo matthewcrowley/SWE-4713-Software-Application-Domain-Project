@@ -336,6 +336,10 @@ const Reports = () => {
     };
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   // ===== Handle Generate Report =====
   const handleGenerateReport = () => {
     setError('');
@@ -472,7 +476,18 @@ const Reports = () => {
                   {acc.accountNumber} 
                   </Link>
                   </TableCell>
-                  <TableCell>{acc.accountName}</TableCell>
+                  <TableCell>
+                    <Link
+                      to={`/ledger/${acc.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "#1976d2",
+                            cursor: "pointer",
+                            }}
+                  > 
+                  {acc.accountName} 
+                  </Link>
+                  </TableCell>
                   <TableCell align="right">
                     {acc.trialBalanceDebit > 0 
                       ? `$${acc.trialBalanceDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -513,8 +528,8 @@ const Reports = () => {
                       to={`/ledger/${rev.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
                             cursor: "pointer",
+                            color: "#1976d2"
                             }}
                   > 
                     {rev.accountName}
@@ -546,7 +561,7 @@ const Reports = () => {
                       to={`/ledger/${exp.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -598,7 +613,7 @@ const Reports = () => {
                       to={`/ledger/${asset.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -631,7 +646,7 @@ const Reports = () => {
                       to={`/ledger/${liability.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -664,7 +679,7 @@ const Reports = () => {
                       to={`/ledger/${eq.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -754,6 +769,20 @@ const Reports = () => {
           <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
           <h1 className="reports-title">Financial Reports</h1>
         </div>
+
+        {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
       </header>
 
       {/* Navigation */}
