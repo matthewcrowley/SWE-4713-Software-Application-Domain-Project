@@ -209,6 +209,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
     fetchRatios();
   }, []);
 
+   // Buttons for services
   const services = [
     {
       title: "Account Management",
