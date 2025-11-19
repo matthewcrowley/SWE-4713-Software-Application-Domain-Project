@@ -164,20 +164,20 @@ const Eventlog = () => {
 ) : sortedLogs.length === 0 ? (
   <p>No event logs found.</p>
 ) : (
-  <table className="eventlog-table" border="1" cellPadding="8" style={{ width: '100%', tableLayout: 'fixed' }}>
+  <table className="eventlog-table" border="1" cellPadding="8">
     <thead>
       <tr>
-        <th style={{ width: '20%' }}>ID</th>
-        <th style={{ width: '10%' }} >User ID</th>
-        <th style={{ width: '15%' }}>Action</th>
+        <th>ID</th>
+        <th>User ID</th>
+        <th>Action</th>
         <th
-          style={{ cursor: 'pointer', width: '13%' }}
+          style={{ cursor: 'pointer'}}
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
         >
           Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
         </th>
-        <th style={{ width: '20%' }}>Before</th>
-        <th style={{ width: '20%' }}>After</th>
+        <th>Before</th>
+        <th>After</th>
       </tr>
     </thead>
     <tbody>

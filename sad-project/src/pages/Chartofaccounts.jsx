@@ -234,6 +234,10 @@ const handleSave = async (accountId) => {
     setDetailsTab(0);
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -473,18 +477,19 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <h1 className="admin-title">Chart of Accounts</h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div className="header-actions">
-            <Button 
-              className="generate-report-btn" 
-              onClick={handleGenerateReport}
-              variant="contained"
-            >
-              View All Accounts Report
-            </Button>
-            <HelpButton />
+        {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
-        </div>
       </header>
 
        <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -752,9 +757,22 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
       <div className="admin-section">
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <h2>Chart of Accounts</h2>
-          <Button className="add-account">Add Account</Button>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '0px'}}>
+            <div className="header-actions">
+              <Button 
+                className="generate-report-btn" 
+                onClick={handleGenerateReport}
+                variant="contained"
+              >
+                Accounts Report
+              </Button>
+              <HelpButton />
+              {( currentUser?.role === 'Admin') && <Button className="generate-report-btn">Add Account</Button>}
+            </div>
+          </div> 
         </div>
         <p>Manage your accounts here.</p>
+         
 
         {loading ? (
           <p>Loading accounts...</p>
@@ -932,7 +950,24 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             {currentUser.role == 'Admin' && <p style={{ color: 'black'
                             }}> {account.account_number} </p>}
                         </td>
-                        <td>{account.account_name}</td>
+                        <td>
+                            {/* Only manager and accountant can route to ledger*/}
+                            {currentUser.role != 'Admin' && <Link
+                              to={`/ledger/${account.account_number}`}
+                              onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {account.account_name}
+                            </Link> }
+
+                            {currentUser.role == 'Admin' && <p style={{ color: 'black'
+                            }}> {account.account_name} </p>}
+                        </td>
                         <td style={{textAlign:"center"}}>{account.type}</td>
                         <td style={{textAlign:"center"}}>{account.subcategory}</td>
                         <td style={{ textAlign: "right" }}>

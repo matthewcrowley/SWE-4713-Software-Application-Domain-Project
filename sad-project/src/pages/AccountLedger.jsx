@@ -108,6 +108,7 @@ const AccountLedger = () => {
             </div>
             <HelpButton />
 
+            {/* ===== User Section ===== */}
             <div className="user-section">
             <span className="welcome-text">Welcome,</span>
             <div>
