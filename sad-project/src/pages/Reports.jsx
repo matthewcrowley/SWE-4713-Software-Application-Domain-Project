@@ -503,10 +503,10 @@ const Reports = () => {
               <TableRow className="total-row">
                 <TableCell colSpan={2}><strong>Total</strong></TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.totals.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.totals.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -543,7 +543,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Revenue</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -576,7 +576,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Expenses</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -587,7 +587,7 @@ const Reports = () => {
                 <TableRow className="total-row">
                   <TableCell><strong>Net Income</strong></TableCell>
                   <TableCell align="right">
-                    <strong className={generatedReport.totals.netIncome < 0 ? 'negative-amount' : 'positive-amount'}>
+                    <strong className={generatedReport.totals.netIncome < 0 ? 'negative-amount' : 'positive-amount'} style={{borderBottom: '3px double black', paddingBottom: '2px'}}>
                       ${Math.abs(generatedReport.totals.netIncome).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       {generatedReport.totals.netIncome < 0 && ' (Loss)'}
                     </strong>
@@ -628,7 +628,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Assets</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.assets.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.assets.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -661,7 +661,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Liabilities</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.liabilities.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.liabilities.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -694,7 +694,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Equity</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -705,7 +705,7 @@ const Reports = () => {
                 <TableRow className="total-row">
                   <TableCell><strong>Total Liabilities and Equity</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.liabilitiesAndEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.liabilitiesAndEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -736,9 +736,9 @@ const Reports = () => {
                 </TableCell>
               </TableRow>
               <TableRow className="total-row">
-                <TableCell><strong>Ending Retained Earnings</strong></TableCell>
+                <TableCell><strong>Retained Earnings, Ending</strong></TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.endingRE.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.endingRE.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
               </TableRow>
             </TableBody>

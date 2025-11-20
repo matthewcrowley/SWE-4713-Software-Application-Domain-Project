@@ -527,20 +527,20 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
             📊 Financial Reports
           </button>}
           <div className="nav-right">
-          <button
-             className="nav-button email-button"
-             onClick={() => openEmailDialog()}
-             style={{
-             background: 'none',
-             border: 'none',
-             color: '#007BFF', // Bootstrap blue
-              textDecoration: 'underline',
-              cursor: 'pointer',
-             padding: 0,
-              font: 'inherit'
-            }}
-          >
-           Email Admin or Manager
+            <button
+              className="nav-button email-button"
+              onClick={() => openEmailDialog()}
+              style={{
+              backgroundColor: '#007BFF',
+              fontSize: '30px',
+              paddingTop: '0px', 
+              paddingBottom: '0px',
+              paddingRight: '5px', 
+              paddingLeft: '5px',
+              marginLeft: 'auto'
+              }}
+            >
+            ✉️
             </button>
           </div>
         </nav>
