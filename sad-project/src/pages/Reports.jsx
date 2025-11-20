@@ -730,6 +730,12 @@ const Reports = () => {
                 </TableCell>
               </TableRow>
               <TableRow>
+                <TableCell>Total Net Income</TableCell>
+                <TableCell align="right">
+                 <strong style={{ borderBottom: '1px solid black', paddingBottom: '2px' }}>${generatedReport.netIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                </TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell>Less: Dividends</TableCell>
                 <TableCell align="right">
                   ${generatedReport.dividends.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
