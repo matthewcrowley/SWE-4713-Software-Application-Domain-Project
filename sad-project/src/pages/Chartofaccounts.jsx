@@ -1069,10 +1069,9 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               <p><strong>Category:</strong> {selectedAccount.type || 'N/A'}</p>
               <p><strong>Subcategory:</strong> {selectedAccount.subcategory || 'N/A'}</p>
               <p><strong>Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Debit:</strong> ${selectedAccount.debit?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Credit:</strong> ${selectedAccount.credit?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Debit:</strong> ${selectedAccount.debits?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Credit:</strong> ${selectedAccount.credits?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Status:</strong> {selectedAccount.isActive ? 'Active' : 'Inactive'}</p>
-              <p><strong>Statement:</strong> {selectedAccount.statement || 'N/A'}</p>
               <p><strong>Comment:</strong> {selectedAccount.comment || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(selectedAccount.createdAt).toLocaleString()}</p>
               <p><strong>Last Updated:</strong> {new Date(selectedAccount.updatedAt).toLocaleString()}</p>
