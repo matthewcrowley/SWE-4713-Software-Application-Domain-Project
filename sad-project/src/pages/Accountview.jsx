@@ -74,6 +74,10 @@ export default function Accountview() {
   const handleBack = () => {
     window.history.back();
   };
+  
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
     <div className="admin-container">
@@ -86,15 +90,19 @@ export default function Accountview() {
             Account View
           </h5>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            className="btn"
-            onClick={() => setMessage("No Current Expired Passwords")}
-          >
-            Generate Expired Passwords Report
-          </button>
-          <div className="avatar">
+
+        {/* ===== User Section ===== */}
+        <div className="user-section" style={{ marginLeft: 'auto' }}>
+          <span className="welcome-text">Welcome,</span>
+          <div>
+            <div className="username">
+                {currentUser?.curUsername}
+            </div>
+            <span className="admin-badge">{currentUser?.role}</span>
           </div>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
 

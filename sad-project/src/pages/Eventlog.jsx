@@ -14,10 +14,6 @@ const Eventlog = () => {
   const [sortedLogs, setSortedLogs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const handleGenerateReport = () => {
-    console.log('Generating report...');
-  };
-
   // Fetch current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
@@ -47,6 +43,9 @@ const Eventlog = () => {
     });
 }, []);
 
+const handleLogout = () => {
+    navigate("/");
+  };
 
   // Sort logs by timestamp
   useEffect(() => {
@@ -99,19 +98,23 @@ const Eventlog = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between', width: '100%' }}>
           <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
           <h1 className="admin-title">Event Log</h1>
-        </div>
 
-        <div className="header-actions">
-          <Button
-            className="generate-report-btn"
-            onClick={handleGenerateReport}
-            variant="contained"
-          >
-            Generate Expired Passwords Report
-          </Button>
+          {/* ===== User Section ===== */}
+          <div className="user-section" style={{ marginLeft: 'auto' }}>
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -156,7 +159,9 @@ const Eventlog = () => {
 				</nav>
 
       <div className="admin-section">
-        <h2>Event Log</h2>
+        <div className="header-actions" style={{justifyContent:'space-between'}}>
+          <h2>Event Log</h2>
+        </div>
         <p>View all account changes, including before and after states.</p>
 
         {loading ? (

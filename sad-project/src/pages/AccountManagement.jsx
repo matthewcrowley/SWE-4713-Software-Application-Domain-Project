@@ -467,7 +467,7 @@ export default function AccountManagement() {
     <Box className="admin-container">
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
-        <header className="admin-header" style={{borderBottom: '0px'}}>
+        <header className="admin-header" style={{borderBottom: '0px', justifyContent: 'space-between', width: '100%'}}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
                 <img 
                   alt="Sweet Ledger Logo"
@@ -476,24 +476,21 @@ export default function AccountManagement() {
                 />
                 <h1 className="admin-title">Administrator Account Management</h1>
               </div>
+
+              {/* ===== User Section ===== */}
+              <div className="user-section" style={{ marginLeft: 'auto' }}>
+                <span className="welcome-text">Welcome,</span>
+                <div>
+                  <div className="username">
+                      {currentUser?.curUsername}
+                  </div>
+                  <span className="admin-badge">{currentUser?.role}</span>
+                </div>
+                <button className="logout-button" onClick={handleLogout}>
+                  Logout
+                </button>
+              </div>
         </header>
-        <Box display="flex" alignItems="center" gap={2}>
-          <Button
-            variant="contained"
-            className="btn"
-            onClick={generateUserReport}
-          >
-            View All Users Report
-          </Button>
-          <Button
-            variant="contained"
-            className="btn"
-            onClick={generateExpiredPasswordsReport}
-          >
-            Expired Passwords Report
-          </Button>
-          <Avatar src={defaultProfile} alt="Profile" />
-        </Box>
       </Box>
 
       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -519,16 +516,32 @@ export default function AccountManagement() {
       <Box className="admin-content">
         {/* ========== USER MANAGEMENT ========== */}
         <Paper elevation={1} className="admin-section">
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">
-              User Management
-            </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">
+                User Management
+              </Typography>
+                      <Box display="flex" alignItems="center" gap={2}>
+            <Button
+              variant="contained"
+              className="btn"
+              onClick={generateUserReport}
+            >
+              View All Users Report
+            </Button>
+            <Button
+              variant="contained"
+              className="btn"
+              onClick={generateExpiredPasswordsReport}
+            >
+              Expired Passwords Report
+            </Button>
             <Button
               className="btn"
               onClick={() => setShowCreateUser(!showCreateUser)}
             >
               {showCreateUser ? "Cancel" : "Create New User"}
             </Button>
+          </Box>
           </Box>
 
           {/* Create User Form */}
