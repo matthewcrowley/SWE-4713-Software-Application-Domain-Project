@@ -5,6 +5,55 @@ import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 
+function PendingJournalEntries() {
+  const [pendingEntries, setPendingEntries] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchEntries = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch("http://localhost:3000/api/journal-entries");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const allEntries = await res.json();
+
+        setPendingEntries(allEntries.filter(entry => entry.status === "pending"));
+      } catch (err) {
+        console.error("Failed to fetch journal entries:", err);
+        setError("Could not load pending journal entries.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEntries();
+  }, []);
+
+  if (loading) return <p>Loading pending journal entries...</p>;
+  if (error) return <p className="text-danger">{error}</p>;
+  if (pendingEntries.length === 0) return null;
+
+  return (
+    <section className="pending-journal-entries alert alert-warning" style={{ color: "red" }}>
+      <h3>!!! Important Notifications !!!</h3>
+      <p>
+        There {pendingEntries.length > 1 ? "are" : "is"} {pendingEntries.length} journal {pendingEntries.length > 1 ? "entries" : "entry"} waiting for a manager's approval:
+      </p>
+      <ul>
+        {pendingEntries.map((entry) => (
+          <li key={entry._id}>
+            {entry.createdBy + " created "}
+            {entry.description}
+            {entry.comment}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function Regularaccountuser({ setIsLoggedIn }) {
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
@@ -302,6 +351,8 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             <div>No ratios available.</div>
           )}
         </section>
+
+        <PendingJournalEntries />
 
         <div className="service-grid">
           {services.map((service, index) => (
