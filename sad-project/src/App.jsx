@@ -130,14 +130,14 @@ function App() {
           } else {
 
             // Wrong credentials — track failed attempts
-            const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
+            const failedAttempts = JSON.parse(sessionStorage.getItem("failedAttempts")) || {};
             failedAttempts[username] = (failedAttempts[username] || 0) + 1;
 
             if (failedAttempts[username] >= 3) {
               // Suspend user
-              const suspendedUsers = JSON.parse(localStorage.getItem("suspendedUsers")) || {};
+              const suspendedUsers = JSON.parse(sessionStorage.getItem("suspendedUsers")) || {};
               suspendedUsers[username] = true;
-              localStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
+              sessionStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
               setMessage("Account suspended after 3 failed login attempts.");
 
               await fetch(`http://localhost:3000/api/users/${username}`, {
@@ -148,7 +148,7 @@ function App() {
             }
             else 
             {   
-                localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
+                sessionStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
                 setMessage(`Invalid username or password. (${failedAttempts[username]} of 3 attempts used)`);
             }
           }

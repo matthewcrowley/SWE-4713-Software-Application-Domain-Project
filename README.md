@@ -1,7 +1,7 @@
 # Sweetledger - Kennesaw State University - Software Application Domain
 Welcome to our Sweetledger repository for our Software Application Domain semester project at Kennesaw State University. Here you will find all of the source code for Sweetledger, and this README contains information about what Sweetledger is, the group members that created it, along with all of the documentation pertaining to this system.
 
-WORK IN PROGRESS - CURRENT STAGE: Sprint 5 - Financial Ratios and Dashboard Feature Module
+WORK IN PROGRESS - CURRENT STAGE: Release Candidate Stage
 
 ## Table of Contents
 - [Team Members](#team-members)
@@ -27,3 +27,4 @@ The backbone of Sweetledger is reliable and strong. We use AWS tools like AWS El
 - [Software Project Management Plan](./Documents/SweetledgerSPMP.pdf)
 - [Software Requirements Specifications](./Documents/SweetledgerSRS.pdf)
 - [Software Design Document](./Documents/Sweetledger-SDD.pdf)
+- [Usability Testing Document](./Documents/SweetledgerUsabilityTestingDocument.pdf)
