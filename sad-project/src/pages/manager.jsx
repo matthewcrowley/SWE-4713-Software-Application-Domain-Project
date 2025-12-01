@@ -413,7 +413,7 @@ export default function Manager({ setIsLoggedIn }) {
 
                 const status = getRatioStatus(key, safeValue);
 
-                return (
+                return displayValue > 0 && (
                   <div key={key} className={`ratio-card ratio-${status}`}>
                     <div className="ratio-title">{formatKey(key)}</div>
                     <div className="ratio-value">{displayValue}</div>

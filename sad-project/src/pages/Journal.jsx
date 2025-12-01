@@ -233,6 +233,10 @@ const Journal = () => {
     }
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+  
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     
@@ -462,12 +466,19 @@ const Journal = () => {
           />
           <h1 className="admin-title">Journal Entries</h1>
         </div>
-        <div className="header-actions">
-          <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
-            <span className="btn-icon">+</span>
-            New Entry
-          </button>
-        </div>
+      {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
       </div>
 
       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -516,6 +527,12 @@ const Journal = () => {
       )}
 
       <div className="admin-section">
+        <div style={{display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '1rem'}}>
+            <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
+              <span className="btn-icon">+</span>
+              New Entry
+            </button>
+        </div>
         {/* Tabs */}
         <div className="tabs-container">
           <div className="tabs-header">
@@ -536,43 +553,45 @@ const Journal = () => {
               </button>
             ))}
           </div>
-
-          {/* Entry Type Filter - NEW */}
-          <div className="filter-container">
-            <span className="filter-icon">📋</span>
-            <label className="filter-label">
-              <span>Entry Type:</span>
-              <select
-                value={entryTypeFilter}
-                onChange={(e) => setEntryTypeFilter(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">All Entries</option>
-                <option value="regular">Regular Entries</option>
-                <option value="adjusting">Adjusting Entries</option>
-              </select>
-            </label>
-          </div>
-
-          {/* Search Bar */}
-          <div className="filter-container">
-            <span className="filter-icon">🔍</span>
-            <div className="search-wrapper">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by account name, amount, date, or description..."
-                className="form-input search-input"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="clear-search-btn"
+          
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            {/* Entry Type Filter - NEW */}
+            <div className="filter-container" style={{width: '25%'}}>
+              <span className="filter-icon">📋</span>
+              <label className="filter-label">
+                <span>Entry Type:</span>
+                <select
+                  value={entryTypeFilter}
+                  onChange={(e) => setEntryTypeFilter(e.target.value)}
+                  className="form-select"
                 >
-                  ×
-                </button>
-              )}
+                  <option value="all">All Entries</option>
+                  <option value="regular">Regular Entries</option>
+                  <option value="adjusting">Adjusting Entries</option>
+                </select>
+              </label>
+            </div>
+
+            {/* Search Bar */}
+            <div className="filter-container" style={{width:'65%'}}>
+              <span className="filter-icon">🔍</span>
+              <div className="search-wrapper">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by account name, amount, date, or description..."
+                  className="form-input search-input"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="clear-search-btn"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 

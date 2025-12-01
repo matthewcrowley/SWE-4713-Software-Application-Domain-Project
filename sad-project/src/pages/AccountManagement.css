@@ -66,11 +66,11 @@
 }
 
 .btn.suspend {
-  background-color: #e7f706 !important;
+  background-color: #e0a203 !important;
 }
 
 .btn.suspend:hover {
-  background-color: #d1c40e !important;
+  background-color: #f4c804 !important;
 }
 
 .btn.unsuspend {

@@ -6,9 +6,9 @@ const logEvent = require('../utils/logEvent');
 dbRoute.post('/', async (req, res) => {
   try {
     const mongoDB = getDB();
-    const { firstName, lastName, address, dob, email, username, passwordHash } = req.body;
+    const {firstName, lastName, address, dob, email, username, passwordHash, secQuestion1, secQuestion2, secQuestion3} = req.body;
 
-    if (!firstName || !lastName || !email || !username || !passwordHash) {
+    if (!firstName || !lastName || !email || !username || !passwordHash || !secQuestion1 || !secQuestion2 || !secQuestion3) {
       return res.status(400).json({ success: false, message: 'Missing required inputs' });
     }
 
@@ -20,7 +20,11 @@ dbRoute.post('/', async (req, res) => {
       email,
       username,
       passwordHash,
+      secQuestion1,
+      secQuestion2,
+      secQuestion3,
       createdAt: new Date(),
+      passwordUpdatedAt: new Date(),
       approved: false,
       role: " ", 
       suspended: false, 
@@ -44,6 +48,9 @@ dbRoute.post('/', async (req, res) => {
         dob: insertedUser.dob,
         email: insertedUser.email,
         username: insertedUser.username,
+        secQuestion1: insertedUser.secQuestion1,
+        secQuestion2: insertedUser.secQuestion2,
+        secQuestion3: insertedUser.secQuestion3,
        _id: insertedUser._id.toString(),
       }
     });

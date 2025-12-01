@@ -14,11 +14,7 @@ const Eventlog = () => {
   const [sortedLogs, setSortedLogs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const handleGenerateReport = () => {
-    console.log('Generating report...');
-  };
-
-  // Fetch current user
+  // Fetch the current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -37,7 +33,7 @@ const Eventlog = () => {
   fetch('http://localhost:3000/api/eventlog')
     .then((res) => res.json())
     .then((data) => {
-      console.log("Eventlog API response:", data); // <- Check this
+      console.log("Eventlog API response:", data);
       setLogs(data);
       setLoading(false);
     })
@@ -47,6 +43,9 @@ const Eventlog = () => {
     });
 }, []);
 
+const handleLogout = () => {
+    navigate("/");
+  };
 
   // Sort logs by timestamp
   useEffect(() => {
@@ -99,19 +98,23 @@ const Eventlog = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between', width: '100%' }}>
           <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
           <h1 className="admin-title">Event Log</h1>
-        </div>
 
-        <div className="header-actions">
-          <Button
-            className="generate-report-btn"
-            onClick={handleGenerateReport}
-            variant="contained"
-          >
-            Generate Expired Passwords Report
-          </Button>
+          {/* ===== User Section ===== */}
+          <div className="user-section" style={{ marginLeft: 'auto' }}>
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -156,7 +159,9 @@ const Eventlog = () => {
 				</nav>
 
       <div className="admin-section">
-        <h2>Event Log</h2>
+        <div className="header-actions" style={{justifyContent:'space-between'}}>
+          <h2>Event Log</h2>
+        </div>
         <p>View all account changes, including before and after states.</p>
 
         {loading ? (
@@ -171,7 +176,7 @@ const Eventlog = () => {
         <th>User ID</th>
         <th>Action</th>
         <th
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer'}}
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
         >
           Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
@@ -190,35 +195,91 @@ const Eventlog = () => {
 
           {/* Before snapshot */}
           <td>
-            {log.before ? (
+          {log.before ? (
+            log.targetType === 'journalEntry' ? (
+              <div>
+                <div><strong>Date:</strong> {log.before.date}</div>
+                <div><strong>Description:</strong> {log.before.description}</div>
+                <div><strong>Status:</strong> {log.before.status}</div>
+                <div><strong>Created By:</strong> {log.before.createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {log.before.entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At: </strong>{log.before.createdAt}</div>
+              </div>
+            ) : (
+              // fallback for other types (like user accounts)
               <div>
                 <div><strong>First Name:</strong> {log.before.firstName}</div>
                 <div><strong>Last Name:</strong> {log.before.lastName}</div>
-                <div><strong>DOB:</strong> {log.before.dob}</div>
-                <div><strong>Address:</strong> {log.before.address}</div>
                 <div><strong>Email:</strong> {log.before.email}</div>
                 <div><strong>Username:</strong> {log.before.username}</div>
               </div>
-            ) : (
-              <em>New Account</em>
-            )}
-          </td>
+            )
+          ) : (
+            <em></em>
+          )}
+        </td>
 
-          {/* After snapshot */}
-          <td>
-  { (log.after || log.afterImage) ? (
-    <div>
-      <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
-      <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
-      <div><strong>DOB:</strong> {(log.after || log.afterImage)?.dob}</div>
-      <div><strong>Address:</strong> {(log.after || log.afterImage)?.address}</div>
-      <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
-      <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
-    </div>
-  ) : (
-    <em>No After Snapshot</em>
-  )}
-</td>
+        <td>
+          {(log.after || log.afterImage) ? (
+            log.targetType === 'journalEntry' ? (
+              <div>
+                <div><strong>Date:</strong> {(log.after || log.afterImage).date}</div>
+                <div><strong>Description:</strong> {(log.after || log.afterImage).description}</div>
+                <div><strong>Status:</strong> {(log.after || log.afterImage).status}</div>
+                <div><strong>Created By:</strong> {(log.after || log.afterImage).createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {(log.after || log.afterImage).entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At: </strong>{log.after.createdAt}</div>
+                {log.after.comment != null && <div><strong>Comment: </strong>{log.after.comment || "Rejected"}</div>}
+                {log.after.reviewedBy != null && <div><strong>Reviewed By: </strong>{log.after.reviewedBy}</div>}
+                {log.after.reviewedAt != null && <div><strong>Reviewed At: </strong>{log.after.reviewedAt}</div>}
+              </div>
+            ) : (
+              <div>
+                <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
+                <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
+                <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
+                <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
+              </div>
+            )
+          ) : (
+            <em>Deleted Record</em>
+          )}
+        </td>
+
         </tr>
       ))}
     </tbody>
