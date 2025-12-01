@@ -89,6 +89,13 @@ function App() {
           }
           
           if (user && (user.passwordHash == hashed)) {
+            const THIRTY_DAYS = 30*24*60*60*1000;
+            const passwordAge = new Date() - new Date(user.passwordUpdatedAt);
+
+            if (passwordAge > THIRTY_DAYS) {
+            setMessage("Your password has expired. Please reset your password.");
+            return;
+          }
             role = user.role;
             curUsername = user.username;
             setIsLoggedIn(true);

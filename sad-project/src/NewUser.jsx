@@ -13,6 +13,9 @@ function NewUser() {
         email: "",
         username: "",
         password: "",
+        secQuestion1: "",
+        secQuestion2: "",
+        secQuestion3: "",
     })
 
     const [message, setMessage] = useState("");
@@ -59,9 +62,9 @@ function NewUser() {
     }
 
     const handleCreateAccount = async () => {
-        const{ firstName, lastName, address, dob, email, username, password } = formData;
+        const{firstName, lastName, address, dob, email, username, password, secQuestion1, secQuestion2, secQuestion3} = formData;
 
-         if(!firstName || !lastName || !address || !dob || !email || !username || !password) {
+         if(!firstName || !lastName || !address || !dob || !email || !username || !password || !secQuestion1 || !secQuestion2 || !secQuestion3) {
             setMessage("Please fill all fields.");
             return;
          }
@@ -87,6 +90,9 @@ function NewUser() {
                 email,
                 username,
                 passwordHash: hashed,
+                secQuestion1,
+                secQuestion2,
+                secQuestion3,
               }),
             });
             const data = await response.json();
@@ -109,6 +115,9 @@ function NewUser() {
       email: "",
       username: "",
       password: "",
+      secQuestion1: "",
+      secQuestion2: "",
+      secQuestion3: "",
     });
   };
 
@@ -139,6 +148,9 @@ function NewUser() {
       email: "",
       username: "",
       password: "",
+      secQuestion1: "",
+      secQuestion2: "",
+      secQuestion3: "",
     });
     setMessage("");
   };
@@ -231,6 +243,42 @@ function NewUser() {
               className="form-input"
               placeholder="Enter your password"
               value={formData.password}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Security Question 1: What is your favorite color?</label>
+            <input
+              type="text"
+              name="secQuestion1"
+              className="form-input"
+              placeholder="Enter your answer"
+              value={formData.secQuestion1}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Security Question 2: What was your first car?</label>
+            <input
+              type="text"
+              name="secQuestion2"
+              className="form-input"
+              placeholder="Enter your answer"
+              value={formData.secQuestion2}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Security Question 3: What was the name of your first pet?</label>
+            <input
+              type="text"
+              name="secQuestion3"
+              className="form-input"
+              placeholder="Enter your answer"
+              value={formData.secQuestion3}
               onChange={handleChange}
             />
           </div>
