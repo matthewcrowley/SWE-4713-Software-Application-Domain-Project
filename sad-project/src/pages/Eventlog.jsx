@@ -14,7 +14,7 @@ const Eventlog = () => {
   const [sortedLogs, setSortedLogs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Fetch current user
+  // Fetch the current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
@@ -33,7 +33,7 @@ const Eventlog = () => {
   fetch('http://localhost:3000/api/eventlog')
     .then((res) => res.json())
     .then((data) => {
-      console.log("Eventlog API response:", data); // <- Check this
+      console.log("Eventlog API response:", data);
       setLogs(data);
       setLoading(false);
     })
