@@ -384,7 +384,7 @@ const Reports = () => {
     }
 
     try {
-      const reportHTML = document.getElementById('report-content').innerHTML;
+      const reportText = document.getElementById('report-content').innerText;
       
       const response = await fetch('http://localhost:3000/api/email', {
         method: 'POST',
@@ -392,7 +392,7 @@ const Reports = () => {
         body: JSON.stringify({
           email: emailForm.email,
           subject: emailForm.subject,
-          message: emailForm.message + '\n\n' + reportHTML
+          message: emailForm.message + '\n\n' + reportText
         })
       });
 
