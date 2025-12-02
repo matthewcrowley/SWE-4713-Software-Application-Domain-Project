@@ -773,7 +773,10 @@ const Reports = () => {
       {/* Header */}
       <header className="reports-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
+          <img src={logo}
+           alt="Sweet Ledger Logo" 
+           style={{ width: '100px', height: 'auto' }}
+           className="header-logo" />
           <h1 className="reports-title">Financial Reports</h1>
         </div>
 

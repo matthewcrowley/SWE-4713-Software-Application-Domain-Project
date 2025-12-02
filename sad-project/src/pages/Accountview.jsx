@@ -85,7 +85,7 @@ export default function Accountview() {
       {/* ===== Header Section ===== */}
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src={logo} alt="SweetLedger Logo" style={{ width: '50px', height: '50px', borderRadius: '8px' }} />
+          <img src={logo} alt="SweetLedger Logo" style={{ width: '100px', height: 'auto' }} />
           <h5 className="admin-title">
             Account View
           </h5>

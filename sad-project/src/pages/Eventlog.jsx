@@ -99,7 +99,10 @@ const handleLogout = () => {
       <HelpButton />
       <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between', width: '100%' }}>
-          <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
+          <img src={logo} 
+          alt="Sweet Ledger Logo" 
+          style={{ width: '100px', height: 'auto' }}
+          className="header-logo" />
           <h1 className="admin-title">Event Log</h1>
 
           {/* ===== User Section ===== */}

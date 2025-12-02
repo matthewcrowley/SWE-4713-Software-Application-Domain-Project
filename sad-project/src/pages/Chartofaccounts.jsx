@@ -472,6 +472,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <h1 className="admin-title">Chart of Accounts</h1>
@@ -866,10 +867,11 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             onChange={(e) =>
                               setEditedAccount({
                                 ...editedAccount,
-                                balance: e.target.value,
+                                balance: e.target.value === '' ? '' : Number(e.target.value),
                               })
                             }
                             size="small"
+                            type="number"
                           />
                         </td>
                         <td>

@@ -472,6 +472,7 @@ export default function AccountManagement() {
                 <img 
                   alt="Sweet Ledger Logo"
                   src={logo} 
+                  style={{ width: '100px', height: 'auto' }}
                   className="header-logo"
                 />
                 <h1 className="admin-title">Administrator Account Management</h1>
