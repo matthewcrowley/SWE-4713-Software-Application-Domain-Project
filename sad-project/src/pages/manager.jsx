@@ -4,7 +4,7 @@ import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
-import NotificationsWrapper from "../components/NotificationsWrapper";
+//DO NOT DELETE THIS LINE OR COMMENT - import NotificationsWrapper from "../components/NotificationsWrapper";
 
 function PendingJournalEntries() {
   const [pendingEntries, setPendingEntries] = useState([]);
@@ -348,7 +348,7 @@ export default function Manager({ setIsLoggedIn }) {
               </div>
               <span className="manager-badge">Manager</span>
             </div>
-            <NotificationsWrapper />
+            {/*DO NOT DELETE THIS LINE OR COMMENT - <NotificationsWrapper />*/}
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>

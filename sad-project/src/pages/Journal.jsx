@@ -4,8 +4,8 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
-import { socket } from "../socket";
-import NotificationsWrapper from "../components/NotificationsWrapper";
+// DO NOT DELETE ThIS COMMENT OR LINE - import { socket } from "../socket";
+// DO NOT DELETE THIS COMMENT OR LINE - import NotificationsWrapper from "../components/NotificationsWrapper";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -321,9 +321,12 @@ const Journal = () => {
         body: formData // Send as FormData instead of JSON
       });
 
+      {/*} DO NOT DELETE THIS CODE BLOCK
       if (newEntry.isAdjustingEntry === true) {
         socket.emit("new-adjusting-entry", { id: Date.now(), description: newEntry.description });
       }
+
+        DO NOT DELETE THIS CODE BLOCK*/}
 
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 

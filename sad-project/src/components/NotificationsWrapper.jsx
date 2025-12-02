@@ -1,3 +1,4 @@
+{/*
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import NotificationBell from "./NotificationBell";
@@ -55,3 +56,4 @@ console.log("Notifications length:", notifications.length);
     </div>
   );
 }
+*/}
