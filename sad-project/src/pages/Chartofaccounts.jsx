@@ -866,10 +866,11 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             onChange={(e) =>
                               setEditedAccount({
                                 ...editedAccount,
-                                balance: e.target.value,
+                                balance: e.target.value === '' ? '' : Number(e.target.value),
                               })
                             }
                             size="small"
+                            type="number"
                           />
                         </td>
                         <td>
