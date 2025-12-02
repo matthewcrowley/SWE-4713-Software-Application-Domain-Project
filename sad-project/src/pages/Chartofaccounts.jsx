@@ -472,6 +472,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <h1 className="admin-title">Chart of Accounts</h1>
