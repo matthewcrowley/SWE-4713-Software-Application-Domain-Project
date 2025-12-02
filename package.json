@@ -4,7 +4,7 @@
     "@fullcalendar/react": "^6.1.19",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "mongodb": "^6.20.0",
     "multer": "^2.0.2",

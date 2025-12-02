@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
 // DONT DELETE THIS COMMENT OR THE LINE - const {Server} = require('socket.io');
@@ -49,11 +51,9 @@ connectToDB()
     app.locals.db = db;
     console.log('MongoDB connection established.');
 
-    // Start the server
     app.listen(3000, () => {
       console.log('Server listening on port 3000');
 
-      // Start the password expiry check AFTER server is running
       checkPasswordExpiry();
     });
   })
