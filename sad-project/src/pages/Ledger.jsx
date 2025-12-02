@@ -175,6 +175,7 @@ const Ledger = () => {
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <div>
