@@ -260,7 +260,11 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
       <header className="dashboard-header">
         <div className="header-top">
           <div className="logo-section">
-            <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+            <img 
+            src={logo} 
+            alt="SweetLedger Logo" 
+            style={{ width: '100px', height: 'auto' }}
+            className="header-logo" />
             <div>
               <h2 className="company-name">SweetLedger</h2>
               <p className="company-subtitle">Accounting Management System</p>
