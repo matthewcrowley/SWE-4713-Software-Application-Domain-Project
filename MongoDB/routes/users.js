@@ -1,17 +1,20 @@
 const express = require('express');
 const dbRoute = express.Router();
 const { getDB } = require('../db');
+const { ObjectId } = require('mongodb');
 
+// Create a new user
 dbRoute.post('/', async (q, r) => {
   try {
     const db = getDB();
     const databaseResults = await db.collection('users').insertOne(q.body);
-    r.status(201).json({ id: databaseResults.insertedId });
+    r.status(201).json({ success: true, id: databaseResults.insertedId, userId: databaseResults.insertedId });
   } catch (err) {
-    r.status(500).json({ error: err.message });
+    r.status(500).json({ success: false, error: err.message });
   }
 });
 
+// Get all users
 dbRoute.get('/', async (q, r) => {
   try {
     const db = getDB();
@@ -22,30 +25,109 @@ dbRoute.get('/', async (q, r) => {
   }
 });
 
-// ===== Update a user (e.g., suspend account, change password, role, etc.) =====
-dbRoute.put('/:username', async (req, res) => {
+// Get expired passwords
+dbRoute.get('/expired-passwords', async (req, res) => {
   try {
     const db = getDB();
-    const { username } = req.params;
+    const currentDate = new Date();
+    const expiryDays = 90; // Password expires after 90 days
+    
+    const users = await db.collection('users').find().toArray();
+    
+    const expiredUsers = users
+      .map(user => {
+        const lastChanged = user.passwordLastChanged ? new Date(user.passwordLastChanged) : new Date(user.createdAt);
+        const daysSinceChange = Math.floor((currentDate - lastChanged) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...user,
+          passwordAge: daysSinceChange,
+          passwordLastChanged: lastChanged
+        };
+      })
+      .filter(user => user.passwordAge > expiryDays);
+    
+    res.status(200).json({ success: true, users: expiredUsers });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Update user status (activate/deactivate)
+dbRoute.put('/:id/status', async (req, res) => {
+  try {
+    const db = getDB();
+    const { id } = req.params;
+    const { active } = req.body;
+
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: { active: active } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: `User not found.` });
+    }
+
+    res.status(200).json({ success: true, message: `User status updated successfully.` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Suspend user
+dbRoute.put('/:id/suspend', async (req, res) => {
+  try {
+    const db = getDB();
+    const { id } = req.params;
+    const { startDate, expiryDate, reason } = req.body;
+
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(id) },
+      { 
+        $set: { 
+          suspended: true,
+          suspendedUntil: expiryDate,
+          suspensionStartDate: startDate,
+          suspensionReason: reason
+        } 
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: `User not found.` });
+    }
+
+    res.status(200).json({ success: true, message: `User suspended successfully.` });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Update a user (general updates like username, email, role, etc.)
+dbRoute.put('/:id', async (req, res) => {
+  try {
+    const db = getDB();
+    const { id } = req.params;
     const updateData = req.body;
 
-    // Prevent updating the username field itself
-    if (updateData.username) {
-      delete updateData.username;
+    // Prevent updating the _id field
+    if (updateData._id) {
+      delete updateData._id;
     }
 
     const result = await db.collection('users').updateOne(
-      { username: username },
+      { _id: new ObjectId(id) },
       { $set: updateData }
     );
 
     if (result.matchedCount === 0) {
-      return res.status(404).json({ message: `User '${username}' not found.` });
+      return res.status(404).json({ success: false, message: `User not found.` });
     }
 
-    res.status(200).json({ message: `User '${username}' updated successfully.` });
+    res.status(200).json({ success: true, message: `User updated successfully.` });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 
