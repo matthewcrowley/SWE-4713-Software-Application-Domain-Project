@@ -16,7 +16,7 @@ function PendingJournalEntries() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:3000/api/journal-entries");
+        const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/journal-entries");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const allEntries = await res.json();
 
@@ -62,7 +62,7 @@ export default function Administrator({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
         

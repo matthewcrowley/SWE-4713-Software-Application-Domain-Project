@@ -71,7 +71,7 @@ connectToDB()
 
         if (Math.floor(passwordAgeDays) === 27) {
           try {
-            await fetch("http://localhost:3000/api/email", {
+            await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({

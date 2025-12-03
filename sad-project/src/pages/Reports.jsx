@@ -40,7 +40,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || null);
       } catch (err) {
@@ -56,8 +56,8 @@ const Reports = () => {
       setLoading(true);
       try {
         const [accountsRes, journalRes] = await Promise.all([
-          fetch('http://localhost:3000/api/accounts'),
-          fetch('http://localhost:3000/api/journal-entries')
+          fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts'),
+          fetch('https://swe-4713-software-application-domain.onrender.com/api/journal-entries')
         ]);
 
         if (!accountsRes.ok || !journalRes.ok) {
@@ -386,7 +386,7 @@ const Reports = () => {
     try {
       const reportHTML = document.getElementById('report-content').innerHTML;
       
-      const response = await fetch('http://localhost:3000/api/email', {
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

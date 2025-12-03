@@ -83,7 +83,7 @@ function App() {
       console.log("Hashed password:", hashed);
 
       try {
-          const response = await fetch("http://localhost:3000/api/users");
+          const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
           const data = await response.json();
           const user = data.find((u) => u.username === username);  
           
@@ -107,7 +107,7 @@ function App() {
 
             // POST current user info to /api/curUser
             try {
-              const curUserResponse = await fetch("http://localhost:3000/api/curUser", {
+              const curUserResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -151,7 +151,7 @@ function App() {
               sessionStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
               setMessage("Account suspended after 3 failed login attempts.");
 
-              await fetch(`http://localhost:3000/api/users/${username}`, {
+              await fetch(`https://swe-4713-software-application-domain.onrender.com/api/users/${username}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ suspended: true }),
