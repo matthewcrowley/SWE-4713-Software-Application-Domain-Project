@@ -22,7 +22,6 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import defaultProfile from "../assets/defaultprofile.png";
 import "./AccountManagement.css";
 import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
