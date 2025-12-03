@@ -467,14 +467,15 @@ export default function AccountManagement() {
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
         <header className="admin-header" style={{borderBottom: '0px', justifyContent: 'space-between', width: '100%'}}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
-            <img 
-              alt="Sweet Ledger Logo"
-              src={logo} 
-              className="header-logo"
-            />
-            <h1 className="admin-title">Administrator Account Management</h1>
-          </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
+                <img 
+                  alt="Sweet Ledger Logo"
+                  src={logo} 
+                  style={{ width: '100px', height: 'auto' }}
+                  className="header-logo"
+                />
+                <h1 className="admin-title">Administrator Account Management</h1>
+              </div>
 
           {/* ===== User Section ===== */}
           <div className="user-section" style={{ marginLeft: 'auto' }}>

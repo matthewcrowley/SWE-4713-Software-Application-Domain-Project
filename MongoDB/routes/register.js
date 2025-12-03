@@ -25,7 +25,7 @@ dbRoute.post('/', async (req, res) => {
       secQuestion3,
       createdAt: new Date(),
       passwordUpdatedAt: new Date(),
-      approved: false,
+      approved: true,
       role: " ", 
       suspended: false, 
       active: true

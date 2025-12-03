@@ -4,7 +4,7 @@ import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
-import NotificationsWrapper from "../components/NotificationsWrapper";
+//DO NOT DELETE THIS LINE OR COMMENT - import NotificationsWrapper from "../components/NotificationsWrapper";
 
 function PendingJournalEntries() {
   const [pendingEntries, setPendingEntries] = useState([]);
@@ -331,7 +331,10 @@ export default function Manager({ setIsLoggedIn }) {
       <header className="dashboard-header">
         <div className="header-top">
           <div className="logo-section">
-            <img src={logo} alt="SweetLedger Logo" className="header-logo" />
+            <img src={logo} 
+            alt="SweetLedger Logo" 
+            style={{ width: '100px', height: 'auto' }}
+            className="header-logo" />
             <div>
               <h2 className="company-name">SweetLedger</h2>
               <p className="company-subtitle">Accounting Management System</p>
@@ -346,7 +349,7 @@ export default function Manager({ setIsLoggedIn }) {
               </div>
               <span className="manager-badge">Manager</span>
             </div>
-            <NotificationsWrapper />
+            {/*DO NOT DELETE THIS LINE OR COMMENT - <NotificationsWrapper />*/}
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>

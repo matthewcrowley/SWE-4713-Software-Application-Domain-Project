@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { socket } from "./socket";
+//DO NOT DELETE THIS LINE OR COMMENT - import { socket } from "./socket";
 import { useEffect } from "react";
 import "./style.css";
 import NewUser from "./NewUser";
@@ -25,10 +25,12 @@ function App() {
   var role = " "; // Placeholder for user role management
   var curUsername; 
 
+  {/*}
   useEffect(() => {
   const handleConnect = () => {
     console.log("Connected to Socket.io:", socket.id);
   };
+
 
   const handleNewAdjustingEntry = (data) => {
     console.log("Received new adjusting entry:", data);
@@ -43,6 +45,8 @@ function App() {
     socket.off("new-adjusting-entry", handleNewAdjustingEntry);
   };
 }, []);
+
+*/}
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {
