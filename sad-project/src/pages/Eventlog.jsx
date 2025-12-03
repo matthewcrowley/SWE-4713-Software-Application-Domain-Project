@@ -207,11 +207,23 @@ const handleLogout = () => {
             after = log.afterImage || null;
           }
 
+          const targetColors = {
+            "Journal Entry Approved": '#d1e7dd',      
+            "New user registered": '#ffe5d9',        
+            "Account Updated": '#cfe2ff', 
+            "Journal Entry Submitted": '#cececeff', 
+            "Journal Entry Rejected": '#f8d7da'
+          };
+
         return (
         <tr key={log._id}>
           <td>{log._id}</td>
           <td>{log.userId}</td>
-          <td>{log.action}</td>
+          <td style={{ display: 'inline-block', padding: '2px 2px', borderRadius: '10px', backgroundColor: targetColors[log.action],
+          color: '#000000ff', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', marginTop: '1rem'
+          }}>
+            {log.action}
+          </td>
           <td>{new Date(log.timestamp).toLocaleString()}</td>
 
           {/* Before snapshot */}
