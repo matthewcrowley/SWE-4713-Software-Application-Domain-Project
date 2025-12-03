@@ -189,7 +189,22 @@ const handleLogout = () => {
       </tr>
     </thead>
     <tbody>
-      {sortedLogs.map((log) => (
+      {sortedLogs.map((log) => {
+
+          // Unified normalization per log type
+          let before = null;
+          let after = null;
+
+          if (log.targetType === 'journalEntry') {
+            before = log.before || null;
+            after = log.after || null;
+          } else if (log.targetType === 'userCreated') {
+            before = log.beforeImage || null;
+            after = log.afterImage || null;
+          }
+
+          console.log("Normalized after:", after);
+        return (
         <tr key={log._id}>
           <td>{log._id}</td>
           <td>{log.userId}</td>
@@ -198,17 +213,17 @@ const handleLogout = () => {
 
           {/* Before snapshot */}
           <td>
-          {log.before ? (
+          {before ? (
             log.targetType === 'journalEntry' ? (
               <div>
-                <div><strong>Date:</strong> {log.before.date}</div>
-                <div><strong>Description:</strong> {log.before.description}</div>
-                <div><strong>Status:</strong> {log.before.status}</div>
-                <div><strong>Created By:</strong> {log.before.createdBy}</div>
+                <div><strong>Date:</strong> {before.date}</div>
+                <div><strong>Description:</strong> {before.description}</div>
+                <div><strong>Status:</strong> {before.status}</div>
+                <div><strong>Created By:</strong> {before.createdBy}</div>
                 <div>
                   <strong>Entries:</strong>
                   <ul>
-                    {log.before.entries?.map((e, idx) => (
+                    {before.entries?.map((e, idx) => (
                       <li key={idx}>
                         <strong>Account Number:</strong> {e.accountId}
                         <div style={{ marginLeft: '1rem' }}>
@@ -223,15 +238,15 @@ const handleLogout = () => {
                     ))}
                   </ul>
                 </div>
-                <div><strong>Created At: </strong>{log.before.createdAt}</div>
+                <div><strong>Created At: </strong>{before.createdAt}</div>
               </div>
             ) : (
               // fallback for other types (like user accounts)
               <div>
-                <div><strong>First Name:</strong> {log.before.firstName}</div>
-                <div><strong>Last Name:</strong> {log.before.lastName}</div>
-                <div><strong>Email:</strong> {log.before.email}</div>
-                <div><strong>Username:</strong> {log.before.username}</div>
+                <div><strong>First Name:</strong> {before.firstName}</div>
+                <div><strong>Last Name:</strong> {before.lastName}</div>
+                <div><strong>Email:</strong> {before.email}</div>
+                <div><strong>Username:</strong> {before.username}</div>
               </div>
             )
           ) : (
@@ -240,51 +255,64 @@ const handleLogout = () => {
         </td>
 
         <td>
-          {(log.after || log.afterImage) ? (
+          {after ? (
             log.targetType === 'journalEntry' ? (
               <div>
-                <div><strong>Date:</strong> {(log.after || log.afterImage).date}</div>
-                <div><strong>Description:</strong> {(log.after || log.afterImage).description}</div>
-                <div><strong>Status:</strong> {(log.after || log.afterImage).status}</div>
-                <div><strong>Created By:</strong> {(log.after || log.afterImage).createdBy}</div>
+                <div><strong>Date:</strong> {after.date}</div>
+                <div><strong>Description:</strong> {after.description}</div>
+                <div><strong>Status:</strong> {after.status}</div>
+                <div><strong>Created By:</strong> {after.createdBy}</div>
                 <div>
                   <strong>Entries:</strong>
                   <ul>
-                    {(log.after || log.afterImage).entries?.map((e, idx) => (
+                    {after.entries?.map((e, idx) => (
                       <li key={idx}>
                         <strong>Account Number:</strong> {e.accountId}
                         <div style={{ marginLeft: '1rem' }}>
                           Debit: $
-                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {e.debit?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}
                         </div>
                         <div style={{ marginLeft: '1rem' }}>
                           Credit: $
-                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          {e.credit?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}
                         </div>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div><strong>Created At: </strong>{log.after.createdAt}</div>
-                {log.after.comment != null && <div><strong>Comment: </strong>{log.after.comment || "Rejected"}</div>}
-                {log.after.reviewedBy != null && <div><strong>Reviewed By: </strong>{log.after.reviewedBy}</div>}
-                {log.after.reviewedAt != null && <div><strong>Reviewed At: </strong>{log.after.reviewedAt}</div>}
+                <div><strong>Created At:</strong> {after.createdAt}</div>
+                {after.comment != null && <div><strong>Comment:</strong> {after.comment || 'Rejected'}</div>}
+                {after.reviewedBy != null && <div><strong>Reviewed By:</strong> {after.reviewedBy}</div>}
+                {after.reviewedAt != null && <div><strong>Reviewed At:</strong> {after.reviewedAt}</div>}
+              </div>
+            ) : log.targetType === 'userCreated' ? (
+              <div>
+                <div><strong>First Name:</strong> {after.firstName}</div>
+                <div><strong>Last Name:</strong> {after.lastName}</div>
+                <div><strong>Address:</strong> {after.address}</div>
+                <div><strong>DOB:</strong> {after.dob}</div>
+                <div><strong>Email:</strong> {after.email}</div>
+                <div><strong>Username:</strong> {after.username}</div>
+                <div><strong>ID:</strong> {after._id}</div>
               </div>
             ) : (
-              <div>
-                <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
-                <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
-                <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
-                <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
-              </div>
+              <em>Deleted Record</em>
             )
           ) : (
-            <em>Deleted Record</em>
+            <em></em>
           )}
         </td>
 
         </tr>
-      ))}
+      );
+    }
+    )}
     </tbody>
   </table>
 )}
