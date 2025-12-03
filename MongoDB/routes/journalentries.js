@@ -170,10 +170,15 @@ router.put('/:id/approve', async (req, res) => {
 
     // Update account balances
     for (const entry of journalEntry.entries) {
-      const account = await db.collection('chart_of_accounts').findOne({ accountNumber: entry.accountId });
+      const account = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
       if (account) {
+         // Save "before" snapshot
+        const beforeImage = { ...account };
+
         let newBalance = account.balance || 0;
+        let newDebits = account.debits || 0;
+        let newCredits = account.credits || 0;
 
         if (['Asset', 'Expense'].includes(account.type)) {
           newBalance += entry.debit - entry.credit;
@@ -181,15 +186,35 @@ router.put('/:id/approve', async (req, res) => {
           newBalance += entry.credit - entry.debit;
         }
 
+        newDebits += entry.debit;
+        newCredits += entry.credit;
+
         await db.collection('chart_of_accounts').updateOne(
-          { accountNumber: entry.accountId },
+          { account_number: entry.accountId },
           {
             $set: {
               balance: newBalance,
+              debits: newDebits,
+              credits: newCredits,
               updatedAt: new Date(),
             },
           }
         );
+
+        // Save "after" snapshot
+        const updatedAccount = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
+        const afterImage = { ...updatedAccount };
+
+        // Insert into eventlogs collection
+        await db.collection('eventlogs').insertOne({
+          userId: req.user?.id || 'Manager',
+          action: `Account Updated`,
+          targetType: 'accountUpdated',
+          documentId: entry.account_number,
+          before: beforeImage,
+          after: afterImage,
+          timestamp: new Date(),
+        });
       }
     }
 

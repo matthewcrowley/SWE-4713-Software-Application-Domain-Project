@@ -202,8 +202,11 @@ const handleLogout = () => {
             before = log.beforeImage || null;
             after = log.afterImage || null;
           }
+          else if (log.targetType === 'accountUpdated') {
+            before = log.beforeImage || null;
+            after = log.afterImage || null;
+          }
 
-          console.log("Normalized after:", after);
         return (
         <tr key={log._id}>
           <td>{log._id}</td>
@@ -240,7 +243,17 @@ const handleLogout = () => {
                 </div>
                 <div><strong>Created At: </strong>{before.createdAt}</div>
               </div>
-            ) : (
+            ) : log.targetType === 'accountUpdated' ? (
+              <div>
+                <div><strong>Account Number:</strong> {before.account_number}</div>
+                <div><strong>Account Name:</strong> {before.account_name}</div>
+                <div><strong>Type:</strong> {before.type}</div>
+                <div><strong>Subtype:</strong> {before.subcategory}</div>
+                <div><strong>Debits:</strong> {before.debits}</div>
+                <div><strong>Credits:</strong> {before.credits}</div>
+                <div><strong>Balance:</strong> ${before.balance?.toLocaleString()}</div>
+              </div>
+            ): (
               // fallback for other types (like user accounts)
               <div>
                 <div><strong>First Name:</strong> {before.firstName}</div>
@@ -300,6 +313,16 @@ const handleLogout = () => {
                 <div><strong>Email:</strong> {after.email}</div>
                 <div><strong>Username:</strong> {after.username}</div>
                 <div><strong>ID:</strong> {after._id}</div>
+              </div>
+            ) : log.targetType === 'accountUpdated' ? (
+              <div>
+                <div><strong>Account Number:</strong> {after.account_number}</div>
+                <div><strong>Account Name:</strong> {after.account_name}</div>
+                <div><strong>Type:</strong> {after.type}</div>
+                <div><strong>Subtype:</strong> {after.subcategory}</div>
+                <div><strong>Debits:</strong> {after.debits}</div>
+                <div><strong>Credits:</strong> {after.credits}</div>
+                <div><strong>Balance:</strong> ${after.balance?.toLocaleString()}</div>
               </div>
             ) : (
               <em>Deleted Record</em>
