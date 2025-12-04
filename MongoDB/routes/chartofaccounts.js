@@ -122,7 +122,6 @@ router.post('/', async (req, res) => {
 
     // Add automatic fields
     sanitizedData.timestamp = new Date();
-    sanitizedData.created_by = currentUser;
 
     // Insert into chart of accounts
     const result = await db.collection('chart_of_accounts').insertOne(sanitizedData);
@@ -138,7 +137,7 @@ router.post('/', async (req, res) => {
       targetId: result.insertedId.toString(),
       before: null,
       after: newAccount,
-      user: currentUser,
+      user: sanitizedData.created_by,
       timestamp: new Date()
     });
 
