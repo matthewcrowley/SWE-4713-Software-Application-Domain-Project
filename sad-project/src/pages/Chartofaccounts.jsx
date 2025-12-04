@@ -147,7 +147,9 @@ const handleCancel = () => {
 // Save edited account
 const handleSave = async (accountId) => {
   try {
-    const payload = { ...editedAccount, _id: accountId }; // include _id in body
+    const payload = { ...editedAccount, _id: accountId, currentUser: currentUser.curUsername }; // include _id in body
+
+    console.log(currentUser.curUsername);
 
     const response = await fetch(`http://localhost:3000/api/accounts/${accountId}`, {
       method: 'PUT',

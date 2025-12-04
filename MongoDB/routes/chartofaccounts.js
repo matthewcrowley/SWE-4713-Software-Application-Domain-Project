@@ -22,6 +22,9 @@ router.put('/:id', async (q, s) => {
   try {
     const db = getDB();
     const {id} = q.params;
+    // Extract current user BEFORE filtering
+    const currentUser = q.body.currentUser || 'Unknown User';
+
     const updateData = {...q.body};
 
     delete updateData._id;
@@ -74,7 +77,7 @@ router.put('/:id', async (q, s) => {
       targetId: id,
       before: beforeAccount,
       after: updatedAccount,
-      user: q.body?.currentUser || 'Unknown User', // optional, depends on UI
+      user: currentUser,
       timestamp: new Date()
     });
 

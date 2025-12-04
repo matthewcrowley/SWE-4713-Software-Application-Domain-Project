@@ -218,9 +218,9 @@ const handleLogout = () => {
         return (
         <tr key={log._id}>
           <td>{log._id}</td>
-          <td>{log.userId}</td>
-          <td style={{ display: 'inline-block', padding: '2px 2px', borderRadius: '10px', backgroundColor: targetColors[log.action],
-          color: '#000000ff', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', marginTop: '1rem'
+          <td>{log.user || "jdeer1025"}</td>
+          <td style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '10px', backgroundColor: targetColors[log.action],
+          color: '#000000ff', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', marginTop: '1rem', alignSelf: 'center'
           }}>
             {log.action}
           </td>
