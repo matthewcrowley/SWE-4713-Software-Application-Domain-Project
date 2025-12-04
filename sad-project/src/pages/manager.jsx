@@ -299,11 +299,6 @@ export default function Manager({ setIsLoggedIn }) {
       path: "/JournalEntries",
     },
     {
-      title: "Search",
-      description: "Find accounts and transactions",
-      icon: "🔍",
-    },
-    {
       title: "Ledger",
       description: "Show ledger of Accounts",
       icon: "📙",
