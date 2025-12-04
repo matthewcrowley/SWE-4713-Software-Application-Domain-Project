@@ -35,4 +35,4 @@ We would like to give a special thanks to our mentor for this project, Dr. Ermia
 
 We would also like to thank Kennesaw State University for allowing us to grow as developers with this project, and for supplying us with all the materials and support we needed.
 
-- Devin, Matthew, Kendal, Kahmin, and Connor
+--- Devin, Matthew, Kendal, Kahmin, and Connor
