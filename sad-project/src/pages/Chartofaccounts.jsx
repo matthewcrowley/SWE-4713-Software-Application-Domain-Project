@@ -29,9 +29,21 @@ const Chartofaccounts = () => {
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [accountForm, setAccountForm] = useState({
+    account_number: "",
+    account_name: "",
+    normal_side: "",
+    type: "",
+    subcategory: "",
+    balance: "",
+    comments: "",
+  });
 
   // Radio buttons
   const [selectedRadioId, setSelectedRadioId] = useState(null);
+
+  // Add new account
+  const [openAddDialog, setOpenAddDialog] = useState(false);
 
 
 const [editingAccountId, setEditingAccountId] = useState(null);
@@ -131,18 +143,75 @@ const handleCancel = () => {
   setEditedAccount({});
 };
 
-// Handle account creation 
- const handleAddAccount = async (e) => {
-    e.preventDefault();
-    const newAccount = {
-      ...accountForm,
-      initialBalance: formatMoney(accountForm.initialBalance),
-      debit: formatMoney(accountForm.debit),
-      credit: formatMoney(accountForm.credit),
-      balance: formatMoney(accountForm.balance),
-      dateAdded: new Date().toISOString(),
-    };
- }
+const handleOpenAdd = () => {
+  setAccountForm({
+    account_number: "",
+    account_name: "",
+    normal_side: "",
+    type: "",
+    subcategory: "",
+    balance: "",
+  });
+  setOpenAddDialog(true);
+};
+
+const handleCloseAdd = () => setOpenAddDialog(false);
+
+const handleAddAccount = async () => {
+  // Require all fields
+  for (const key in accountForm) {
+    if (!accountForm[key]) {
+      alert("All fields must be filled out.");
+      return;
+    }
+  }
+
+  // Check for duplicates
+  const existsNumber = accounts.some(acc => acc.account_number === accountForm.account_number);
+  const existsName = accounts.some(acc => acc.account_name.toLowerCase() === accountForm.account_name.toLowerCase());
+
+  if (existsNumber) {
+    alert("This account number already exists.");
+    return;
+  }
+
+  if (existsName) {
+    alert("This account name already exists.");
+    return;
+  }
+
+  // Build payload
+  const newAccount = {
+    ...accountForm,
+    balance: Number(accountForm.balance),
+    created_by: currentUser.curUsername,
+    timestamp: new Date().toISOString(),
+    debits: 0,
+    credits: 0,
+    description: "",
+  };
+
+  try {
+    const response = await fetch("http://localhost:3000/api/accounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newAccount),
+    });
+
+    if (!response.ok) throw new Error("Failed to create new account");
+    const created = await response.json();
+
+    // Update UI
+    const updated = [...accounts, created];
+    setAccounts(updated);
+    setSortedAccounts([...updated].sort((a, b) => Number(a.account_number) - Number(b.account_number)));
+
+    setOpenAddDialog(false);
+  } catch (err) {
+    console.error("Error adding account:", err);
+    alert("Failed to add account.");
+  }
+};
 
 // Save edited account
 const handleSave = async (accountId) => {
@@ -770,7 +839,10 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                 Accounts Report
               </Button>
               <HelpButton />
-              {( currentUser?.role === 'Admin') && <Button className="generate-report-btn">Add Account</Button>}
+              {currentUser?.role === "Admin" && (<Button className="generate-report-btn" onClick={handleOpenAdd}>
+                   Add Account
+                </Button>
+              )}
             </div>
           </div> 
         </div>
@@ -1039,7 +1111,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                           }) ?? '0.00'}</TableCell>
-                  <TableCell>{acc.isActive ? 'Active' : 'Inactive'}</TableCell>
+                  <TableCell>{acc.isActive ? 'Inactive' : 'Active'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -1075,7 +1147,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               <p><strong>Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Debit:</strong> ${selectedAccount.debits?.toLocaleString() ?? '0.00'}</p>
               <p><strong>Credit:</strong> ${selectedAccount.credits?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Status:</strong> {selectedAccount.isActive ? 'Active' : 'Inactive'}</p>
+              <p><strong>Status:</strong> {selectedAccount.isActive ? 'Inactive' : 'Active'}</p>
               <p><strong>Comment:</strong> {selectedAccount.comment || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(selectedAccount.createdAt).toLocaleString()}</p>
               <p><strong>Last Updated:</strong> {new Date(selectedAccount.updatedAt).toLocaleString()}</p>
@@ -1114,6 +1186,78 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <Button onClick={handleCloseDetails} className="btn cancel">Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={openAddDialog} onClose={handleCloseAdd} maxWidth="sm" fullWidth>
+          <DialogTitle>Create New Account</DialogTitle>
+          <DialogContent>
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Account Number *"
+              value={accountForm.account_number}
+              onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Account Name *"
+              value={accountForm.account_name}
+              onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Normal Side (L or R) *"
+              value={accountForm.normal_side}
+              onChange={(e) => setAccountForm({ ...accountForm, normal_side: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Category *"
+              value={accountForm.type}
+              onChange={(e) => setAccountForm({ ...accountForm, type: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Subcategory *"
+              value={accountForm.subcategory}
+              onChange={(e) => setAccountForm({ ...accountForm, subcategory: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Starting Balance *"
+              type="number"
+              value={accountForm.balance}
+              onChange={(e) => setAccountForm({ ...accountForm, balance: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Comments"
+              value={accountForm.comments}
+              onChange={(e) => setAccountForm({ ...accountForm, comments: e.target.value })}
+            />
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleCloseAdd}>Cancel</Button>
+            <Button onClick={handleAddAccount} variant="contained">Create</Button>
+          </DialogActions>
+        </Dialog>
+
+
+
     </div>
   );
 };

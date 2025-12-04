@@ -206,13 +206,18 @@ const handleLogout = () => {
             before = log.beforeImage || null;
             after = log.afterImage || null;
           }
+          else if (log.targetType === 'accountCreated') {
+            before = log.before || null;   // will be null for new accounts
+            after = log.after || null;
+          }
 
           const targetColors = {
             "Journal Entry Approved": '#d1e7dd',      
             "New user registered": '#ffe5d9',        
             "Account Updated": '#cfe2ff', 
             "Journal Entry Submitted": '#cececeff', 
-            "Journal Entry Rejected": '#f8d7da'
+            "Journal Entry Rejected": '#f8d7da', 
+            "Account Created": '#def7ebff',
           };
 
         return (
@@ -342,6 +347,19 @@ const handleLogout = () => {
                 <div><strong>Comments:</strong> {after.comments}</div>
                 <div><strong>Date Created:</strong> {after.timestamp}</div>
               </div>
+            ) : log.targetType === 'accountCreated' ? (
+            <div>
+              <div><strong>Account Number:</strong> {after.account_number}</div>
+              <div><strong>Account Name:</strong> {after.account_name}</div>
+              <div><strong>Type:</strong> {after.type}</div>
+              <div><strong>Subtype:</strong> {after.subcategory}</div>
+              <div><strong>Debits:</strong> {after.debits}</div>
+              <div><strong>Credits:</strong> {after.credits}</div>
+              <div><strong>Balance:</strong> ${after.balance?.toLocaleString()}</div>
+              <div><strong>Created By:</strong> {after.created_by}</div>
+              <div><strong>Description:</strong> {after.description}</div>
+              <div><strong>Date Created:</strong> {after.timestamp}</div>
+            </div>
             ) : (
               <em>Deleted Record</em>
             )

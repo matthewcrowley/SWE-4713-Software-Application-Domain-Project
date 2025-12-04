@@ -90,4 +90,64 @@ router.put('/:id', async (q, s) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const db = getDB();
+
+    // Extract current user if provided
+    const currentUser = req.body.currentUser || 'Unknown User';
+
+    // Allowed fields for creating an account
+    const allowedFields = [
+      'account_number',
+      'account_name',
+      'type',
+      'description',
+      'debits',
+      'credits',
+      'balance',
+      'subcategory',
+      'created_by',
+      'timestamp',
+      'comments'
+    ];
+
+    // Sanitize input
+    const sanitizedData = Object.keys(req.body)
+      .filter(k => allowedFields.includes(k))
+      .reduce((obj, key) => {
+        obj[key] = req.body[key];
+        return obj;
+      }, {});
+
+    // Add automatic fields
+    sanitizedData.timestamp = new Date();
+    sanitizedData.created_by = currentUser;
+
+    // Insert into chart of accounts
+    const result = await db.collection('chart_of_accounts').insertOne(sanitizedData);
+
+    const newAccount = await db
+      .collection('chart_of_accounts')
+      .findOne({ _id: result.insertedId });
+
+    // Log event
+    await db.collection('eventlogs').insertOne({
+      action: 'Account Created',
+      targetType: 'accountCreated',
+      targetId: result.insertedId.toString(),
+      before: null,
+      after: newAccount,
+      user: currentUser,
+      timestamp: new Date()
+    });
+
+    res.status(201).json(newAccount);
+
+  } catch (error) {
+    console.error('Error creating account:', error);
+    res.status(500).json({ error: 'Failed to create account' });
+  }
+});
+
 module.exports = router;
