@@ -23,6 +23,8 @@ SweetLedger is a web-based accounting ledger book system. It allows users to uti
 ## Environment
 The backbone of SweetLedger is reliable and strong. **UPDATE**We use AWS tools like AWS Elastic Beanstalk for hosting**UPDATE** SweetLedger and MongoDB as SweetLedger's database. As long as AWS is available, SweetLedger will be available for all to use. The front of SweetLedger is made up from technologies and languages such as: C#, HTML, CSS, JavaScript, Vite, and React.
 
+If you the reader would like to get a better understanding of SweetLedger's development process, please visit our [Trello board](https://trello.com/b/Ktaa1XgR/my-trello-board)!
+
 ## Documentation
 - [Project Proposal](./Documents/Proposalpreparationguidelines1.pdf)
 - [Software Project Management Plan](./Documents/SweetledgerSPMP.pdf)
