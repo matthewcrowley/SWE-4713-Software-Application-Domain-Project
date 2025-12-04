@@ -23,7 +23,7 @@ const resetPasswordRoutes = require("./routes/resetPassword");
 let db;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://sweetledger.com', 'https://www.sweetledger.com',],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
@@ -71,7 +71,7 @@ connectToDB()
 
         if (Math.floor(passwordAgeDays) === 27) {
           try {
-            await fetch("http://localhost:3000/api/email", {
+            await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
