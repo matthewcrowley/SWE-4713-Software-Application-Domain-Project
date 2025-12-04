@@ -27,7 +27,11 @@ The backbone of SweetLedger is reliable and strong. We have decided to create Sw
 
 If you the reader would like to get a better understanding of SweetLedger's development process, please visit our [Trello board](https://trello.com/b/Ktaa1XgR/my-trello-board)! This board highlights key requirements along with the bugs that we tracked along the way. Below is a list of all of the technologies that we used.
 
-- 
+- [Cloudflare](https://www.cloudflare.com/)
+- [Cloudflare Pages](https://pages.cloudflare.com/)
+- [SendGrid by Twilio](https://sendgrid.com/en-us)
+- [Render](https://render.com/)
+- [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database)
 
 ## Documentation
 - [Project Proposal](./Documents/Proposalpreparationguidelines1.pdf)
