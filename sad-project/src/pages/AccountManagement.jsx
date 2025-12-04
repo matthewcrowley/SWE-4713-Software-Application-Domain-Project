@@ -24,7 +24,7 @@ import {
 } from "@mui/material";
 import defaultProfile from "../assets/defaultprofile.png";
 import "./AccountManagement.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 import logo from "../assets/sweetledger.jpeg";
@@ -94,24 +94,6 @@ export default function AccountManagement() {
   });
 
   const [accounts, setAccounts] = useState([]);
-  const [accountForm, setAccountForm] = useState({
-    accountName: "",
-    accountNumber: "",
-    description: "",
-    normalSide: "Debit",
-    category: "",
-    subcategory: "",
-    initialBalance: "",
-    debit: "",
-    credit: "",
-    balance: "",
-    dateAdded: "",
-    userId: "",
-    order: "",
-    statement: "BS",
-    comment: "",
-  });
-
   const navigate = useNavigate();
 
   const formatMoney = (value) => {
@@ -405,64 +387,6 @@ export default function AccountManagement() {
     }
   };
 
-  const handleAccountChange = (e) => {
-    const { name, value } = e.target;
-    const moneyFields = ["initialBalance", "debit", "credit", "balance"];
-    setAccountForm({
-      ...accountForm,
-      [name]: moneyFields.includes(name) ? formatMoney(value) : value,
-    });
-  };
-
-  const handleAddAccount = async (e) => {
-    e.preventDefault();
-    const newAccount = {
-      ...accountForm,
-      initialBalance: formatMoney(accountForm.initialBalance),
-      debit: formatMoney(accountForm.debit),
-      credit: formatMoney(accountForm.credit),
-      balance: formatMoney(accountForm.balance),
-      dateAdded: new Date().toISOString(),
-    };
-
-    try {
-      const response = await fetch("http://localhost:3000/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newAccount),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setAccounts([...accounts, newAccount]);
-        setMessage("Account added successfully!");
-        setAccountForm({
-          accountName: "",
-          accountNumber: "",
-          description: "",
-          normalSide: "Debit",
-          category: "",
-          subcategory: "",
-          initialBalance: "",
-          debit: "",
-          credit: "",
-          balance: "",
-          dateAdded: "",
-          userId: "",
-          order: "",
-          statement: "BS",
-          comment: "",
-        });
-      } else {
-        setMessage("Failed to add account: " + data.message);
-      }
-    } catch (error) {
-      console.error("Error adding account:", error);
-      setMessage("Server error while adding account.");
-    }
-  };
-
   return (
     <Box className="admin-container">
       {/* ===== Header Section ===== */}
@@ -744,68 +668,6 @@ export default function AccountManagement() {
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
-          <form className="account-form" onSubmit={handleAddAccount}>
-            <Grid container spacing={2}>
-              {[
-                "accountName",
-                "accountNumber",
-                "description",
-                "category",
-                "subcategory",
-                "initialBalance",
-                "debit",
-                "credit",
-                "balance",
-                "userId",
-                "order",
-                "comment",
-              ].map((field) => (
-                <Grid item xs={12} sm={6} md={4} key={field}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    name={field}
-                    label={field.replace(/([A-Z])/g, " $1")}
-                    value={accountForm[field]}
-                    onChange={handleAccountChange}
-                  />
-                </Grid>
-              ))}
-
-              <Grid item xs={12} sm={6} md={4}>
-                <Select
-                  fullWidth
-                  size="small"
-                  name="normalSide"
-                  value={accountForm.normalSide}
-                  onChange={handleAccountChange}
-                >
-                  <MenuItem value="Debit">Debit</MenuItem>
-                  <MenuItem value="Credit">Credit</MenuItem>
-                </Select>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4}>
-                <Select
-                  fullWidth
-                  size="small"
-                  name="statement"
-                  value={accountForm.statement}
-                  onChange={handleAccountChange}
-                >
-                  <MenuItem value="IS">Income Statement</MenuItem>
-                  <MenuItem value="BS">Balance Sheet</MenuItem>
-                  <MenuItem value="RE">Retained Earnings</MenuItem>
-                </Select>
-              </Grid>
-            </Grid>
-
-            <Box mt={2}>
-              <Button className="btn" type="submit">
-                Add Account
-              </Button>
-            </Box>
-          </form>
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
@@ -826,7 +688,14 @@ export default function AccountManagement() {
             <tbody>
               {accounts.map((a, i) => (
                 <tr key={i}>
-                  <td>{a.account_number}</td>
+                  <td>
+                    <Link
+                      to={`/ledger/${a.account_number}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{ textDecoration: "none", color: "#1976d2", cursor: "pointer", fontWeight: 500,}}>
+                        {a.account_number}
+                    </Link> 
+                  </td>
                   <td>{a.account_name}</td>
                   <td>{a.type}</td>
                   <td>{a.subcategory}</td>
@@ -834,7 +703,7 @@ export default function AccountManagement() {
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                           })}</td>
-                  <td>{a.createdBy}</td>
+                  <td>{a.created_by}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
