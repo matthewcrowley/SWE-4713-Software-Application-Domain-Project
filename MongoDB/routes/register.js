@@ -37,7 +37,7 @@ dbRoute.post('/', async (req, res) => {
     const insertedUser = await mongoDB.collection('users').findOne({ _id: result.insertedId });
 
     await mongoDB.collection('eventlogs').insertOne( {
-      userId: insertedUser._id,
+      user: newUser.username,
       action: 'New user registered',
       targetType: 'userCreated',
       timestamp: new Date(),
