@@ -264,6 +264,9 @@ const handleLogout = () => {
                 <div><strong>Debits:</strong> {before.debits}</div>
                 <div><strong>Credits:</strong> {before.credits}</div>
                 <div><strong>Balance:</strong> ${before.balance?.toLocaleString()}</div>
+                <div><strong>Created By:</strong> {before.created_by}</div>
+                <div><strong>Comments:</strong> {before.comments}</div>
+                <div><strong>Date Created:</strong> {before.timestamp}</div>
               </div>
             ): (
               // fallback for other types (like user accounts)
@@ -335,6 +338,9 @@ const handleLogout = () => {
                 <div><strong>Debits:</strong> {after.debits}</div>
                 <div><strong>Credits:</strong> {after.credits}</div>
                 <div><strong>Balance:</strong> ${after.balance?.toLocaleString()}</div>
+                <div><strong>Created By:</strong> {after.created_by}</div>
+                <div><strong>Comments:</strong> {after.comments}</div>
+                <div><strong>Date Created:</strong> {after.timestamp}</div>
               </div>
             ) : (
               <em>Deleted Record</em>

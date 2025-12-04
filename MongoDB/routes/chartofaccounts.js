@@ -47,17 +47,38 @@ router.put('/:id', async (q, s) => {
         return object;
       }, {});
 
-    const result = await db.collection('chart_of_accounts').updateOne(
-      {_id: new ObjectId(id)},
-      {$set: sanitizedData}
-    );
+    // BEFORE version
+    const beforeAccount = await db
+      .collection('chart_of_accounts')
+      .findOne({ _id: new ObjectId(id) });
 
-    if (result.matchedCount === 0) {
-      return s.status(404).json({message: `Account ${id} not found.`});
+    if (!beforeAccount) {
+      return s.status(404).json({ message: `Account ${id} not found.` });
     }
 
-    const updatedAccount = await db.collection('chart_of_accounts').findOne({_id: new ObjectId(id)});
+    // Update account
+    await db.collection('chart_of_accounts').updateOne(
+      { _id: new ObjectId(id) },
+      { $set: sanitizedData }
+    );
 
+    // AFTER version
+    const updatedAccount = await db
+      .collection('chart_of_accounts')
+      .findOne({ _id: new ObjectId(id) });
+
+    // INSERT EVENT LOG
+    await db.collection('eventlogs').insertOne({
+      action: `Account Updated`,
+      targetType: 'accountUpdated',
+      targetId: id,
+      before: beforeAccount,
+      after: updatedAccount,
+      user: q.body?.currentUser || 'Unknown User', // optional, depends on UI
+      timestamp: new Date()
+    });
+
+    // Return updated account
     s.status(200).json(updatedAccount);
 
   } catch (error) {
