@@ -195,6 +195,7 @@ function NewUser() {
               type="date"
               name="dob"
               className="form-input"
+              data-testid="dob-input"
               value={formData.dob}
               onChange={handleChange}
             />
@@ -218,6 +219,7 @@ function NewUser() {
               type="text"
               name="username"
               className="form-input"
+              placeholder="Enter your username"
               value={formData.username}
               readOnly
             />

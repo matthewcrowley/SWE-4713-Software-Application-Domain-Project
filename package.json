@@ -2,6 +2,7 @@
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.19",
     "@fullcalendar/react": "^6.1.19",
+    "@vitest/browser-playwright": "^4.0.14",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",

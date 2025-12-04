@@ -113,7 +113,7 @@ export default function Administrator({ setIsLoggedIn }) {
     <div className="dashboard-container">
       <HelpButton />
       {/* Header */}
-      <header className="dashboard-header">
+      <header className="dashboard-header" data-testid="administrator-header">
         <div className="header-top">
           <div className="logo-section">
             <img src={logo} alt="SweetLedger Logo" className="header-logo" />
@@ -123,7 +123,7 @@ export default function Administrator({ setIsLoggedIn }) {
             </div>
           </div>
 
-          <div className="user-section">
+          <div className="user-section" data-testid="user-section">
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
@@ -164,7 +164,7 @@ export default function Administrator({ setIsLoggedIn }) {
         <p className="dashboard-tagline">Select a service to get started</p>
 
         {/* Service Cards */}
-        <div className="service-grid">
+        <div className="service-grid" data-testid="services-grid">
           {services.map((service, index) => (
             <div key={index} className="service-card">
               <div className="service-icon">{service.icon}</div>

@@ -257,7 +257,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   return (
     <div className="dashboard-container">
       <HelpButton />
-      <header className="dashboard-header">
+      <header className="dashboard-header" data-testid="account-header">
         <div className="header-top">
           <div className="logo-section">
             <img src={logo} alt="SweetLedger Logo" className="header-logo" />
@@ -267,7 +267,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
             </div>
           </div>
 
-          <div className="user-section">
+          <div className="user-section" data-testid="user-section">
             <span className="welcome-text">Welcome,</span>
             <div>
               <div className="username">
@@ -311,14 +311,14 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
         <h1 className="dashboard-title">Accountant Dashboard</h1>
         <p className="dashboard-tagline">Select a service to get started</p>
 
-        <section className="ratios-section">
+        <section className="ratios-section" data-testid="ratio-grid">
           <h2 className="section-title">Financial Ratios</h2>
           {ratiosLoading ? (
             <div>Loading ratios...</div>
           ) : ratiosError ? (
             <div className="error">{ratiosError}</div>
           ) : ratios ? (
-            <div className="ratios-grid">
+            <div className="ratios-grid" >
               {Object.entries(ratios).map(([key, value]) => {
                 let safeValue = typeof value === "number" && !isNaN(value) ? value : 0;
 
@@ -339,7 +339,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
                 const status = getRatioStatus(key, safeValue);
 
                 return (
-                  <div key={key} className={`ratio-card ratio-${status}`}>
+                  <div key={key} className={`ratio-card ratio-${status}`} data-testid="ratio-card">
                     <div className="ratio-title">{formatKey(key)}</div>
                     <div className="ratio-value">{displayValue}</div>
                     <div className={`ratio-indicator ${status}`}></div>
@@ -354,7 +354,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
 
         <PendingJournalEntries />
 
-        <div className="service-grid">
+        <div className="service-grid" data-testid="services-grid">
           {services.map((service, index) => (
             <div key={index} className="service-card">
               <div className="service-icon">{service.icon}</div>

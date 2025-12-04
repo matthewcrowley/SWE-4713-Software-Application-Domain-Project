@@ -11,7 +11,7 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import { Link } from "react-router-dom";
 
-const Chartofaccounts = () => {
+const Chartofaccounts = (testing) => {
   const navigate = useNavigate();
 
   // ===== State Variables =====
@@ -29,6 +29,10 @@ const Chartofaccounts = () => {
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+
+  if (testing===null){
+    testing=false;
+  }
 
   // Radio buttons
   const [selectedRadioId, setSelectedRadioId] = useState(null);
@@ -463,7 +467,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
   return (
     <div className="admin-container">
       {/* ===== Header ===== */}
-      <header className="admin-header">
+      <header className="admin-header" data-testid="cofa-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img 
             src={logo} 
