@@ -1,6 +1,8 @@
 # SweetLedger - Kennesaw State University - Software Application Domain
 Welcome to our Sweetledger repository for our Software Application Domain semester project at Kennesaw State University. Here you will find all of the source code for SweetLedger, and this README contains information about what SweetLedger is, the group members that created it, along with all of the documentation pertaining to this system.
 
+Check out our project at [sweetledger.com](sweetledger.com)!
+
 WORK IN PROGRESS - CURRENT STAGE: Release Candidate Stage
 
 ## Table of Contents
@@ -21,9 +23,11 @@ WORK IN PROGRESS - CURRENT STAGE: Release Candidate Stage
 SweetLedger is a web-based accounting ledger book system. It allows users to utilize a fully functioning digital ledger book that businesses use. The completion of SweetLedger is composed of 5 different sprints, with each sprint building and adding functionalities off of the previous sprint. It is extremely efficient and robust, as the developing team has adopted a "less moving parts" mentality. There are more details of what that means in the following section.
 
 ## Environment
-The backbone of SweetLedger is reliable and strong. **UPDATE**We use AWS tools like AWS Elastic Beanstalk for hosting**UPDATE** SweetLedger and MongoDB as SweetLedger's database. As long as AWS is available, SweetLedger will be available for all to use. The front of SweetLedger is made up from technologies and languages such as: C#, HTML, CSS, JavaScript, Vite, and React.
+The backbone of SweetLedger is reliable and strong. We have decided to create SweetLedger using popular technologies and languages such as C#, HTML, JavaScript, and CSS. Our frontend technologies include React and Vite, and we used MongoDB Atlas for our backend database, which is a cloud-based easy-to-setup database. Once we were ready to deploy our project to the internet, we decided to use Render to host the backend, Cloudflare for our domain, and Cloudflare Pages to host our frontend. Also, our email API is provided by SendGrid by Twilio.
 
-If you the reader would like to get a better understanding of SweetLedger's development process, please visit our [Trello board](https://trello.com/b/Ktaa1XgR/my-trello-board)!
+If you the reader would like to get a better understanding of SweetLedger's development process, please visit our [Trello board](https://trello.com/b/Ktaa1XgR/my-trello-board)! This board highlights key requirements along with the bugs that we tracked along the way. Below is a list of all of the technologies that we used.
+
+- 
 
 ## Documentation
 - [Project Proposal](./Documents/Proposalpreparationguidelines1.pdf)
