@@ -19,6 +19,8 @@ const {updateAccount} = require('./eventLogger');
 const financialRatiosRoute = require('./routes/financialRatios');
 const managerAlertsRoute = require('./routes/managerAlerts');
 const resetPasswordRoutes = require("./routes/resetPassword");
+const fs = require('fs');
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
 
 let db;
 
@@ -43,6 +45,7 @@ app.use('/api/curUser', curUserRoutes);
 app.use('/api/financial-ratios', financialRatiosRoute);
 app.use('/api/manager-alerts', managerAlertsRoute);
 app.use("/api", resetPasswordRoutes);
+app.use("/uploads", express.static("uploads"));
 
 
 connectToDB()
