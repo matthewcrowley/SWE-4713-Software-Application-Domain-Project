@@ -3,7 +3,7 @@ Welcome to our Sweetledger repository for our Software Application Domain semest
 
 Check out our project at [sweetledger.com](https://sweetledger.com)!
 
-WORK IN PROGRESS - CURRENT STAGE: Release Candidate Stage
+CURRENT STAGE: Release Candidate Stage
 
 ## Table of Contents
 - [Team Members](#team-members)
