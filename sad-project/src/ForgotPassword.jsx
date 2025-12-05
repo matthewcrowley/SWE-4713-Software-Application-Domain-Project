@@ -57,7 +57,7 @@ function ForgotPassword() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/verify-user", {
+      const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/verify-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email }),
@@ -83,7 +83,7 @@ function ForgotPassword() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/verify-security", {
+      const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/verify-security", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -117,7 +117,7 @@ function ForgotPassword() {
     const hashed = await hashPassword(newPassword);
 
     try {
-      const res = await fetch("http://localhost:3000/api/reset-password", {
+      const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, passwordHash: hashed, passwordUpdatedAt: new Date() }),

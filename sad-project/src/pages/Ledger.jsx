@@ -36,7 +36,7 @@ const Ledger = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -57,7 +57,7 @@ const Ledger = () => {
         if (endDate) params.append('endDate', endDate);
 
         const queryString = params.toString();
-        const url = `http://localhost:3000/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
+        const url = `https://swe-4713-software-application-domain.onrender.com/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch ledger data');

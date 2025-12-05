@@ -45,7 +45,7 @@ export default function AccountManagement() {
     useEffect(() => {
           const fetchCurrentUser = async () => {
             try {
-              const response = await fetch("http://localhost:3000/api/curUser");
+              const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
               const data = await response.json();
               setCurrentUser(data.currentUser || []);
                 
@@ -105,7 +105,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const data = await response.json();
         setUsers(data || []);
       } catch (error) {
@@ -122,7 +122,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/accounts");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/accounts");
         const data = await response.json();
         setAccounts(data || []);
       } catch (error) {
@@ -149,7 +149,7 @@ export default function AccountManagement() {
   const saveUserUpdate = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${editingUser}`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${editingUser}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -177,7 +177,7 @@ export default function AccountManagement() {
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${user.id}/status`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user.id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -220,7 +220,7 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/users", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -253,7 +253,7 @@ export default function AccountManagement() {
   // Generate User Report
   const generateUserReport = async () => {
     try {
-    const response = await fetch("http://localhost:3000/api/users");
+    const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
     const data = await response.json();
 
     if (Array.isArray(data)) {
@@ -288,7 +288,7 @@ export default function AccountManagement() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${suspendUser.id}/suspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser.id}/suspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -321,7 +321,7 @@ export default function AccountManagement() {
   // Generate Expired Passwords Report
   const generateExpiredPasswordsReport = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/users/expired-passwords");
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users/expired-passwords");
       const data = await response.json();
       
       if (data.success) {
@@ -360,7 +360,7 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/email", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(emailForm),
@@ -384,6 +384,64 @@ export default function AccountManagement() {
     } catch (error) {
       console.error("Error sending email:", error);
       setMessage("Server error while sending email.");
+    }
+  };
+
+  const handleAccountChange = (e) => {
+    const { name, value } = e.target;
+    const moneyFields = ["initialBalance", "debit", "credit", "balance"];
+    setAccountForm({
+      ...accountForm,
+      [name]: moneyFields.includes(name) ? formatMoney(value) : value,
+    });
+  };
+
+  const handleAddAccount = async (e) => {
+    e.preventDefault();
+    const newAccount = {
+      ...accountForm,
+      initialBalance: formatMoney(accountForm.initialBalance),
+      debit: formatMoney(accountForm.debit),
+      credit: formatMoney(accountForm.credit),
+      balance: formatMoney(accountForm.balance),
+      dateAdded: new Date().toISOString(),
+    };
+
+    try {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newAccount),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAccounts([...accounts, newAccount]);
+        setMessage("Account added successfully!");
+        setAccountForm({
+          accountName: "",
+          accountNumber: "",
+          description: "",
+          normalSide: "Debit",
+          category: "",
+          subcategory: "",
+          initialBalance: "",
+          debit: "",
+          credit: "",
+          balance: "",
+          dateAdded: "",
+          userId: "",
+          order: "",
+          statement: "BS",
+          comment: "",
+        });
+      } else {
+        setMessage("Failed to add account: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error adding account:", error);
+      setMessage("Server error while adding account.");
     }
   };
 
