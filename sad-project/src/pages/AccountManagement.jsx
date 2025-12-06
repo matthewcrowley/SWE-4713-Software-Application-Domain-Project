@@ -23,7 +23,7 @@ import {
   Chip,
 } from "@mui/material";
 import "./AccountManagement.css";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 import logo from "../assets/sweetledger.jpeg";
@@ -91,6 +91,24 @@ export default function AccountManagement() {
   });
 
   const [accounts, setAccounts] = useState([]);
+  const [accountForm, setAccountForm] = useState({
+    accountName: "",
+    accountNumber: "",
+    description: "",
+    normalSide: "Debit",
+    category: "",
+    subcategory: "",
+    initialBalance: "",
+    debit: "",
+    credit: "",
+    balance: "",
+    dateAdded: "",
+    userId: "",
+    order: "",
+    statement: "BS",
+    comment: "",
+  });
+
   const navigate = useNavigate();
 
   const formatMoney = (value) => {
@@ -318,42 +336,32 @@ export default function AccountManagement() {
 
   // Handle unsuspend user - NEW FUNCTION
   const handleUnsuspendUser = async (user) => {
-    if (!user._id) {
-      setMessage("User ID is missing");
-      return;
-    }
-
     try {
-      console.log("Unsuspending user:", user._id); // Debug log
-      // TEMPORARY: Test with localhost first
-      const baseUrl = "http://localhost:3000"; // Change back to Render URL after testing
       const response = await fetch(
-        `${baseUrl}/api/users/${user._id}/unsuspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/unsuspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
 
       if (data.success) {
-        // Refresh the users list from the server
-        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
-        const usersData = await usersResponse.json();
-        setUsers(usersData || []);
-        
+        setUsers((prev) =>
+          prev.map((u) =>
+            u._id === user._id
+              ? { ...u, suspended: false, suspendedUntil: null }
+              : u
+          )
+        );
         setMessage(`User ${user.username} has been unsuspended`);
       } else {
         setMessage("Failed to unsuspend user: " + data.message);
       }
     } catch (error) {
       console.error("Error unsuspending user:", error);
-      setMessage(`Server error while unsuspending user: ${error.message}`);
+      setMessage("Server error while unsuspending user.");
     }
   };
 
@@ -765,6 +773,68 @@ export default function AccountManagement() {
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
+          <form className="account-form" onSubmit={handleAddAccount}>
+            <Grid container spacing={2}>
+              {[
+                "accountName",
+                "accountNumber",
+                "description",
+                "category",
+                "subcategory",
+                "initialBalance",
+                "debit",
+                "credit",
+                "balance",
+                "userId",
+                "order",
+                "comment",
+              ].map((field) => (
+                <Grid item xs={12} sm={6} md={4} key={field}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name={field}
+                    label={field.replace(/([A-Z])/g, " $1")}
+                    value={accountForm[field]}
+                    onChange={handleAccountChange}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="normalSide"
+                  value={accountForm.normalSide}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="Debit">Debit</MenuItem>
+                  <MenuItem value="Credit">Credit</MenuItem>
+                </Select>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="statement"
+                  value={accountForm.statement}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="IS">Income Statement</MenuItem>
+                  <MenuItem value="BS">Balance Sheet</MenuItem>
+                  <MenuItem value="RE">Retained Earnings</MenuItem>
+                </Select>
+              </Grid>
+            </Grid>
+
+            <Box mt={2}>
+              <Button className="btn" type="submit">
+                Add Account
+              </Button>
+            </Box>
+          </form>
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
@@ -785,22 +855,15 @@ export default function AccountManagement() {
             <tbody>
               {accounts.map((a, i) => (
                 <tr key={i}>
-                  <td>
-                    <Link
-                      to={`/ledger/${a.account_number}`}
-                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
-                      style={{ textDecoration: "none", color: "#1976d2", cursor: "pointer", fontWeight: 500,}}>
-                        {a.account_number}
-                    </Link> 
-                  </td>
+                  <td>{a.account_number}</td>
                   <td>{a.account_name}</td>
                   <td>{a.type}</td>
                   <td>{a.subcategory}</td>
                   <td style={{ textAlign: 'right' }}>${a.balance.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          })}</td>
-                  <td>{a.created_by}</td>
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}</td>
+                  <td>{a.createdBy}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
