@@ -80,8 +80,14 @@ export default function AccountManagement() {
   });
 
   // New state for expired passwords report
-  const [showExpiredPasswordsReport, setShowExpiredPasswordsReport] = useState(false);
-  const [expiredPasswordsData, setExpiredPasswordsData] = useState([]);
+const [allUsers, setAllUsers] = useState([]);
+
+// State to store users with expired passwords
+const [expiredPasswordsData, setExpiredPasswordsData] = useState([]);
+
+// State to show/hide dialog
+const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false);
+
 
   // New state for email dialog
   const [showEmailDialog, setShowEmailDialog] = useState(false);
@@ -319,26 +325,18 @@ export default function AccountManagement() {
   };
 
   // Generate Expired Passwords Report
-  const generateExpiredPasswordsReport = async () => {
-    try {
-      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users/expired-passwords");
-      const data = await response.json();
-      
-      if (data.success) {
-        if (data.users.length === 0) {
-          setMessage("No users with expired passwords found");
-        } else {
-          setExpiredPasswordsData(data.users);
-          setShowExpiredPasswordsReport(true);
-        }
-      } else {
-        setMessage("Failed to generate expired passwords report");
-      }
-    } catch (error) {
-      console.error("Error generating report:", error);
-      setMessage("Server error while generating report.");
-    }
-  };
+  const generateExpiredPasswordsReport = () => {
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+
+  const expiredUsers = allUsers.filter(user => {
+    if (!user.passwordUpdatedAt) return false; // skip users without a passwordUpdatedAt
+    return new Date(user.passwordUpdatedAt) < new Date(now.getTime() - THIRTY_DAYS_MS);
+  });
+
+  setExpiredPasswordsData(expiredUsers);
+  setShowExpiredPasswordReport(true);
+};
 
   // Open email dialog
   const openEmailDialog = (user) => {
@@ -504,6 +502,12 @@ export default function AccountManagement() {
                 User Management
               </Typography>
                       <Box display="flex" alignItems="center" gap={2}>
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}>
+            View System Errors
+            </Button>
             <Button
               variant="contained"
               className="btn"
@@ -511,12 +515,11 @@ export default function AccountManagement() {
             >
               View All Users Report
             </Button>
-            <Button
-              variant="contained"
-              className="btn"
-              onClick={generateExpiredPasswordsReport}
-            >
-              Expired Passwords Report
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}>
+            View Expired Passwords
             </Button>
             <Button
               className="btn"
@@ -823,6 +826,53 @@ export default function AccountManagement() {
         </DialogActions>
       </Dialog>
 
+      {/* ========== Expired Password Dialog ========== */}
+      <Dialog
+        open={showExpiredPasswordReport}
+        onClose={() => setShowExpiredPasswordReport(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Expired Passwords</DialogTitle>
+        <DialogContent>
+          {expiredPasswordsData.length === 0 ? (
+            <div style={{ padding: "1rem", fontSize: "1rem" }}>
+              <strong>There are no users with expired passwords!</strong>
+              <br />
+              Passwords expire every 30 days.
+            </div>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Username</strong></TableCell>
+                    <TableCell><strong>Email</strong></TableCell>
+                    <TableCell><strong>Message</strong></TableCell>
+                 </TableRow>
+                </TableHead>
+                <TableBody>
+                  {expiredPasswordsData.map(user => (
+                    <TableRow key={user._id}>
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                     <TableCell style={{ color: "#c0392b", fontWeight: 600 }}>
+                       Please contact them to reset their password!
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+           </TableContainer>
+         )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowExpiredPasswordReport(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* ========== SUSPEND USER DIALOG ========== */}
       <Dialog open={showSuspendDialog} onClose={() => setShowSuspendDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Suspend User: {suspendUser?.username}</DialogTitle>
@@ -867,42 +917,6 @@ export default function AccountManagement() {
           </Button>
           <Button onClick={handleSuspendUser} className="btn" style={{ backgroundColor: '#ff9800' }}>
             Suspend User
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
-      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Expired Passwords Report</DialogTitle>
-        <DialogContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Username</strong></TableCell>
-                  <TableCell><strong>Email</strong></TableCell>
-                  <TableCell><strong>Role</strong></TableCell>
-                  <TableCell><strong>Password Age (Days)</strong></TableCell>
-                  <TableCell><strong>Last Changed</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {expiredPasswordsData.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role}</TableCell>
-                    <TableCell>{user.passwordAge}</TableCell>
-                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
-            Close
           </Button>
         </DialogActions>
       </Dialog>

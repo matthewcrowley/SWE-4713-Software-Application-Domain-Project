@@ -49,4 +49,24 @@ dbRoute.put('/:username', async (req, res) => {
   }
 });
 
+dbRoute.get('/expired-passwords', async (req, res) => {
+  try {
+    const db = getDB();
+    const usersCollection = db.collection('users');
+
+    const now = new Date();
+    const THIRTY_DAYS_AGO = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const expiredUsers = await usersCollection
+      .find({ passwordUpdatedAt: { $lt: THIRTY_DAYS_AGO } })
+      .project({ username: 1, email: 1 })
+      .toArray();
+
+    res.json({ success: true, users: expiredUsers });
+  } catch (err) {
+    console.error('Error fetching expired passwords:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = dbRoute;
