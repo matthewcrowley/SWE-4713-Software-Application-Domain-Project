@@ -352,7 +352,7 @@ const Journal = () => {
     try {
       const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/journal-entries/${entryId}/approve`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'current-user': currentUser.curUsername },
       });
 
       if (!response.ok) {
@@ -393,7 +393,7 @@ const Journal = () => {
 
         await fetch(`https://swe-4713-software-application-domain.onrender.com/api/accounts/${account._id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify({
             balance: newBalance,
             debits: newDebits,
@@ -422,7 +422,7 @@ const Journal = () => {
     try {
       const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/journal-entries/${entryId}/reject`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'current-user': currentUser.curUsername },
         body: JSON.stringify({ comment: rejectionComment })
       });
 

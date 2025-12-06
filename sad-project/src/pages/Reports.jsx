@@ -82,9 +82,17 @@ const Reports = () => {
 
   // ===== Report Generation Functions =====
   const generateTrialBalance = () => {
-    const filteredEntries = journalEntries.filter(entry => 
-      new Date(entry.date) <= new Date(reportDate)
-    );
+    const filteredEntries = journalEntries.filter(entry => {
+      if (!entry.date) return false;
+
+      const entryDate = new Date(entry.date);
+      entryDate.setHours(0,0,0,0);
+
+      const reportDt = new Date(reportDate);
+      reportDt.setHours(23,59,59,999);
+
+      return entryDate <= reportDt;
+    });
 
     const accountBalances = {};
     
@@ -111,14 +119,25 @@ const Reports = () => {
       });
     });
 
-    // Calculate final debit/credit columns for trial balance
+    // Replace account.balance with calculated totals
     const trialBalanceData = Object.values(accountBalances)
-      .filter(acc => acc.debit > 0 || acc.credit > 0 || acc.balance !== 0)
-      .map(acc => ({
-        ...acc,
-        trialBalanceDebit: acc.normalSide === 'L' ? acc.balance : 0,
-        trialBalanceCredit: acc.normalSide === 'R' ? Math.abs(acc.balance) : 0
-      }))
+      .filter(acc => acc.debit > 0 || acc.credit > 0) // ignore initial account.balance
+      .map(acc => {
+        let trialBalanceDebit = 0;
+        let trialBalanceCredit = 0;
+
+        if (acc.normalSide === 'L') {
+          trialBalanceDebit = acc.debit - acc.credit; // net balance
+        } else if (acc.normalSide === 'R') {
+          trialBalanceCredit = acc.credit - acc.debit; // net balance
+        }
+
+        return {
+          ...acc,
+          trialBalanceDebit: trialBalanceDebit > 0 ? trialBalanceDebit : 0,
+          trialBalanceCredit: trialBalanceCredit > 0 ? trialBalanceCredit : 0
+        };
+      })
       .sort((a, b) => a.accountNumber - b.accountNumber);
 
     const totalDebit = trialBalanceData.reduce((sum, acc) => sum + acc.trialBalanceDebit, 0);
@@ -200,9 +219,19 @@ const Reports = () => {
   };
 
   const generateBalanceSheet = () => {
-    const filteredEntries = journalEntries.filter(entry => 
-      new Date(entry.date) <= new Date(reportDate)
-    );
+    const filteredEntries = journalEntries.filter(entry => {
+      if (!entry.date) return false;
+
+      const entryDate = new Date(entry.date);
+      entryDate.setHours(0,0,0,0);
+      console.log(entry.date, new Date(entry.date));
+
+      const reportDt = new Date(reportDate);
+      reportDt.setHours(23,59,59,999);
+      console.log(reportDate, reportDt);
+
+      return entryDate <= reportDt;
+    });
 
     const assets = [];
     const liabilities = [];
@@ -231,35 +260,68 @@ const Reports = () => {
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         } else if (account.type === 'Liability') {
           liabilities.push({
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         } else if (account.type === 'Equity') {
           equity.push({
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         }
       }
     });
 
      // Add retained earnings to equity section
-    const retainedEarningsReport = generateRetainedEarnings();
-    const retainedEarningsAmount = retainedEarningsReport.endingRE || 0;
+    let revenues = 0;
+    let expenses = 0;
+    let dividends = 0;
 
+    filteredEntries.forEach(entry => {
+      entry.entries.forEach(line => {
+        const account = accounts.find(a => a.account_number === line.accountId);
+        if (!account) return;
+
+        if (account.type === "Revenue" || account.type === "Income") {
+          revenues += parseFloat(line.credit || 0) - parseFloat(line.debit || 0);
+        }
+
+        if (account.type === "Expense") {
+          expenses += parseFloat(line.debit || 0) - parseFloat(line.credit || 0);
+        }
+
+        if (account.type === "Dividend") {
+          dividends += parseFloat(line.debit || 0);
+        }
+      });
+    });
+
+    // Beginning retained earnings from chart of accounts
+    const retainedEarningsAccount = accounts.find(
+      acc => acc.account_name.toLowerCase().includes("retained earnings")
+    );
+
+    const beginningRE = retainedEarningsAccount
+      ? parseFloat(retainedEarningsAccount.balance) || 0
+      : 0;
+
+    // Final retained earnings up to the balance sheet date
+    const endingRE = beginningRE + (revenues - expenses) - dividends;
+
+    // Add to equity section
     equity.push({
-      accountNumber: 'RE',
+      accountNumber: retainedEarningsAccount?.account_number || 'RE',
       accountName: 'Retained Earnings',
       subcategory: 'Equity',
-      amount: retainedEarningsAmount
+      amount: endingRE
     });
 
     var totalAssets = assets.reduce((sum, a) => sum + a.amount, 0);
@@ -290,7 +352,7 @@ const Reports = () => {
     };
   };
 
-  const generateRetainedEarnings = () => {
+  const generateRetainedEarnings = (reportDate) => {
     const start = startDate || '1900-01-01';
     const end = endDate;
 
@@ -385,7 +447,7 @@ const Reports = () => {
     }
 
     try {
-      const reportHTML = document.getElementById('report-content').innerHTML;
+      const reportText = document.getElementById('report-content').innerText;
       
       const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/email', {
         method: 'POST',
@@ -393,7 +455,7 @@ const Reports = () => {
         body: JSON.stringify({
           email: emailForm.email,
           subject: emailForm.subject,
-          message: emailForm.message + '\n\n' + reportHTML
+          message: emailForm.message + '\n\n' + reportText
         })
       });
 

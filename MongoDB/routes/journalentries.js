@@ -85,7 +85,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
     const journalEntry = await db.collection('journal').findOne({ _id: result.insertedId });
 
     await db.collection('eventlogs').insertOne({
-      userId: req.user?.id || 'Manager',
+      user: journalEntry.createdBy || 'Manager',
       action: 'Journal Entry Submitted',
       targetType: 'journalEntry',
       targetId: journalEntry._id,
@@ -118,6 +118,7 @@ router.put('/:id/approve', async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
+    const currentUser = req.headers['current-user'] || 'Manager';
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
@@ -143,11 +144,11 @@ router.put('/:id/approve', async (req, res) => {
     );
 
    // Post entries to ledger only if accountId exists
-    const ledgerEntries = journalEntry.entries
+    const ledgerEntries = await Promise.all(journalEntry.entries
       .filter(entry => entry.accountId && entry.accountId.trim() !== '')
-      .map(entry => {
+      .map(async entry => {
         // fetch account info from chart_of_accounts
-        const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
+        const account = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
         return {
           date: journalEntry.date,
@@ -161,7 +162,7 @@ router.put('/:id/approve', async (req, res) => {
           postedAt: new Date(),
           postedBy: req.user?.id || 'Manager',
         };
-      });
+      }));
 
     // Only insert if there are valid entries
     if (ledgerEntries.length > 0) {
@@ -170,10 +171,15 @@ router.put('/:id/approve', async (req, res) => {
 
     // Update account balances
     for (const entry of journalEntry.entries) {
-      const account = await db.collection('chart_of_accounts').findOne({ accountNumber: entry.accountId });
+      const account = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
       if (account) {
+         // Save "before" snapshot
+        const beforeImage = { ...account };
+
         let newBalance = account.balance || 0;
+        let newDebits = account.debits || 0;
+        let newCredits = account.credits || 0;
 
         if (['Asset', 'Expense'].includes(account.type)) {
           newBalance += entry.debit - entry.credit;
@@ -181,20 +187,40 @@ router.put('/:id/approve', async (req, res) => {
           newBalance += entry.credit - entry.debit;
         }
 
+        newDebits += entry.debit;
+        newCredits += entry.credit;
+
         await db.collection('chart_of_accounts').updateOne(
-          { accountNumber: entry.accountId },
+          { account_number: entry.accountId },
           {
             $set: {
               balance: newBalance,
+              debits: newDebits,
+              credits: newCredits,
               updatedAt: new Date(),
             },
           }
         );
+
+        // Save "after" snapshot
+        const updatedAccount = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
+        const afterImage = { ...updatedAccount };
+
+        // Insert into eventlogs collection
+        await db.collection('eventlogs').insertOne({
+          user: req.user?.id || 'Manager',
+          action: `Account Updated`,
+          targetType: 'accountUpdated',
+          documentId: entry.accountId,
+          before: beforeImage,
+          after: afterImage,
+          timestamp: new Date(),
+        });
       }
     }
 
     await db.collection('eventlogs').insertOne({
-      userId: req.user?.id || 'Manager',
+      user: currentUser || 'Manager',
       action: 'Journal Entry Approved',
       targetType: 'journalEntry',
       targetId: id,
@@ -236,6 +262,7 @@ router.put('/:id/reject', async (req, res) => {
     const db = getDB();
     const { id } = req.params;
     const { comment } = req.body;
+    const currentUser = req.headers['current-user'] || 'Manager';
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
@@ -265,7 +292,7 @@ router.put('/:id/reject', async (req, res) => {
     );
 
     await db.collection('eventlogs').insertOne({
-        userId: req.user?.id || 'Manager',
+        user: currentUser || 'Manager',
         action: 'Journal Entry Rejected',
         targetType: 'journalEntry',
         targetId: id,

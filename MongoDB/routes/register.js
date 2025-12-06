@@ -26,7 +26,7 @@ dbRoute.post('/', async (req, res) => {
       createdAt: new Date(),
       passwordUpdatedAt: new Date(),
       approved: true,
-      role: " ", 
+      role: "Accountant", 
       suspended: false, 
       active: true
     };
@@ -36,22 +36,20 @@ dbRoute.post('/', async (req, res) => {
     // Fetch the actual inserted document from MongoDB
     const insertedUser = await mongoDB.collection('users').findOne({ _id: result.insertedId });
 
-    await logEvent(mongoDB, {
-      userId: insertedUser._id,
+    await mongoDB.collection('eventlogs').insertOne( {
+      user: newUser.username,
       action: 'New user registered',
+      targetType: 'userCreated',
       timestamp: new Date(),
-      before: null,
-      after: { 
-        firstName: insertedUser.firstName,
-        lastName: insertedUser.lastName,
-        address: insertedUser.address,
-        dob: insertedUser.dob,
-        email: insertedUser.email,
-        username: insertedUser.username,
-        secQuestion1: insertedUser.secQuestion1,
-        secQuestion2: insertedUser.secQuestion2,
-        secQuestion3: insertedUser.secQuestion3,
-       _id: insertedUser._id.toString(),
+      beforeImage: null,
+      afterImage: { 
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        address: newUser.address,
+        dob: newUser.dob,
+        email: newUser.email,
+        username: newUser.username,
+       _id: newUser._id.toString(),
       }
     });
 

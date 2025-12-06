@@ -182,7 +182,6 @@ export default function Administrator({ setIsLoggedIn }) {
             </div>
           ))}
         </div>
-        <PendingJournalEntries />
       </main>
     </div>
   );
