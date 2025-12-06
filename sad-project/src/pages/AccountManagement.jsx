@@ -44,7 +44,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -179,7 +179,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${user._id}/status`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -233,7 +233,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
 
       if (data.success) {
         // Refresh the user list
-        const usersResponse = await fetch("http://localhost:3000/api/users");
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const usersData = await usersResponse.json();
         setUsers(usersData || []);
         
@@ -257,7 +257,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   // Generate User Report
   const generateUserReport = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/users");
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
       const data = await response.json();
 
       if (Array.isArray(data)) {
@@ -292,7 +292,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${suspendUser._id}/suspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser._id}/suspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -322,19 +322,68 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
     }
   };
 
+  // Handle unsuspend user - NEW FUNCTION
+  const handleUnsuspendUser = async (user) => {
+    if (!user._id) {
+      setMessage("User ID is missing");
+      return;
+    }
+
+    try {
+      console.log("Unsuspending user:", user._id); // Debug log
+      // TEMPORARY: Test with localhost first
+      const baseUrl = "http://localhost:3000"; // Change back to Render URL after testing
+      const response = await fetch(
+        `${baseUrl}/api/users/${user._id}/unsuspend`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the users list from the server
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+        const usersData = await usersResponse.json();
+        setUsers(usersData || []);
+        
+        setMessage(`User ${user.username} has been unsuspended`);
+      } else {
+        setMessage("Failed to unsuspend user: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error unsuspending user:", error);
+      setMessage(`Server error while unsuspending user: ${error.message}`);
+    }
+  };
+
   // Generate Expired Passwords Report
-  const generateExpiredPasswordsReport = () => {
-  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-  const now = new Date();
-
-  const expiredUsers = allUsers.filter(user => {
-    if (!user.passwordUpdatedAt) return false; // skip users without a passwordUpdatedAt
-    return new Date(user.passwordUpdatedAt) < new Date(now.getTime() - THIRTY_DAYS_MS);
-  });
-
-  setExpiredPasswordsData(expiredUsers);
-  setShowExpiredPasswordReport(true);
-};
+  const generateExpiredPasswordsReport = async () => {
+    try {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users/expired-passwords");
+      const data = await response.json();
+      
+      if (data.success) {
+        if (data.users.length === 0) {
+          setMessage("No users with expired passwords found");
+        } else {
+          setExpiredPasswordsData(data.users);
+          setShowExpiredPasswordsReport(true);
+        }
+      } else {
+        setMessage("Failed to generate expired passwords report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setMessage("Server error while generating report.");
+    }
+  };
 
   // Open email dialog
   const openEmailDialog = (user) => {
@@ -450,6 +499,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
             <img 
               alt="Sweet Ledger Logo"
               src={logo} 
+              style={{ width: '100px', height: 'auto' }}
               className="header-logo"
             />
             <h1 className="admin-title">Administrator Account Management</h1>
@@ -695,7 +745,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                           <Button
                             className={`btn ${u.suspended ? "unsuspend" : "suspend"}`}
                             size="small"
-                            onClick={() => openSuspendDialog(u)}
+                            onClick={() => u.suspended ? handleUnsuspendUser(u) : openSuspendDialog(u)}
                           >
                             {u.suspended ? "Unsuspend" : "Suspend"}
                           </Button>
@@ -776,6 +826,8 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
                   <TableCell><strong>Role</strong></TableCell>
                   <TableCell><strong>Status</strong></TableCell>
                   <TableCell><strong>Suspended</strong></TableCell>
@@ -785,7 +837,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
               </TableHead>
               <TableBody>
                 {userReportData.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user._id}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
@@ -907,6 +959,42 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           </Button>
           <Button onClick={handleSuspendUser} className="btn" style={{ backgroundColor: '#ff9800' }}>
             Suspend User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
+      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Expired Passwords Report</DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
+                  <TableCell><strong>Role</strong></TableCell>
+                  <TableCell><strong>Password Age (Days)</strong></TableCell>
+                  <TableCell><strong>Last Changed</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {expiredPasswordsData.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.passwordAge}</TableCell>
+                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
