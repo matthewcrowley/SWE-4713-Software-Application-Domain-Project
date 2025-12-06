@@ -15,7 +15,7 @@ function PendingJournalEntries() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:3000/api/journal-entries");
+        const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/journal-entries");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const allEntries = await res.json();
 
@@ -134,7 +134,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -148,7 +148,7 @@ export default function Regularaccountuser({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchRatios = async () => {
       setRatiosLoading(true);
-      const url = "http://localhost:3000/api/financial-ratios";
+      const url = "https://swe-4713-software-application-domain.onrender.com/api/financial-ratios";
       const maxAttempts = 3;
 
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

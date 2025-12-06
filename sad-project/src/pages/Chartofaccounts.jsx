@@ -41,7 +41,7 @@ const [editedAccount, setEditedAccount] = useState({});
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("http://localhost:3000/api/curUser");
+            const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -56,7 +56,7 @@ const [editedAccount, setEditedAccount] = useState({});
   // Fetch Accounts from MongoDB Backend
   useEffect(() => {
     setLoading(true);
-    fetch('http://localhost:3000/api/accounts')
+    fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch accounts');
         return res.json();
@@ -80,7 +80,7 @@ const [editedAccount, setEditedAccount] = useState({});
     setLogsLoading(true);
     try {
       // Fetch all event logs
-      const response = await fetch('http://localhost:3000/api/eventlog');
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/eventlog');
       if (!response.ok) throw new Error('Failed to fetch event logs');
       const allLogs = await response.json();
 
@@ -149,7 +149,7 @@ const handleSave = async (accountId) => {
   try {
     const payload = { ...editedAccount, _id: accountId }; // include _id in body
 
-    const response = await fetch(`http://localhost:3000/api/accounts/${accountId}`, {
+    const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/accounts/${accountId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -281,7 +281,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/email", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(emailForm),

@@ -26,7 +26,7 @@ const AccountLedger = () => {
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("http://localhost:3000/api/curUser");
+            const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -43,7 +43,7 @@ const AccountLedger = () => {
     const fetchLedger = async () => {
       try {
         console.log("Fetching ledger for account:", accountId);
-        const res = await fetch(`http://localhost:3000/api/ledger/${accountId}`);
+        const res = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/ledger/${accountId}`);
         console.log("Response status:", res.status);
         const data = await res.json();
         console.log("Ledger data:", data);
