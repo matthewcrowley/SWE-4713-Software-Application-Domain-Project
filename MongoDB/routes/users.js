@@ -25,7 +25,7 @@ dbRoute.get('/', async (q, r) => {
   }
 });
 
-// Get expired passwords
+// Get expired passwords - MUST come before /:id routes
 dbRoute.get('/expired-passwords', async (req, res) => {
   try {
     const db = getDB();
@@ -53,12 +53,14 @@ dbRoute.get('/expired-passwords', async (req, res) => {
   }
 });
 
-// Update user status (activate/deactivate)
+// Update user status (activate/deactivate) - MUST come before general /:id route
 dbRoute.put('/:id/status', async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
     const { active } = req.body;
+
+    console.log('Status update for user ID:', id); // Debug log
 
     const result = await db.collection('users').updateOne(
       { _id: new ObjectId(id) },
@@ -71,16 +73,19 @@ dbRoute.put('/:id/status', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User status updated successfully.` });
   } catch (err) {
+    console.error('Status update error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// Suspend user
+// Suspend user - MUST come before general /:id route
 dbRoute.put('/:id/suspend', async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
     const { startDate, expiryDate, reason } = req.body;
+
+    console.log('Suspending user ID:', id); // Debug log
 
     const result = await db.collection('users').updateOne(
       { _id: new ObjectId(id) },
@@ -100,16 +105,59 @@ dbRoute.put('/:id/suspend', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User suspended successfully.` });
   } catch (err) {
+    console.error('Suspend error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Unsuspend user - MUST come before general /:id route
+dbRoute.put('/:id/unsuspend', async (req, res) => {
+  try {
+    const db = getDB();
+    const { id } = req.params;
+
+    console.log('Unsuspending user ID:', id); // Debug log
+
+    // Validate ObjectId format
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID format' });
+    }
+
+    const result = await db.collection('users').updateOne(
+      { _id: new ObjectId(id) },
+      { 
+        $set: { 
+          suspended: false
+        },
+        $unset: {
+          suspendedUntil: "",
+          suspensionStartDate: "",
+          suspensionReason: ""
+        }
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, message: `User not found.` });
+    }
+
+    console.log('User unsuspended successfully'); // Debug log
+    res.status(200).json({ success: true, message: `User unsuspended successfully.` });
+  } catch (err) {
+    console.error('Unsuspend error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
 // Update a user (general updates like username, email, role, etc.)
+// This MUST come AFTER all the specific /:id/* routes
 dbRoute.put('/:id', async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
     const updateData = req.body;
+
+    console.log('General update for user ID:', id); // Debug log
 
     // Prevent updating the _id field
     if (updateData._id) {
@@ -127,6 +175,7 @@ dbRoute.put('/:id', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User updated successfully.` });
   } catch (err) {
+    console.error('Update error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });

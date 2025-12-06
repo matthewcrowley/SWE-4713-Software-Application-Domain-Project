@@ -41,20 +41,18 @@ export default function AccountManagement() {
   });
 
   // Fetch current user
-    useEffect(() => {
-          const fetchCurrentUser = async () => {
-            try {
-              const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
-              const data = await response.json();
-              setCurrentUser(data.currentUser || []);
-                
-            } catch (err) {
-              console.warn("Could not fetch /api/curUser:", err);
-            }
-          };
-          fetchCurrentUser();
-        }, []);
-        
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -193,7 +191,7 @@ export default function AccountManagement() {
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `https://swe-4713-software-application-domain.onrender.com/api/users/${user.id}/status`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -247,7 +245,7 @@ export default function AccountManagement() {
 
       if (data.success) {
         // Refresh the user list
-        const usersResponse = await fetch("http://localhost:3000/api/users");
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const usersData = await usersResponse.json();
         setUsers(usersData || []);
         
@@ -271,8 +269,8 @@ export default function AccountManagement() {
   // Generate User Report
   const generateUserReport = async () => {
     try {
-    const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
-    const data = await response.json();
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+      const data = await response.json();
 
       if (Array.isArray(data)) {
         setUserReportData(data);
@@ -306,7 +304,7 @@ export default function AccountManagement() {
 
     try {
       const response = await fetch(
-        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser.id}/suspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser._id}/suspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -333,6 +331,47 @@ export default function AccountManagement() {
     } catch (error) {
       console.error("Error suspending user:", error);
       setMessage("Server error while suspending user.");
+    }
+  };
+
+  // Handle unsuspend user - NEW FUNCTION
+  const handleUnsuspendUser = async (user) => {
+    if (!user._id) {
+      setMessage("User ID is missing");
+      return;
+    }
+
+    try {
+      console.log("Unsuspending user:", user._id); // Debug log
+      // TEMPORARY: Test with localhost first
+      const baseUrl = "http://localhost:3000"; // Change back to Render URL after testing
+      const response = await fetch(
+        `${baseUrl}/api/users/${user._id}/unsuspend`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Refresh the users list from the server
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+        const usersData = await usersResponse.json();
+        setUsers(usersData || []);
+        
+        setMessage(`User ${user.username} has been unsuspended`);
+      } else {
+        setMessage("Failed to unsuspend user: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error unsuspending user:", error);
+      setMessage(`Server error while unsuspending user: ${error.message}`);
     }
   };
 
@@ -468,15 +507,15 @@ export default function AccountManagement() {
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
         <header className="admin-header" style={{borderBottom: '0px', justifyContent: 'space-between', width: '100%'}}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                <img 
-                  alt="Sweet Ledger Logo"
-                  src={logo} 
-                  style={{ width: '100px', height: 'auto' }}
-                  className="header-logo"
-                />
-                <h1 className="admin-title">Administrator Account Management</h1>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
+            <img 
+              alt="Sweet Ledger Logo"
+              src={logo} 
+              style={{ width: '100px', height: 'auto' }}
+              className="header-logo"
+            />
+            <h1 className="admin-title">Administrator Account Management</h1>
+          </div>
 
           {/* ===== User Section ===== */}
           <div className="user-section" style={{ marginLeft: 'auto' }}>
@@ -718,7 +757,7 @@ export default function AccountManagement() {
                           <Button
                             className={`btn ${u.suspended ? "unsuspend" : "suspend"}`}
                             size="small"
-                            onClick={() => openSuspendDialog(u)}
+                            onClick={() => u.suspended ? handleUnsuspendUser(u) : openSuspendDialog(u)}
                           >
                             {u.suspended ? "Unsuspend" : "Suspend"}
                           </Button>
@@ -854,6 +893,8 @@ export default function AccountManagement() {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
                   <TableCell><strong>Role</strong></TableCell>
                   <TableCell><strong>Status</strong></TableCell>
                   <TableCell><strong>Suspended</strong></TableCell>
@@ -863,7 +904,7 @@ export default function AccountManagement() {
               </TableHead>
               <TableBody>
                 {userReportData.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user._id}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
@@ -959,7 +1000,7 @@ export default function AccountManagement() {
               </TableHead>
               <TableBody>
                 {expiredPasswordsData.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user._id}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
