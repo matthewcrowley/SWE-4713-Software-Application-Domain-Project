@@ -1056,35 +1056,34 @@ const Journal = () => {
               </div>
 
               {/* Display Attachments */}
-              {selectedEntry.attachments && selectedEntry.attachments.length > 0 && (
-                <div className="detail-item">
-                  <span className="detail-label">Attachments:</span>
-                  <div style={{ marginTop: '0.5rem' }}>
-                    {selectedEntry.attachments.map((attachment, index) => (
-                      <a
-                        key={index}
-                        href={`https://swe-4713-software-application-domain.onrender.com/uploads/${attachment}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'block',
-                          padding: '0.5rem',
-                          backgroundColor: '#f5f5f5',
-                          borderRadius: '4px',
-                          marginBottom: '0.5rem',
-                          color: '#f7941d',
-                          textDecoration: 'none',
-                          fontSize: '0.9rem'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                      >
-                        📎 {attachment}
-                      </a>
-                    ))}
-                  </div>
+              {Array.isArray(selectedEntry.attachments) && selectedEntry.attachments.length > 0 && (
+              <div className="detail-item">
+              <span className="detail-label">Attachments:</span>
+
+              <div style={{ marginTop: '0.5rem' }}>
+              {selectedEntry.attachments.map((attachment, index) => {
+              
+              const fileName = typeof attachment === "string" ? attachment : attachment?.filename || attachment?.name || attachment?.originalname || "Unknown File";
+
+              return (
+              <div
+                  key={index}
+                  style={{
+                    padding: '0.5rem',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '4px',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: '#333'
+                 }}
+                >
+                  📎 {fileName}
                 </div>
-              )}
+              );
+            })}
+          </div>
+        </div>
+      )}
 
               <table className="journal-table">
                 <thead>
