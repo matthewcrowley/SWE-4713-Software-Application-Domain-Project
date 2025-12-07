@@ -32,10 +32,15 @@ const Chartofaccounts = () => {
   const [accountForm, setAccountForm] = useState({
     account_number: "",
     account_name: "",
+    description: "",
     normal_side: "",
     type: "",
     subcategory: "",
-    balance: "",
+    initial_balance: "",
+    debits: 0,
+    credits: 0,
+    balance: 0,
+    timestamp: "",
     comments: "",
   });
 
@@ -147,10 +152,16 @@ const handleOpenAdd = () => {
   setAccountForm({
     account_number: "",
     account_name: "",
+    description: "",
     normal_side: "",
     type: "",
     subcategory: "",
-    balance: "",
+    initial_balance: "",
+    debits: 0,
+    credits: 0,
+    balance: 0,
+    timestamp: "",
+    comments: "",
   });
   setOpenAddDialog(true);
 };
@@ -158,13 +169,6 @@ const handleOpenAdd = () => {
 const handleCloseAdd = () => setOpenAddDialog(false);
 
 const handleAddAccount = async () => {
-  // Require all fields
-  for (const key in accountForm) {
-    if (!accountForm[key]) {
-      alert("All fields must be filled out.");
-      return;
-    }
-  }
 
   // Check for duplicates
   const existsNumber = accounts.some(acc => acc.account_number === accountForm.account_number);
@@ -183,7 +187,10 @@ const handleAddAccount = async () => {
   // Build payload
   const newAccount = {
     ...accountForm,
-    balance: Number(accountForm.balance),
+    initial_balance: Number(accountForm.initial_balance) || 0,
+    debits: Number(accountForm.debits) || 0,
+    credits: Number(accountForm.credits) || 0,
+    balance: Number(accountForm.balance) || 0,
     created_by: currentUser.curUsername,
     timestamp: new Date().toISOString(),
     debits: 0,
@@ -1196,7 +1203,14 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               margin="dense"
               label="Account Number *"
               value={accountForm.account_number}
-              onChange={(e) => setAccountForm({ ...accountForm, account_number: e.target.value })}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                // Allow ONLY digits
+                if (/^\d*$/.test(value)) {
+                  setAccountForm({ ...accountForm, account_number: value });
+                }
+              }}
             />
 
             <TextField
@@ -1205,6 +1219,14 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               label="Account Name *"
               value={accountForm.account_name}
               onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Description *"
+              value={accountForm.description}
+              onChange={(e) => setAccountForm({ ...accountForm, description: e.target.value })}
             />
 
             <TextField
@@ -1229,6 +1251,30 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               label="Subcategory *"
               value={accountForm.subcategory}
               onChange={(e) => setAccountForm({ ...accountForm, subcategory: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Initial Balance *"
+              value={accountForm.initial_balance}
+              onChange={(e) => setAccountForm({ ...accountForm, initial_balance: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Debits *"
+              value={accountForm.debits}
+              onChange={(e) => setAccountForm({ ...accountForm, debits: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Credits *"
+              value={accountForm.credits}
+              onChange={(e) => setAccountForm({ ...accountForm, credits: e.target.value })}
             />
 
             <TextField
