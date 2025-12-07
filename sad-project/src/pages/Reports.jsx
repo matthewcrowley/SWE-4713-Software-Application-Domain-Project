@@ -398,6 +398,7 @@ const Reports = () => {
     };
   };
 
+  // Handle Generate Report
   const handleLogout = () => {
     navigate("/");
   };

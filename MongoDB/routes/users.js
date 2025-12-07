@@ -38,6 +38,15 @@ dbRoute.post('/', async (req, res) => {
   } catch (err) {
     await logSystemError(err);
     return res.status(500).json({ success: false, error: err.message });
+// Create a new user
+dbRoute.post('/', async (q, r) => {
+  try {
+    const db = getDB();
+    const databaseResults = await db.collection('users').insertOne(q.body);
+    r.status(201).json({ success: true, id: databaseResults.insertedId, userId: databaseResults.insertedId });
+  } catch (err) {
+    await logSystemError(err);
+    r.status(500).json({ success: false, error: err.message });
   }
 });
 
@@ -50,6 +59,35 @@ dbRoute.get('/', async (q, r) => {
   } catch (err) {
     await logSystemError(err);
     r.status(500).json({ error: err.message });
+  }
+});
+
+// Get expired passwords - MUST come before /:id routes
+dbRoute.get('/expired-passwords', async (req, res) => {
+  try {
+    const db = getDB();
+    const currentDate = new Date();
+    const expiryDays = 90; // Password expires after 90 days
+    
+    const users = await db.collection('users').find().toArray();
+    
+    const expiredUsers = users
+      .map(user => {
+        const lastChanged = user.passwordLastChanged ? new Date(user.passwordLastChanged) : new Date(user.createdAt);
+        const daysSinceChange = Math.floor((currentDate - lastChanged) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...user,
+          passwordAge: daysSinceChange,
+          passwordLastChanged: lastChanged
+        };
+      })
+      .filter(user => user.passwordAge > expiryDays);
+    
+    res.status(200).json({ success: true, users: expiredUsers });
+  } catch (err) {
+    await logSystemError(err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

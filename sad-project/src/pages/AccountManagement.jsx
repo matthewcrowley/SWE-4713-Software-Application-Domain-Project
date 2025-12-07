@@ -101,6 +101,23 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   });
 
   const [accounts, setAccounts] = useState([]);
+  const [accountForm, setAccountForm] = useState({
+    accountName: "",
+    accountNumber: "",
+    description: "",
+    normalSide: "Debit",
+    category: "",
+    subcategory: "",
+    initialBalance: "",
+    debit: "",
+    credit: "",
+    balance: "",
+    dateAdded: "",
+    userId: "",
+    order: "",
+    statement: "BS",
+    comment: "",
+  });
 
   const navigate = useNavigate();
 
@@ -238,7 +255,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       const data = await response.json();
 
       if (data.success) {
-
         // Refresh the user list
         const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const usersData = await usersResponse.json();
@@ -380,26 +396,18 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   };
 
   // Generate Expired Passwords Report
-  const generateExpiredPasswordsReport = async () => {
-    try {
-      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users/expired-passwords");
-      const data = await response.json();
-      
-      if (data.success) {
-        if (data.users.length === 0) {
-          setMessage("No users with expired passwords found");
-        } else {
-          setExpiredPasswordsData(data.users);
-          setShowExpiredPasswordsReport(true);
-        }
-      } else {
-        setMessage("Failed to generate expired passwords report");
-      }
-    } catch (error) {
-      console.error("Error generating report:", error);
-      setMessage("Server error while generating report.");
-    }
-  };
+  const generateExpiredPasswordsReport = () => {
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+
+  const expiredUsers = allUsers.filter(user => {
+    if (!user.passwordUpdatedAt) return false; // skip users without a passwordUpdatedAt
+    return new Date(user.passwordUpdatedAt) < new Date(now.getTime() - THIRTY_DAYS_MS);
+  });
+
+  setExpiredPasswordsData(expiredUsers);
+  setShowExpiredPasswordReport(true);
+};
 
   // Open email dialog
   const openEmailDialog = (user) => {
@@ -791,6 +799,68 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
+          <form className="account-form" onSubmit={handleAddAccount}>
+            <Grid container spacing={2}>
+              {[
+                "accountName",
+                "accountNumber",
+                "description",
+                "category",
+                "subcategory",
+                "initialBalance",
+                "debit",
+                "credit",
+                "balance",
+                "userId",
+                "order",
+                "comment",
+              ].map((field) => (
+                <Grid item xs={12} sm={6} md={4} key={field}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name={field}
+                    label={field.replace(/([A-Z])/g, " $1")}
+                    value={accountForm[field]}
+                    onChange={handleAccountChange}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="normalSide"
+                  value={accountForm.normalSide}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="Debit">Debit</MenuItem>
+                  <MenuItem value="Credit">Credit</MenuItem>
+                </Select>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="statement"
+                  value={accountForm.statement}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="IS">Income Statement</MenuItem>
+                  <MenuItem value="BS">Balance Sheet</MenuItem>
+                  <MenuItem value="RE">Retained Earnings</MenuItem>
+                </Select>
+              </Grid>
+            </Grid>
+
+            <Box mt={2}>
+              <Button className="btn" type="submit">
+                Add Account
+              </Button>
+            </Box>
+          </form>
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
