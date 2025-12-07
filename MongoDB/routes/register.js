@@ -2,6 +2,7 @@ const express = require('express');
 const dbRoute = express.Router();
 const { getDB } = require('../db');
 const logEvent = require('../utils/logEvent');
+const {logSystemError} = require('../utils/errorLogger');
 
 dbRoute.post('/', async (req, res) => {
   try {
@@ -56,6 +57,7 @@ dbRoute.post('/', async (req, res) => {
     res.json({ success: true, insertedId: insertedUser._id });
 
   } catch (e) {
+    await logSystemError(e);
     console.error('Error inserting user:', e);
     res.status(500).json({ success: false, message: 'Server error.' });
   }

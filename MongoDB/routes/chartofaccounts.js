@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db');
 const { ObjectId } = require('mongodb');
+const {logSystemError} = require('../utils/errorLogger');
 
 router.get('/', async (q, s) => {
   try {
@@ -13,6 +14,7 @@ router.get('/', async (q, s) => {
 
     s.status(200).json(accounts);
   } catch (error) {
+    await logSystemError(error);
     console.error('Error fetching accounts:', error);
     s.status(500).json({ error: 'Failed to fetch accounts' });
   }
@@ -85,6 +87,7 @@ router.put('/:id', async (q, s) => {
     s.status(200).json(updatedAccount);
 
   } catch (error) {
+    await logSystemError(error);
     console.error('Error updating account:', error);
     s.status(500).json({ error: 'Failed to update account' });
   }
@@ -144,6 +147,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(newAccount);
 
   } catch (error) {
+    await logSystemError(error);
     console.error('Error creating account:', error);
     res.status(500).json({ error: 'Failed to create account' });
   }

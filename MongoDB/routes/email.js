@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const dbRoute = express.Router();
 const mailer = require('nodemailer');
+const {logSystemError} = require('../utils/errorLogger');
 
 const transport = mailer.createTransport({
   host: 'smtp.sendgrid.net',
@@ -30,6 +31,7 @@ dbRoute.post('/', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
+    await logSystemError(error);
     console.error("There was an error sending the Email:", error);
     res.status(500).json({ success: false, message: "The Email failed to send." });
   }

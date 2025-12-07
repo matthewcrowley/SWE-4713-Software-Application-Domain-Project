@@ -1,5 +1,6 @@
 const express = require('express');
 const dbRoute = express.Router();
+const {logSystemError} = require('../utils/errorLogger');
 
 // Simple in-memory variable to store the current user
 let currentUser = null;
@@ -18,6 +19,7 @@ dbRoute.post('/', async (req, res) => {
 
     res.status(200).json({currentUser });
   } catch (e) {
+    await logSystemError(e);
     console.error('Error setting current user:', e);
     res.status(500).json({ success: false, message: 'Server error.' });
   }

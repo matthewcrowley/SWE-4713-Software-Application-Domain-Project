@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {logSystemError} = require('../utils/errorLogger');
 
 router.get('/', async (req, res) => {
   try {
@@ -20,6 +21,7 @@ router.get('/', async (req, res) => {
     res.json(formattedLogs);
 
   } catch (err) {
+    await logSystemError(err);
     console.error('Failed to fetch event logs:', err);
     res.status(500).json({ error: 'Failed to fetch event logs' });
   }

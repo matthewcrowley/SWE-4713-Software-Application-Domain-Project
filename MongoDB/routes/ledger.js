@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db');
 const { ObjectId } = require('mongodb');
+const {logSystemError} = require('../utils/errorLogger');
 
 // GET ledger entries for an account
 router.get('/:accountId', async (req, res) => {
@@ -61,6 +62,7 @@ router.get('/:accountId', async (req, res) => {
     });
 
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching ledger entries:', err);
     res.status(500).json({ message: 'Failed to fetch ledger entries', error: err.message });
   }
@@ -87,6 +89,7 @@ router.get('/', async (req, res) => {
 
     res.status(200).json(entries);
   } catch (error) {
+    await logSystemError(error);
     console.error('Error fetching all ledger entries:', error);
     res.status(500).json({ error: 'Failed to fetch ledger entries' });
   }
@@ -160,6 +163,7 @@ router.get('/reports/trial-balance', async (req, res) => {
       }
     });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error generating trial balance:', error);
     res.status(500).json({ error: 'Failed to generate trial balance' });
   }

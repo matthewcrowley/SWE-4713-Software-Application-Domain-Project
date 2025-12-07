@@ -2,6 +2,7 @@ const express = require('express');
 const dbRoute = express.Router();
 const { getDB } = require('../db');
 const { ObjectId } = require('mongodb');
+const {logSystemError} = require('../utils/errorLogger');
 
 // Create a new user
 dbRoute.post('/', async (q, r) => {
@@ -10,6 +11,7 @@ dbRoute.post('/', async (q, r) => {
     const databaseResults = await db.collection('users').insertOne(q.body);
     r.status(201).json({ success: true, id: databaseResults.insertedId, userId: databaseResults.insertedId });
   } catch (err) {
+    await logSystemError(err);
     r.status(500).json({ success: false, error: err.message });
   }
 });
@@ -21,6 +23,7 @@ dbRoute.get('/', async (q, r) => {
     const sweetledgerUsers = await db.collection('users').find().toArray();
     r.json(sweetledgerUsers);
   } catch (err) {
+    await logSystemError(err);
     r.status(500).json({ error: err.message });
   }
 });
@@ -49,6 +52,7 @@ dbRoute.get('/expired-passwords', async (req, res) => {
     
     res.status(200).json({ success: true, users: expiredUsers });
   } catch (err) {
+    await logSystemError(err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
@@ -73,6 +77,7 @@ dbRoute.put('/:id/status', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User status updated successfully.` });
   } catch (err) {
+    await logSystemError(err);
     console.error('Status update error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
@@ -105,6 +110,7 @@ dbRoute.put('/:id/suspend', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User suspended successfully.` });
   } catch (err) {
+    await logSystemError(err);
     console.error('Suspend error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
@@ -144,6 +150,7 @@ dbRoute.put('/:id/unsuspend', async (req, res) => {
     console.log('User unsuspended successfully'); // Debug log
     res.status(200).json({ success: true, message: `User unsuspended successfully.` });
   } catch (err) {
+    await logSystemError(err);
     console.error('Unsuspend error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
@@ -175,6 +182,7 @@ dbRoute.put('/:id', async (req, res) => {
 
     res.status(200).json({ success: true, message: `User updated successfully.` });
   } catch (err) {
+    await logSystemError(err);
     console.error('Update error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
@@ -195,6 +203,7 @@ dbRoute.get('/expired-passwords', async (req, res) => {
 
     res.json({ success: true, users: expiredUsers });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching expired passwords:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
