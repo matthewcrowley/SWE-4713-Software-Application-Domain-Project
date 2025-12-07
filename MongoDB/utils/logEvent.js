@@ -1,4 +1,4 @@
-const {logSystemError} = require('./utils/errorLogger');
+const {logSystemError} = require('./errorLogger');
 
 async function logEvent(db, { userId, action, collectionName, documentId, beforeImage, afterImage }) {
   try {
