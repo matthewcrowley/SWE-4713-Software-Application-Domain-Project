@@ -39,7 +39,7 @@ export default function AccountManagement() {
   const [editForm, setEditForm] = useState({
     username: "",
     email: "",
-    role: "User",
+    role: "Accountant",
   });
 
   // Fetch current user
@@ -59,10 +59,12 @@ export default function AccountManagement() {
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [createUserForm, setCreateUserForm] = useState({
+    firstName: "",
+    lastName: "",
     username: "",
     email: "",
     password: "",
-    role: "User",
+    role: "Accountant",
   });
 
   // New state for user reports
@@ -99,23 +101,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   });
 
   const [accounts, setAccounts] = useState([]);
-  const [accountForm, setAccountForm] = useState({
-    accountName: "",
-    accountNumber: "",
-    description: "",
-    normalSide: "Debit",
-    category: "",
-    subcategory: "",
-    initialBalance: "",
-    debit: "",
-    credit: "",
-    balance: "",
-    dateAdded: "",
-    userId: "",
-    order: "",
-    statement: "BS",
-    comment: "",
-  });
 
   const navigate = useNavigate();
 
@@ -203,7 +188,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ active: !user.active }),
+          body: JSON.stringify({ active: !user.active, updatedBy: currentUser?.curUsername || "Admin" }),
         }
       );
 
@@ -245,6 +230,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...createUserForm,
+          created_by: currentUser?.curUsername || "Admin",
           active: true,
         }),
       });
@@ -252,6 +238,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       const data = await response.json();
 
       if (data.success) {
+
         // Refresh the user list
         const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const usersData = await usersResponse.json();
@@ -259,10 +246,12 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         
         setMessage(`User ${createUserForm.username} created successfully with role ${createUserForm.role}`);
         setCreateUserForm({
+          firstName: "",
+          lastName: "",
           username: "",
           email: "",
           password: "",
-          role: "User",
+          role: "Accountant",
         });
         setShowCreateUser(false);
       } else {
@@ -332,7 +321,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser._id}/suspend`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", updatedBy: currentUser?.curUsername || "Admin" },
           body: JSON.stringify(suspendForm),
         }
       );
@@ -366,7 +355,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/unsuspend`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", updatedBy: currentUser?.curUsername || "Admin" },
         }
       );
 
@@ -468,54 +457,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
     });
   };
 
-  const handleAddAccount = async (e) => {
-    e.preventDefault();
-    const newAccount = {
-      ...accountForm,
-      initialBalance: formatMoney(accountForm.initialBalance),
-      debit: formatMoney(accountForm.debit),
-      credit: formatMoney(accountForm.credit),
-      balance: formatMoney(accountForm.balance),
-      dateAdded: new Date().toISOString(),
-    };
-
-    try {
-      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newAccount),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setAccounts([...accounts, newAccount]);
-        setMessage("Account added successfully!");
-        setAccountForm({
-          accountName: "",
-          accountNumber: "",
-          description: "",
-          normalSide: "Debit",
-          category: "",
-          subcategory: "",
-          initialBalance: "",
-          debit: "",
-          credit: "",
-          balance: "",
-          dateAdded: "",
-          userId: "",
-          order: "",
-          statement: "BS",
-          comment: "",
-        });
-      } else {
-        setMessage("Failed to add account: " + data.message);
-      }
-    } catch (error) {
-      console.error("Error adding account:", error);
-      setMessage("Server error while adding account.");
-    }
-  };
 
   return (
     <Box className="admin-container">
@@ -612,6 +553,28 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
               </Typography>
               <form onSubmit={handleCreateUser}>
                 <Grid container spacing={2}>
+                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="firstName"
+                      label="First Name *"
+                      value={createUserForm.firstName}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
+                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="lastName"
+                      label="Last Name *"
+                      value={createUserForm.lastName}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -655,7 +618,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                       value={createUserForm.role}
                       onChange={handleCreateUserChange}
                     >
-                      <MenuItem value="User">User</MenuItem>
+                      <MenuItem value="Accountant">Accountant</MenuItem>
                       <MenuItem value="Manager">Manager</MenuItem>
                       <MenuItem value="Admin">Admin</MenuItem>
                     </Select>
@@ -721,7 +684,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                           value={editForm.role}
                           onChange={handleEditChange}
                         >
-                          <MenuItem value="User">User</MenuItem>
+                          <MenuItem value="Accountant">Accountant</MenuItem>
                           <MenuItem value="Manager">Manager</MenuItem>
                           <MenuItem value="Admin">Admin</MenuItem>
                         </Select>
@@ -777,7 +740,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                                     {
                                       method: "PUT",
                                       headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ active: newActiveStatus }),
+                                      body: JSON.stringify({ active: newActiveStatus, updatedBy: currentUser?.curUsername || "Admin" }),
                                     }
                                   );
 
@@ -828,68 +791,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
-          <form className="account-form" onSubmit={handleAddAccount}>
-            <Grid container spacing={2}>
-              {[
-                "accountName",
-                "accountNumber",
-                "description",
-                "category",
-                "subcategory",
-                "initialBalance",
-                "debit",
-                "credit",
-                "balance",
-                "userId",
-                "order",
-                "comment",
-              ].map((field) => (
-                <Grid item xs={12} sm={6} md={4} key={field}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    name={field}
-                    label={field.replace(/([A-Z])/g, " $1")}
-                    value={accountForm[field]}
-                    onChange={handleAccountChange}
-                  />
-                </Grid>
-              ))}
-
-              <Grid item xs={12} sm={6} md={4}>
-                <Select
-                  fullWidth
-                  size="small"
-                  name="normalSide"
-                  value={accountForm.normalSide}
-                  onChange={handleAccountChange}
-                >
-                  <MenuItem value="Debit">Debit</MenuItem>
-                  <MenuItem value="Credit">Credit</MenuItem>
-                </Select>
-              </Grid>
-
-              <Grid item xs={12} sm={6} md={4}>
-                <Select
-                  fullWidth
-                  size="small"
-                  name="statement"
-                  value={accountForm.statement}
-                  onChange={handleAccountChange}
-                >
-                  <MenuItem value="IS">Income Statement</MenuItem>
-                  <MenuItem value="BS">Balance Sheet</MenuItem>
-                  <MenuItem value="RE">Retained Earnings</MenuItem>
-                </Select>
-              </Grid>
-            </Grid>
-
-            <Box mt={2}>
-              <Button className="btn" type="submit">
-                Add Account
-              </Button>
-            </Box>
-          </form>
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
@@ -918,7 +819,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                   })}</td>
-                  <td>{a.createdBy}</td>
+                  <td>{a.created_by}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
