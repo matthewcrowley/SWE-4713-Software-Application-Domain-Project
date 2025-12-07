@@ -465,6 +465,17 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
     });
   };
 
+  const handleAddAccount = async (e) => {
+    e.preventDefault();
+    const newAccount = {
+      ...accountForm,
+      initialBalance: formatMoney(accountForm.initialBalance),
+      debit: formatMoney(accountForm.debit),
+      credit: formatMoney(accountForm.credit),
+      balance: formatMoney(accountForm.balance),
+      dateAdded: new Date().toISOString(),
+    };
+  }
 
   return (
     <Box className="admin-container">
