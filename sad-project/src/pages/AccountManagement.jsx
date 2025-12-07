@@ -34,6 +34,8 @@ export default function AccountManagement() {
   const [message, setMessage] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [systemErrorsData, setSystemErrorsData] = useState([]);
+  const [showSystemErrors, setShowSystemErrors] = useState(false);
   const [editForm, setEditForm] = useState({
     username: "",
     email: "",
@@ -271,6 +273,23 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       setMessage("Server error while creating user.");
     }
   };
+
+  const generateSystemErrorsReport = async () => {
+  try {
+    const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/errors");
+    const data = await response.json();
+
+    if (data.success && Array.isArray(data.errors)) {
+      setSystemErrorsData(data.errors); 
+      setShowSystemErrors(true);        
+    } else {
+      setMessage("Failed to fetch system errors");
+    }
+  } catch (error) {
+    console.error("Error fetching system errors:", error);
+    setMessage("Server error while fetching system errors.");
+  }
+};
 
   // Generate User Report
   const generateUserReport = async () => {
@@ -552,7 +571,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
             <Button 
             variant="contained"
             className="btn"
-            onClick={generateExpiredPasswordsReport}>
+            onClick={generateSystemErrorsReport}>
             View All System Critical Errors
             </Button>
             <Button
@@ -902,6 +921,39 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
 
         {message && <p className="status-message">{message}</p>}
       </Box>
+
+      <Dialog open={showSystemErrors} onClose={() => setShowSystemErrors(false)} maxWidth="md" fullWidth>
+        <DialogTitle>System Critical Errors</DialogTitle>
+        <DialogContent dividers>
+          {systemErrorsData.length === 0 ? (
+            <Typography>No system errors found.</Typography>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>ID</th>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>Timestamp</th>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>Message</th>
+                </tr>
+             </thead>
+              <tbody>
+                {systemErrorsData.map((err) => (
+                  <tr key={err.errorId}>
+                    <td style={{ padding: "0.5rem" }}>{err.errorId}</td>
+                    <td style={{ padding: "0.5rem" }}>{new Date(err.timestamp).toLocaleString()}</td>
+                    <td style={{ padding: "0.5rem" }}>{err.message}</td>
+                 </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowSystemErrors(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ========== USER REPORT DIALOG ========== */}
       <Dialog open={showUserReport} onClose={() => setShowUserReport(false)} maxWidth="lg" fullWidth>
