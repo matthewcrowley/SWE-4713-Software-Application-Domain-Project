@@ -63,6 +63,7 @@ describe('Regular Account Page', () => {
     it('renders header of account', () => {
         expect(screen.getByTestId("account-header")).toBeInTheDocument();
         expect(screen.getByTestId('user-section')).toBeInTheDocument();
+        expect(screen.getByText('Accountant')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Dashboard/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Account Management/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /Chart of Accounts/i })).toBeInTheDocument();

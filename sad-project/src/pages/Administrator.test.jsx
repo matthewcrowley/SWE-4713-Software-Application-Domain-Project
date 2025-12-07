@@ -72,7 +72,7 @@ describe('Administrator Page', () => {
         expect(screen.getByRole('button', { name: /Logout/i })).toBeInTheDocument();
     })
 
-    it('renders financial ratios', () => {
+    it('Does not render financial ratios', () => {
         //use query API for negative testing
         expect(screen.queryByText('Financial Ratios')).not.toBeInTheDocument();
     })

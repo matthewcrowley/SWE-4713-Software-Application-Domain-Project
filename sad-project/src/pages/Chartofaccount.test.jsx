@@ -9,7 +9,14 @@ import {
     BrowserRouter
 } from "react-router-dom";
 import '@testing-library/jest-dom/vitest'
-import {findAllByAltText, prettyDOM, render, screen, waitFor} from '@testing-library/react';
+import {
+    findAllByAltText,
+    getAllByRole,
+    prettyDOM,
+    render,
+    screen,
+    waitFor
+} from '@testing-library/react';
 import App from '../App.jsx'
 import {describe, it, expect, test, afterEach,beforeAll,beforeEach,afterAll, cleanup, first, vi} from 'vitest';
 import React, {useEffect, useState} from "react";
@@ -26,8 +33,15 @@ vi.mock('react-router-dom', async () => {
     };
 });
 
-const wrapper = ({ children }) => {
-    return <MemoryRouter>{children}</MemoryRouter>
+
+const renderwithRouter = (component) => {
+    return(
+        render(<BrowserRouter>
+        {component}
+    </BrowserRouter>)
+    )
+
+
 }
 
 
@@ -36,12 +50,12 @@ describe('Chart of Accounts Page', () => {
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
     it('Renders without crashing', async () => {
-        render(<Administrator setIsLoggedIn={true}/>, wrapper);
+        renderwithRouter(<Administrator/>)
         const user = userEvent.setup()
 
         const cofaButton = screen.getByRole('button', { name: /📋 Chart of Accounts/i });
         await user.click(cofaButton);
-        render(<Chartofaccounts />);
+        renderwithRouter(<Chartofaccounts />)
         await delay(2000);
 
 
@@ -57,21 +71,45 @@ describe('Chart of Accounts Page', () => {
         expect(screen.getAllByRole("button", {name: '?'})).toHaveLength(2);
 
 
-
-
     })
 
     it('Render Search and Filter Accounts', () => {
        expect(screen.getByRole('heading', { name: /Search and Filter Accounts/i})).toBeInTheDocument();
-
-       expect(screen.getByRole('button', { name: /Search/i}));
+       expect(screen.getByRole('combobox')).toBeInTheDocument();
+       expect(screen.getByPlaceholderText('Search all fields...')).toBeInTheDocument();
+       expect(screen.getByRole('button', { name: /Search/i})).toBeInTheDocument();
         expect(screen.getByText('Select a filter type and enter a search term to find accounts.')).toBeInTheDocument();
 
     })
 
-    it('Render Chart of Accounts', async () => {
+    it('Render Text & Buttons for Chart of Accounts', () => {
 
-        expect(screen.getByRole('button', { name: /Add Account/i}));
+        expect(screen.getByRole('button', { name: /Add Account/i})).toBeInTheDocument();
+        expect(screen.getByText('Manage your accounts here.')).toBeInTheDocument();
+    })
+
+    it('Render Table for Chart of Accounts', () => {
+        expect(screen.getByRole('table')).toBeInTheDocument();
+    })
+
+    it('Ensure multiple rows in Chart of Accounts', () => {
+
+        expect(screen.getAllByRole('row')).not.toHaveLength(0);
+
+    })
+
+    it('Render Chart of Accounts Table Headers', () => {
+        const tableHeaders = screen.getAllByRole('columnheader')
+        expect(tableHeaders[0]).toHaveAccessibleName('Select to Edit');
+        expect(tableHeaders[1]).toHaveAccessibleName(/Account Number/i);
+        expect(tableHeaders[2]).toHaveAccessibleName(/Account Name/i);
+        expect(tableHeaders[3]).toHaveAccessibleName(/Account Type/i);
+        expect(tableHeaders[4]).toHaveAccessibleName(/Subcategory/i);
+        expect(tableHeaders[5]).toHaveAccessibleName(/Balance/i);
+        expect(tableHeaders[6]).toHaveAccessibleName(/Created By/i);
+        expect(tableHeaders[7]).toHaveAccessibleName(/Date Created/i);
+        expect(tableHeaders[8]).toHaveAccessibleName(/Comments/i);
+
 
 
     })

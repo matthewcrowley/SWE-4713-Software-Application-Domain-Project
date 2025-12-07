@@ -18,6 +18,8 @@ import Chartofaccounts from "./Chartofaccounts.jsx";
 import userEvent from '@testing-library/user-event';
 import AccountManagement from "./AccountManagement.jsx";
 import Eventlog from "./Eventlog.jsx";
+import AccountLedger from "./AccountLedger.jsx";
+import Manager from "./manager.jsx";
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -39,50 +41,32 @@ const renderwithRouter = (component) => {
 }
 
 
-describe('Account Management Page', () => {
+describe('Account Ledger Page', () => {
 
     const delay = ms => new Promise(res => setTimeout(res, ms));
 
     it('Renders without crashing', async () => {
-        renderwithRouter(<Administrator setIsLoggedIn={true}/>);
+        renderwithRouter(<Manager setIsLoggedIn={true}/>);
         const user = userEvent.setup()
 
-        const eventlogButton = screen.getByRole('button', {name: /📝 Event Log/i});
-        await user.click(eventlogButton);
-        renderwithRouter(<Eventlog/>);
-        await delay(1500);
+        const acctLedgerButton = screen.getAllByRole('button', {name: /Access Service/i});
+        console.log(acctLedgerButton.length);
+        await user.click(acctLedgerButton[7]);
+        renderwithRouter(<AccountLedger/>);
+        await delay(1750);
 
+        console.debug(prettyDOM()) //render method to be researched more
 
-        expect(screen.getByText("View all account changes, including before and after states.")).toBeInTheDocument();
+        //There is no screen for acccount ledger so this test will be left as it is here.
+        //Look for the Ledger.Test.jsx
 
     })
 
     it('Renders major elements', () => {
-        const eventLog = screen.queryAllByText('Event Log');
-        expect(eventLog.length).toBeGreaterThanOrEqual(1);
-        expect(screen.getByRole('table')).toBeInTheDocument();
-
-    })
-
-    it('Renders Table Headers', () => {
-
-        const tableHeaders = screen.getAllByRole('columnheader');
-        expect(tableHeaders).toHaveLength(6);
-        expect(tableHeaders[0]).toHaveAccessibleName(/ID/i);
-        expect(tableHeaders[1]).toHaveAccessibleName(/User ID/i);
-        expect(tableHeaders[2]).toHaveAccessibleName(/Action/i);
-        expect(tableHeaders[3]).toHaveAccessibleName(/Timestamp/i);
-        expect(tableHeaders[4]).toHaveAccessibleName(/Before/i);
-        expect(tableHeaders[5]).toHaveAccessibleName(/After/i);
 
 
     })
 
-    it('Renders Table rows', () => {
-        const rows = screen.getAllByRole('row')
-        expect(rows.length).toBeGreaterThanOrEqual(1);
-        console.log(rows.length);
 
-    })
 
 })
