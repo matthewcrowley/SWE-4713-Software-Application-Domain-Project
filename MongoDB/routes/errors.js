@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getDB } = require('../db');
 const { ObjectId } = require('mongodb');
+const {logSystemError} = require('../utils/errorLogger');
 
 router.get('/', async (req, res) => {
   try {
@@ -13,6 +14,7 @@ router.get('/', async (req, res) => {
 
     res.json({ success: true, errors });
   } catch (err) {
+    await logSystemError(err);
     console.error("Failed to fetch system errors:", err);
     res.status(500).json({ success: false, message: "Server error fetching errors" });
   }
@@ -37,6 +39,7 @@ router.post('/', async (req, res) => {
 
     res.json({ success: true, error: errorEntry });
   } catch (err) {
+    await logSystemError(err);
     console.error("Failed to log system error:", err);
     res.status(500).json({ success: false, message: "Server error logging error" });
   }

@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {getDB} = require('../db');
 const {ObjectId} = require('mongodb');
+const {logSystemError} = require('../utils/errorLogger');
 
 router.get("/", async (req, res) => {
   try {
@@ -164,6 +165,7 @@ router.get("/", async (req, res) => {
 
     res.json(ratios);
   } catch (error) {
+    await logSystemError(error);
     console.error("Error calculating financial ratios:", error);
     res.status(500).json({ error: "Failed to calculate financial ratios" });
   }

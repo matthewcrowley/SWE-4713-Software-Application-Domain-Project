@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const {logSystemError} = require('../utils/errorLogger');
 
 router.post("/verify-user", async (req, res) => {
   const { username, email } = req.body;
@@ -10,6 +11,7 @@ router.post("/verify-user", async (req, res) => {
     if (!user) return res.json({success: false, message: "The user was not found."});
     return res.json({success: true});
   } catch (err) {
+    await logSystemError(err);
     console.error(err);
     return res.json({success: false, message: "There was a server error."});
   }
@@ -33,6 +35,7 @@ router.post("/verify-security", async (req, res) => {
 
     return res.json({success: true});
   } catch (err) {
+    await logSystemError(err);
     console.error(err);
     return res.json({success: false, message: "There was a server error."});
   }
@@ -62,6 +65,7 @@ router.post("/reset-password", async (req, res) => {
 
     return res.json({success: true, message: "Your password was updated successfully."});
   } catch (err) {
+    await logSystemError(err);
     console.error(err);
     return res.status(500).json({success: false, message: "There was a server error."});
   }

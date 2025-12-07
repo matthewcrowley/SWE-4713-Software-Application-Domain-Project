@@ -4,7 +4,7 @@ const { getDB } = require('../db');
 const {ObjectId} = require('mongodb');
 const multer = require('multer');
 const upload = multer();
-
+const {logSystemError} = require('../utils/errorLogger');
 
 //Get all journal entries
 router.get('/', async (req, res) => {
@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
     const entries = await db.collection('journal').find().toArray();
     res.json(entries);
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching journal entries:', err);
     res.status(500).json({ message: 'Failed to fetch journal entries.' });
   }
@@ -31,6 +32,7 @@ router.get('/:id', async (req, res) => {
 
     res.json(entry);
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching entry by ID:', err);
     res.status(500).json({ message: 'Failed to fetch journal entry.' });
   }
@@ -109,6 +111,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
       id: result.insertedId,
     });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error creating journal entry:', err);
     res.status(500).json({ error: 'Failed to create journal entry.' });
   }
@@ -252,6 +255,7 @@ router.put('/:id/approve', async (req, res) => {
 
     res.status(200).json({ message: 'Journal entry approved and posted to ledger' });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error approving journal entry:', error.stack || error);
     res.status(500).json({ error: 'Failed to approve journal entry' });
   }
@@ -326,6 +330,7 @@ router.put('/:id/reject', async (req, res) => {
 
     res.status(200).json({ message: 'Journal entry rejected' });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error rejecting journal entry:', error);
     res.status(500).json({ error: 'Failed to reject journal entry' });
   }
@@ -348,6 +353,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ message: 'Journal entry updated successfully.' });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error updating journal entry:', err);
     res.status(500).json({ message: 'Failed to update journal entry.' });
   }
@@ -367,6 +373,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ message: 'Journal entry deleted successfully.' });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error deleting journal entry:', err.stack || error);
     res.status(500).json({ message: 'Failed to delete journal entry.' });
   }

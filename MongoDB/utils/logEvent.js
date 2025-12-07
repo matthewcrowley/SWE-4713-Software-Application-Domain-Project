@@ -1,4 +1,5 @@
-// utils/logEvent.js
+const {logSystemError} = require('./utils/errorLogger');
+
 async function logEvent(db, { userId, action, collectionName, documentId, beforeImage, afterImage }) {
   try {
     await db.collection('eventlogs').insertOne({
@@ -11,6 +12,7 @@ async function logEvent(db, { userId, action, collectionName, documentId, before
       afterImage: afterImage || null,
     });
   } catch (err) {
+    await logSystemError(err);
     console.error('Failed to log event:', err);
   }
 }
