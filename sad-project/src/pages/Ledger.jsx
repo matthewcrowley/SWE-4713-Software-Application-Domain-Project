@@ -32,11 +32,11 @@ const Ledger = () => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  // ===== Fetch Current User =====
+  // Fetch Current User
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -46,7 +46,7 @@ const Ledger = () => {
     fetchCurrentUser();
   }, []);
 
-  // ===== Fetch Ledger Entries from API =====
+  // Fetch Ledger Entries from API
   useEffect(() => {
     const fetchLedgerData = async () => {
       setLoading(true);
@@ -57,7 +57,7 @@ const Ledger = () => {
         if (endDate) params.append('endDate', endDate);
 
         const queryString = params.toString();
-        const url = `http://localhost:3000/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
+        const url = `https://swe-4713-software-application-domain.onrender.com/api/ledger/${accountId}${queryString ? `?${queryString}` : ''}`;
 
         const response = await fetch(url);
         if (!response.ok) throw new Error('Failed to fetch ledger data');
@@ -78,7 +78,7 @@ const Ledger = () => {
     fetchLedgerData();
   }, [accountId, startDate, endDate]);
 
-  // ===== Handle Search and Filter =====
+  // Handle Search and Filter
   const handleSearch = () => {
     let results = [...ledgerEntries];
 
@@ -140,7 +140,7 @@ const Ledger = () => {
     }
   };
 
-  // ===== Navigate to Journal Entry with Highlighting =====
+  // Navigate to Journal Entry with Highlighting
   const handlePostReferenceClick = (journalId) => {
     if (!journalId) {
       console.warn('No journal ID provided');
@@ -175,6 +175,7 @@ const Ledger = () => {
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <div>
@@ -201,7 +202,7 @@ const Ledger = () => {
         </div>
       </header>
 
-      {/* ===== Navigation Bar ===== */}
+      {/* Navigation Bar */}
       <nav className="dashboard-nav">
         <div className="button-container">
           <Calendar title="Calendar" />
@@ -237,14 +238,14 @@ const Ledger = () => {
         </button>
       </nav>
 
-      {/* ===== Error Message ===== */}
+      {/* Error Message */}
       {error && (
         <div className="ledger-section">
           <div className="error-message">{error}</div>
         </div>
       )}
 
-      {/* ===== Account Summary ===== */}
+      {/* Account Summary */}
       {account && (
         <Paper className="ledger-section account-summary">
           <h2>Account Summary</h2>
@@ -277,7 +278,7 @@ const Ledger = () => {
         </Paper>
       )}
 
-      {/* ===== Search and Filter Section ===== */}
+      {/* Search and Filter Section */}
       <div className="ledger-section">
         <h2>Filter and Search Ledger Entries</h2>
         
@@ -357,7 +358,7 @@ const Ledger = () => {
         )}
       </div>
 
-      {/* ===== Ledger Entries Table ===== */}
+      {/* Ledger Entries Table */}
       <div className="ledger-section">
         <h2>Ledger Entries ({filteredEntries.length})</h2>
         

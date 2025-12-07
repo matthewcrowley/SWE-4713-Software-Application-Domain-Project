@@ -11,10 +11,10 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import { Link } from "react-router-dom";
 
-const Chartofaccounts = (testing) => {
+const Chartofaccounts = () => {
   const navigate = useNavigate();
 
-  // ===== State Variables =====
+  // State Variables
   const [accounts, setAccounts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -29,13 +29,26 @@ const Chartofaccounts = (testing) => {
   const [error, setError] = useState('');
   const [sortedAccounts, setSortedAccounts] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-
-  if (testing===null){
-    testing=false;
-  }
+  const [accountForm, setAccountForm] = useState({
+    account_number: "",
+    account_name: "",
+    description: "",
+    normal_side: "",
+    type: "",
+    subcategory: "",
+    initial_balance: "",
+    debits: 0,
+    credits: 0,
+    balance: 0,
+    timestamp: "",
+    comments: "",
+  });
 
   // Radio buttons
   const [selectedRadioId, setSelectedRadioId] = useState(null);
+
+  // Add new account
+  const [openAddDialog, setOpenAddDialog] = useState(false);
 
 
 const [editingAccountId, setEditingAccountId] = useState(null);
@@ -45,7 +58,7 @@ const [editedAccount, setEditedAccount] = useState({});
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("http://localhost:3000/api/curUser");
+            const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -57,10 +70,10 @@ const [editedAccount, setEditedAccount] = useState({});
       }, []);
 
 
-  // ===== Fetch Accounts from MongoDB Backend =====
+  // Fetch Accounts from MongoDB Backend
   useEffect(() => {
     setLoading(true);
-    fetch('http://localhost:3000/api/accounts')
+    fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch accounts');
         return res.json();
@@ -79,12 +92,12 @@ const [editedAccount, setEditedAccount] = useState({});
   }, []);
 
 
-  // ===== Fetch Event Logs for Specific Account =====
+  // Fetch Event Logs for Specific Account
   const fetchAccountEventLogs = async (accountId, accountNumber) => {
     setLogsLoading(true);
     try {
       // Fetch all event logs
-      const response = await fetch('http://localhost:3000/api/eventlog');
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/eventlog');
       if (!response.ok) throw new Error('Failed to fetch event logs');
       const allLogs = await response.json();
 
@@ -122,7 +135,7 @@ const [editedAccount, setEditedAccount] = useState({});
     }
   };
 
-  // ===== Handlers =====
+  // Handlers
   // Enter edit mode
 const handleEdit = (account) => {
   setEditingAccountId(account._id);
@@ -135,25 +148,86 @@ const handleCancel = () => {
   setEditedAccount({});
 };
 
-// Handle account creation 
- const handleAddAccount = async (e) => {
-    e.preventDefault();
-    const newAccount = {
-      ...accountForm,
-      initialBalance: formatMoney(accountForm.initialBalance),
-      debit: formatMoney(accountForm.debit),
-      credit: formatMoney(accountForm.credit),
-      balance: formatMoney(accountForm.balance),
-      dateAdded: new Date().toISOString(),
-    };
- }
+const handleOpenAdd = () => {
+  setAccountForm({
+    account_number: "",
+    account_name: "",
+    description: "",
+    normal_side: "",
+    type: "",
+    subcategory: "",
+    initial_balance: "",
+    debits: 0,
+    credits: 0,
+    balance: 0,
+    timestamp: "",
+    comments: "",
+  });
+  setOpenAddDialog(true);
+};
+
+const handleCloseAdd = () => setOpenAddDialog(false);
+
+const handleAddAccount = async () => {
+
+  // Check for duplicates
+  const existsNumber = accounts.some(acc => acc.account_number === accountForm.account_number);
+  const existsName = accounts.some(acc => acc.account_name.toLowerCase() === accountForm.account_name.toLowerCase());
+
+  if (existsNumber) {
+    alert("This account number already exists.");
+    return;
+  }
+
+  if (existsName) {
+    alert("This account name already exists.");
+    return;
+  }
+
+  // Build payload
+  const newAccount = {
+    ...accountForm,
+    initial_balance: Number(accountForm.initial_balance) || 0,
+    debits: Number(accountForm.debits) || 0,
+    credits: Number(accountForm.credits) || 0,
+    balance: Number(accountForm.balance) || 0,
+    created_by: currentUser.curUsername,
+    timestamp: new Date().toISOString(),
+    debits: 0,
+    credits: 0,
+    description: "",
+  };
+
+  try {
+    const response = await fetch("http://localhost:3000/api/accounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newAccount),
+    });
+
+    if (!response.ok) throw new Error("Failed to create new account");
+    const created = await response.json();
+
+    // Update UI
+    const updated = [...accounts, created];
+    setAccounts(updated);
+    setSortedAccounts([...updated].sort((a, b) => Number(a.account_number) - Number(b.account_number)));
+
+    setOpenAddDialog(false);
+  } catch (err) {
+    console.error("Error adding account:", err);
+    alert("Failed to add account.");
+  }
+};
 
 // Save edited account
 const handleSave = async (accountId) => {
   try {
-    const payload = { ...editedAccount, _id: accountId }; // include _id in body
+    const payload = { ...editedAccount, _id: accountId, currentUser: currentUser.curUsername }; // include _id in body
 
-    const response = await fetch(`http://localhost:3000/api/accounts/${accountId}`, {
+    console.log(currentUser.curUsername);
+
+    const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/accounts/${accountId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -238,6 +312,10 @@ const handleSave = async (accountId) => {
     setDetailsTab(0);
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -281,7 +359,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/email", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(emailForm),
@@ -304,7 +382,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
     }
   };
 
-  // ===== Render Before/After Comparison =====
+  // Render Before/After Comparison
   const renderBeforeAfterComparison = (log) => {
     if (!log.before && log.after) {
       // Account was created
@@ -466,29 +544,31 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   return (
     <div className="admin-container">
-      {/* ===== Header ===== */}
-      <header className="admin-header" data-testid="cofa-header">
+      {/* Header */}
+      <header className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <h1 className="admin-title">Chart of Accounts</h1>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div className="header-actions">
-            <Button 
-              className="generate-report-btn" 
-              onClick={handleGenerateReport}
-              variant="contained"
-            >
-              View All Accounts Report
-            </Button>
-            <HelpButton />
+        {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
-        </div>
       </header>
 
        <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -526,20 +606,20 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
             📊 Financial Reports
           </button>}
           <div className="nav-right">
-          <button
-             className="nav-button email-button"
-             onClick={() => openEmailDialog()}
-             style={{
-             background: 'none',
-             border: 'none',
-             color: '#007BFF', // Bootstrap blue
-              textDecoration: 'underline',
-              cursor: 'pointer',
-             padding: 0,
-              font: 'inherit'
-            }}
-          >
-           Email Admin or Manager
+            <button
+              className="nav-button email-button"
+              onClick={() => openEmailDialog()}
+              style={{
+              backgroundColor: '#007BFF',
+              fontSize: '30px',
+              paddingTop: '0px', 
+              paddingBottom: '0px',
+              paddingRight: '5px', 
+              paddingLeft: '5px',
+              marginLeft: 'auto'
+              }}
+            >
+            ✉️
             </button>
           </div>
         </nav>
@@ -634,14 +714,14 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
 )}
 
 
-      {/* ===== Error Message ===== */}
+      {/* Error Message */}
       {error && (
         <div className="admin-section">
           <div className="error-message">{error}</div>
         </div>
       )}
 
-      {/* ===== Main Section ===== */}
+      {/* Main Section */}
       <div className="admin-section">
         <h2>Search and Filter Accounts</h2>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -695,7 +775,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           )}
         </div>
 
-        {/* ===== Search Results ===== */}
+        {/* Search Results */}
         {filteredAccounts.length > 0 ? (
           <>
             <p style={{ color: '#666', marginBottom: '1rem', fontSize: '0.95rem' }}>
@@ -756,9 +836,25 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
       <div className="admin-section">
         <div style={{display: 'flex', justifyContent: 'space-between'}}>
           <h2>Chart of Accounts</h2>
-          <Button className="add-account">Add Account</Button>
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '0px'}}>
+            <div className="header-actions">
+              <Button 
+                className="generate-report-btn" 
+                onClick={handleGenerateReport}
+                variant="contained"
+              >
+                Accounts Report
+              </Button>
+              <HelpButton />
+              {currentUser?.role === "Admin" && (<Button className="generate-report-btn" onClick={handleOpenAdd}>
+                   Add Account
+                </Button>
+              )}
+            </div>
+          </div> 
         </div>
         <p>Manage your accounts here.</p>
+         
 
         {loading ? (
           <p>Loading accounts...</p>
@@ -852,10 +948,11 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             onChange={(e) =>
                               setEditedAccount({
                                 ...editedAccount,
-                                balance: e.target.value,
+                                balance: e.target.value === '' ? '' : Number(e.target.value),
                               })
                             }
                             size="small"
+                            type="number"
                           />
                         </td>
                         <td>
@@ -936,7 +1033,24 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                             {currentUser.role == 'Admin' && <p style={{ color: 'black'
                             }}> {account.account_number} </p>}
                         </td>
-                        <td>{account.account_name}</td>
+                        <td>
+                            {/* Only manager and accountant can route to ledger*/}
+                            {currentUser.role != 'Admin' && <Link
+                              to={`/ledger/${account.account_number}`}
+                              onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                              style={{
+                                textDecoration: "none",
+                                color: "#1976d2",
+                                cursor: "pointer",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {account.account_name}
+                            </Link> }
+
+                            {currentUser.role == 'Admin' && <p style={{ color: 'black'
+                            }}> {account.account_name} </p>}
+                        </td>
                         <td style={{textAlign:"center"}}>{account.type}</td>
                         <td style={{textAlign:"center"}}>{account.subcategory}</td>
                         <td style={{ textAlign: "right" }}>
@@ -969,7 +1083,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
         )}
       </div>  
 
-      {/* ===== All Accounts Report Dialog ===== */}
+      {/* All Accounts Report Dialog */}
       <Dialog open={openReport} onClose={handleCloseReport} maxWidth="lg" fullWidth>
         <DialogTitle>All Accounts Report</DialogTitle>
         <DialogContent>
@@ -1004,7 +1118,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
                           minimumFractionDigits: 2,
                           maximumFractionDigits: 2
                           }) ?? '0.00'}</TableCell>
-                  <TableCell>{acc.isActive ? 'Active' : 'Inactive'}</TableCell>
+                  <TableCell>{acc.isActive ? 'Inactive' : 'Active'}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -1015,7 +1129,7 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
         </DialogActions>
       </Dialog>
 
-      {/* ===== Individual Account Details Dialog with Tabs ===== */}
+      {/* Individual Account Details Dialog with Tabs */}
       <Dialog open={openDetails} onClose={handleCloseDetails} maxWidth="lg" fullWidth>
         <DialogTitle>
           Account Details - {selectedAccount?.accountNumber} {selectedAccount?.accountName}
@@ -1038,10 +1152,9 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
               <p><strong>Category:</strong> {selectedAccount.type || 'N/A'}</p>
               <p><strong>Subcategory:</strong> {selectedAccount.subcategory || 'N/A'}</p>
               <p><strong>Balance:</strong> ${selectedAccount.balance?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Debit:</strong> ${selectedAccount.debit?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Credit:</strong> ${selectedAccount.credit?.toLocaleString() ?? '0.00'}</p>
-              <p><strong>Status:</strong> {selectedAccount.isActive ? 'Active' : 'Inactive'}</p>
-              <p><strong>Statement:</strong> {selectedAccount.statement || 'N/A'}</p>
+              <p><strong>Debit:</strong> ${selectedAccount.debits?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Credit:</strong> ${selectedAccount.credits?.toLocaleString() ?? '0.00'}</p>
+              <p><strong>Status:</strong> {selectedAccount.isActive ? 'Inactive' : 'Active'}</p>
               <p><strong>Comment:</strong> {selectedAccount.comment || 'N/A'}</p>
               <p><strong>Created:</strong> {new Date(selectedAccount.createdAt).toLocaleString()}</p>
               <p><strong>Last Updated:</strong> {new Date(selectedAccount.updatedAt).toLocaleString()}</p>
@@ -1080,6 +1193,117 @@ const [showEmailDialog, setShowEmailDialog] = useState(false);
           <Button onClick={handleCloseDetails} className="btn cancel">Close</Button>
         </DialogActions>
       </Dialog>
+
+      <Dialog open={openAddDialog} onClose={handleCloseAdd} maxWidth="sm" fullWidth>
+          <DialogTitle>Create New Account</DialogTitle>
+          <DialogContent>
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Account Number *"
+              value={accountForm.account_number}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                // Allow ONLY digits
+                if (/^\d*$/.test(value)) {
+                  setAccountForm({ ...accountForm, account_number: value });
+                }
+              }}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Account Name *"
+              value={accountForm.account_name}
+              onChange={(e) => setAccountForm({ ...accountForm, account_name: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Description *"
+              value={accountForm.description}
+              onChange={(e) => setAccountForm({ ...accountForm, description: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Normal Side (L or R) *"
+              value={accountForm.normal_side}
+              onChange={(e) => setAccountForm({ ...accountForm, normal_side: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Category *"
+              value={accountForm.type}
+              onChange={(e) => setAccountForm({ ...accountForm, type: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Subcategory *"
+              value={accountForm.subcategory}
+              onChange={(e) => setAccountForm({ ...accountForm, subcategory: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Initial Balance *"
+              value={accountForm.initial_balance}
+              onChange={(e) => setAccountForm({ ...accountForm, initial_balance: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Debits *"
+              value={accountForm.debits}
+              onChange={(e) => setAccountForm({ ...accountForm, debits: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Credits *"
+              value={accountForm.credits}
+              onChange={(e) => setAccountForm({ ...accountForm, credits: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Starting Balance *"
+              type="number"
+              value={accountForm.balance}
+              onChange={(e) => setAccountForm({ ...accountForm, balance: e.target.value })}
+            />
+
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Comments"
+              value={accountForm.comments}
+              onChange={(e) => setAccountForm({ ...accountForm, comments: e.target.value })}
+            />
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={handleCloseAdd}>Cancel</Button>
+            <Button onClick={handleAddAccount} variant="contained">Create</Button>
+          </DialogActions>
+        </Dialog>
+
+
+
     </div>
   );
 };

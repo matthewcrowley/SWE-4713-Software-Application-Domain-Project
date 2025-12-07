@@ -4,8 +4,8 @@ import HelpButton from '../components/HelpButton';
 import Calendar from '../components/Calendar';
 import logo from "../assets/sweetledger.jpeg";
 import './Journal.css';
-import { socket } from "../socket";
-import NotificationsWrapper from "../components/NotificationsWrapper";
+// DO NOT DELETE ThIS COMMENT OR LINE - import { socket } from "../socket";
+// DO NOT DELETE THIS COMMENT OR LINE - import NotificationsWrapper from "../components/NotificationsWrapper";
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -27,7 +27,7 @@ const Journal = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -79,7 +79,7 @@ const Journal = () => {
       setSelectedEntry(entry);
     } else {
       // Otherwise fetch it from API
-      fetch(`http://localhost:3000/api/journal-entries/${journalEntryId}`)
+      fetch(`https://swe-4713-software-application-domain.onrender.com/api/journal-entries/${journalEntryId}`)
         .then(res => res.json())
         .then(data => setSelectedEntry(data))
         .catch(err => console.error(err));
@@ -95,7 +95,7 @@ const Journal = () => {
 
   const fetchChartOfAccounts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/accounts');
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts');
       if (!response.ok) throw new Error('Failed to fetch accounts');
       const data = await response.json();
       setChartOfAccounts(data);
@@ -107,7 +107,7 @@ const Journal = () => {
   const fetchJournalEntries = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:3000/api/journal-entries');
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/journal-entries');
       if (!response.ok) throw new Error('Failed to fetch journal entries');
       const data = await response.json();
       setJournalEntries(data);
@@ -233,6 +233,10 @@ const Journal = () => {
     }
   };
 
+  const handleLogout = () => {
+    navigate("/");
+  };
+  
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
     
@@ -312,14 +316,17 @@ const Journal = () => {
         formData.append('attachments', file);
       });
 
-      const response = await fetch('http://localhost:3000/api/journal-entries', {
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/journal-entries', {
         method: 'POST',
         body: formData // Send as FormData instead of JSON
       });
 
+      {/*} DO NOT DELETE THIS CODE BLOCK
       if (newEntry.isAdjustingEntry === true) {
         socket.emit("new-adjusting-entry", { id: Date.now(), description: newEntry.description });
       }
+
+        DO NOT DELETE THIS CODE BLOCK*/}
 
       if (!response.ok) throw new Error('The system failed to create the journal entry.');
 
@@ -343,9 +350,9 @@ const Journal = () => {
   // Approve entry
   const approveEntry = async (entryId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/approve`, {
+      const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/journal-entries/${entryId}/approve`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'current-user': currentUser.curUsername },
       });
 
       if (!response.ok) {
@@ -384,9 +391,9 @@ const Journal = () => {
       newDebits += line.debit;
       newCredits += line.credit;
 
-        await fetch(`http://localhost:3000/api/accounts/${account._id}`, {
+        await fetch(`https://swe-4713-software-application-domain.onrender.com/api/accounts/${account._id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify({
             balance: newBalance,
             debits: newDebits,
@@ -413,9 +420,9 @@ const Journal = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/journal-entries/${entryId}/reject`, {
+      const response = await fetch(`https://swe-4713-software-application-domain.onrender.com/api/journal-entries/${entryId}/reject`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'current-user': currentUser.curUsername },
         body: JSON.stringify({ comment: rejectionComment })
       });
 
@@ -458,16 +465,24 @@ const Journal = () => {
           <img 
             src={logo} 
             alt="Sweet Ledger Logo" 
+            style={{ width: '100px', height: 'auto' }}
             className="header-logo"
           />
           <h1 className="admin-title">Journal Entries</h1>
         </div>
-        <div className="header-actions">
-          <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
-            <span className="btn-icon">+</span>
-            New Entry
-          </button>
-        </div>
+      {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
       </div>
 
       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
@@ -516,6 +531,12 @@ const Journal = () => {
       )}
 
       <div className="admin-section">
+        <div style={{display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '1rem'}}>
+            <button onClick={() => setShowNewEntry(true)} className="btn new-entry-btn">
+              <span className="btn-icon">+</span>
+              New Entry
+            </button>
+        </div>
         {/* Tabs */}
         <div className="tabs-container">
           <div className="tabs-header">
@@ -536,43 +557,45 @@ const Journal = () => {
               </button>
             ))}
           </div>
-
-          {/* Entry Type Filter - NEW */}
-          <div className="filter-container">
-            <span className="filter-icon">📋</span>
-            <label className="filter-label">
-              <span>Entry Type:</span>
-              <select
-                value={entryTypeFilter}
-                onChange={(e) => setEntryTypeFilter(e.target.value)}
-                className="form-select"
-              >
-                <option value="all">All Entries</option>
-                <option value="regular">Regular Entries</option>
-                <option value="adjusting">Adjusting Entries</option>
-              </select>
-            </label>
-          </div>
-
-          {/* Search Bar */}
-          <div className="filter-container">
-            <span className="filter-icon">🔍</span>
-            <div className="search-wrapper">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by account name, amount, date, or description..."
-                className="form-input search-input"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="clear-search-btn"
+          
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            {/* Entry Type Filter - NEW */}
+            <div className="filter-container" style={{width: '25%'}}>
+              <span className="filter-icon">📋</span>
+              <label className="filter-label">
+                <span>Entry Type:</span>
+                <select
+                  value={entryTypeFilter}
+                  onChange={(e) => setEntryTypeFilter(e.target.value)}
+                  className="form-select"
                 >
-                  ×
-                </button>
-              )}
+                  <option value="all">All Entries</option>
+                  <option value="regular">Regular Entries</option>
+                  <option value="adjusting">Adjusting Entries</option>
+                </select>
+              </label>
+            </div>
+
+            {/* Search Bar */}
+            <div className="filter-container" style={{width:'65%'}}>
+              <span className="filter-icon">🔍</span>
+              <div className="search-wrapper">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search by account name, amount, date, or description..."
+                  className="form-input search-input"
+                />
+                {searchTerm && (
+                  <button
+                    onClick={() => setSearchTerm('')}
+                    className="clear-search-btn"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             </div>
           </div>
 
@@ -1033,35 +1056,34 @@ const Journal = () => {
               </div>
 
               {/* Display Attachments */}
-              {selectedEntry.attachments && selectedEntry.attachments.length > 0 && (
-                <div className="detail-item">
-                  <span className="detail-label">Attachments:</span>
-                  <div style={{ marginTop: '0.5rem' }}>
-                    {selectedEntry.attachments.map((attachment, index) => (
-                      <a
-                        key={index}
-                        href={`http://localhost:3000/uploads/${attachment}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'block',
-                          padding: '0.5rem',
-                          backgroundColor: '#f5f5f5',
-                          borderRadius: '4px',
-                          marginBottom: '0.5rem',
-                          color: '#f7941d',
-                          textDecoration: 'none',
-                          fontSize: '0.9rem'
-                        }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = '#fff8f0'}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                      >
-                        📎 {attachment}
-                      </a>
-                    ))}
-                  </div>
+              {Array.isArray(selectedEntry.attachments) && selectedEntry.attachments.length > 0 && (
+              <div className="detail-item">
+              <span className="detail-label">Attachments:</span>
+
+              <div style={{ marginTop: '0.5rem' }}>
+              {selectedEntry.attachments.map((attachment, index) => {
+              
+              const fileName = typeof attachment === "string" ? attachment : attachment?.filename || attachment?.name || attachment?.originalname || "Unknown File";
+
+              return (
+              <div
+                  key={index}
+                  style={{
+                    padding: '0.5rem',
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: '4px',
+                    marginBottom: '0.5rem',
+                    fontSize: '0.9rem',
+                    color: '#333'
+                 }}
+                >
+                  📎 {fileName}
                 </div>
-              )}
+              );
+            })}
+          </div>
+        </div>
+      )}
 
               <table className="journal-table">
                 <thead>

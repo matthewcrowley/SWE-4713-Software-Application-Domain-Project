@@ -4,7 +4,7 @@ import "./Manager.css";
 import logo from "../assets/sweetledger.jpeg";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
-import NotificationsWrapper from "../components/NotificationsWrapper";
+//DO NOT DELETE THIS LINE OR COMMENT - import NotificationsWrapper from "../components/NotificationsWrapper";
 
 function PendingJournalEntries() {
   const [pendingEntries, setPendingEntries] = useState([]);
@@ -16,7 +16,7 @@ function PendingJournalEntries() {
       setLoading(true);
       setError("");
       try {
-        const res = await fetch("http://localhost:3000/api/journal-entries");
+        const res = await fetch("https://swe-4713-software-application-domain.onrender.com/api/journal-entries");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const allEntries = await res.json();
 
@@ -67,7 +67,7 @@ function DashboardNotificationBanner() {
 
   const fetchDashboardAlerts = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/notifications");
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/notifications");
       const data = await response.json();
       
       // Filter high-priority notifications for dashboard display
@@ -208,7 +208,7 @@ export default function Manager({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || []);
       } catch (err) {
@@ -222,7 +222,7 @@ export default function Manager({ setIsLoggedIn }) {
   useEffect(() => {
     const fetchRatios = async () => {
       setRatiosLoading(true);
-      const url = "http://localhost:3000/api/financial-ratios";
+      const url = "https://swe-4713-software-application-domain.onrender.com/api/financial-ratios";
       const maxAttempts = 3;
 
       const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -412,8 +412,8 @@ export default function Manager({ setIsLoggedIn }) {
 
                 const status = getRatioStatus(key, safeValue);
 
-                return (
-                  <div key={key} className={`ratio-card ratio-${status}`} data-testid="ratio-card">
+                return displayValue > 0 && (
+                  <div key={key} className={`ratio-card ratio-${status}`}>
                     <div className="ratio-title">{formatKey(key)}</div>
                     <div className="ratio-value">{displayValue}</div>
                     <div className={`ratio-indicator ${status}`}></div>

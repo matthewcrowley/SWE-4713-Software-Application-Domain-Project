@@ -22,7 +22,6 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import defaultProfile from "../assets/defaultprofile.png";
 import "./AccountManagement.css";
 import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
@@ -35,35 +34,37 @@ export default function AccountManagement() {
   const [message, setMessage] = useState("");
   const [editingUser, setEditingUser] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
+  const [systemErrorsData, setSystemErrorsData] = useState([]);
+  const [showSystemErrors, setShowSystemErrors] = useState(false);
   const [editForm, setEditForm] = useState({
     username: "",
     email: "",
-    role: "User",
+    role: "Accountant",
   });
 
   // Fetch current user
-    useEffect(() => {
-          const fetchCurrentUser = async () => {
-            try {
-              const response = await fetch("http://localhost:3000/api/curUser");
-              const data = await response.json();
-              setCurrentUser(data.currentUser || []);
-                
-            } catch (err) {
-              console.warn("Could not fetch /api/curUser:", err);
-            }
-          };
-          fetchCurrentUser();
-        }, []);
-        
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [createUserForm, setCreateUserForm] = useState({
+    firstName: "",
+    lastName: "",
     username: "",
     email: "",
     password: "",
-    role: "User",
+    role: "Accountant",
   });
 
   // New state for user reports
@@ -80,8 +81,14 @@ export default function AccountManagement() {
   });
 
   // New state for expired passwords report
-  const [showExpiredPasswordsReport, setShowExpiredPasswordsReport] = useState(false);
-  const [expiredPasswordsData, setExpiredPasswordsData] = useState([]);
+const [allUsers, setAllUsers] = useState([]);
+
+// State to store users with expired passwords
+const [expiredPasswordsData, setExpiredPasswordsData] = useState([]);
+
+// State to show/hide dialog
+const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false);
+
 
   // New state for email dialog
   const [showEmailDialog, setShowEmailDialog] = useState(false);
@@ -123,7 +130,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const data = await response.json();
         setUsers(data || []);
       } catch (error) {
@@ -140,7 +147,7 @@ export default function AccountManagement() {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/accounts");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/accounts");
         const data = await response.json();
         setAccounts(data || []);
       } catch (error) {
@@ -151,7 +158,7 @@ export default function AccountManagement() {
   }, []);
 
   const startEdit = (user) => {
-    setEditingUser(user.id);
+    setEditingUser(user._id);
     setEditForm({ username: user.username, email: user.email, role: user.role });
   };
 
@@ -160,14 +167,13 @@ export default function AccountManagement() {
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     navigate("/");
   };
 
   const saveUserUpdate = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${editingUser}`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${editingUser}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -179,9 +185,9 @@ export default function AccountManagement() {
 
       if (data.success) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === editingUser ? { ...u, ...editForm } : u))
+          prev.map((u) => (u._id === editingUser ? { ...u, ...editForm } : u))
         );
-        setMessage(`User ID ${editingUser} updated successfully`);
+        setMessage(`User updated successfully`);
         setEditingUser(null);
       } else {
         setMessage("Failed to update user: " + data.message);
@@ -195,11 +201,11 @@ export default function AccountManagement() {
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${user.id}/status`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ active: !user.active }),
+          body: JSON.stringify({ active: !user.active, updatedBy: currentUser?.curUsername || "Admin" }),
         }
       );
 
@@ -210,9 +216,7 @@ export default function AccountManagement() {
           prev.map((u) => (u._id === user._id ? { ...u, active: !u.active } : u))
         );
         setMessage(
-          `User ${user.username} is now ${
-            !user.active ? "true" : "false"
-          }`
+          `User ${user.username} is now ${!user.active ? "Active" : "Inactive"}`
         );
       } else {
         setMessage("Failed to update status: " + data.message);
@@ -238,11 +242,12 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/users", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...createUserForm,
+          created_by: currentUser?.curUsername || "Admin",
           active: true,
         }),
       });
@@ -250,13 +255,19 @@ export default function AccountManagement() {
       const data = await response.json();
 
       if (data.success) {
-        setUsers([...users, { ...createUserForm, id: data.userId, active: true }]);
+        // Refresh the user list
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+        const usersData = await usersResponse.json();
+        setUsers(usersData || []);
+        
         setMessage(`User ${createUserForm.username} created successfully with role ${createUserForm.role}`);
         setCreateUserForm({
+          firstName: "",
+          lastName: "",
           username: "",
           email: "",
           password: "",
-          role: "",
+          role: "Accountant",
         });
         setShowCreateUser(false);
       } else {
@@ -268,22 +279,39 @@ export default function AccountManagement() {
     }
   };
 
+  const generateSystemErrorsReport = async () => {
+  try {
+    const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/errors");
+    const data = await response.json();
+
+    if (data.success && Array.isArray(data.errors)) {
+      setSystemErrorsData(data.errors); 
+      setShowSystemErrors(true);        
+    } else {
+      setMessage("Failed to fetch system errors");
+    }
+  } catch (error) {
+    console.error("Error fetching system errors:", error);
+    setMessage("Server error while fetching system errors.");
+  }
+};
+
   // Generate User Report
   const generateUserReport = async () => {
     try {
-    const response = await fetch("http://localhost:3000/api/users");
-    const data = await response.json();
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+      const data = await response.json();
 
-    if (Array.isArray(data)) {
-      setUserReportData(data);
-      setShowUserReport(true);
-    } else {
-      setMessage("Failed to generate user report");
+      if (Array.isArray(data)) {
+        setUserReportData(data);
+        setShowUserReport(true);
+      } else {
+        setMessage("Failed to generate user report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setMessage("Server error while generating report.");
     }
-  } catch (error) {
-    console.error("Error generating report:", error);
-    setMessage("Server error while generating report.");
-  }
   };
 
   // Open suspend dialog
@@ -306,10 +334,10 @@ export default function AccountManagement() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/users/${suspendUser.id}/suspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser._id}/suspend`,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", updatedBy: currentUser?.curUsername || "Admin" },
           body: JSON.stringify(suspendForm),
         }
       );
@@ -319,7 +347,7 @@ export default function AccountManagement() {
       if (data.success) {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === suspendUser.id
+            u._id === suspendUser._id
               ? { ...u, suspended: true, suspendedUntil: suspendForm.expiryDate }
               : u
           )
@@ -336,32 +364,55 @@ export default function AccountManagement() {
     }
   };
 
-  // Generate Expired Passwords Report
-  const generateExpiredPasswordsReport = async () => {
+  // Handle unsuspend user - NEW FUNCTION
+  const handleUnsuspendUser = async (user) => {
     try {
-      const response = await fetch("http://localhost:3000/api/users/expired-passwords");
-      const data = await response.json();
-      
-      if (data.success) {
-        if (data.users.length === 0) {
-          setMessage("No users with expired passwords found");
-        } else {
-          setExpiredPasswordsData(data.users);
-          setShowExpiredPasswordsReport(true);
+      const response = await fetch(
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/unsuspend`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", updatedBy: currentUser?.curUsername || "Admin" },
         }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u._id === user._id
+              ? { ...u, suspended: false, suspendedUntil: null }
+              : u
+          )
+        );
+        setMessage(`User ${user.username} has been unsuspended`);
       } else {
-        setMessage("Failed to generate expired passwords report");
+        setMessage("Failed to unsuspend user: " + data.message);
       }
     } catch (error) {
-      console.error("Error generating report:", error);
-      setMessage("Server error while generating report.");
+      console.error("Error unsuspending user:", error);
+      setMessage("Server error while unsuspending user.");
     }
   };
+
+  // Generate Expired Passwords Report
+  const generateExpiredPasswordsReport = () => {
+  const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+  const now = new Date();
+
+  const expiredUsers = allUsers.filter(user => {
+    if (!user.passwordUpdatedAt) return false; // skip users without a passwordUpdatedAt
+    return new Date(user.passwordUpdatedAt) < new Date(now.getTime() - THIRTY_DAYS_MS);
+  });
+
+  setExpiredPasswordsData(expiredUsers);
+  setShowExpiredPasswordReport(true);
+};
 
   // Open email dialog
   const openEmailDialog = (user) => {
     setEmailForm({
-      userId: user.id,
+      userId: user._id,
       username: user.username,
       email: user.email,
       subject: "",
@@ -378,7 +429,7 @@ export default function AccountManagement() {
     }
 
     try {
-      const response = await fetch("http://localhost:3000/api/email", {
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(emailForm),
@@ -424,111 +475,93 @@ export default function AccountManagement() {
       balance: formatMoney(accountForm.balance),
       dateAdded: new Date().toISOString(),
     };
-
-    try {
-      const response = await fetch("http://localhost:3000/api/accounts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newAccount),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setAccounts([...accounts, newAccount]);
-        setMessage("Account added successfully!");
-        setAccountForm({
-          accountName: "",
-          accountNumber: "",
-          description: "",
-          normalSide: "Debit",
-          category: "",
-          subcategory: "",
-          initialBalance: "",
-          debit: "",
-          credit: "",
-          balance: "",
-          dateAdded: "",
-          userId: "",
-          order: "",
-          statement: "BS",
-          comment: "",
-        });
-      } else {
-        setMessage("Failed to add account: " + data.message);
-      }
-    } catch (error) {
-      console.error("Error adding account:", error);
-      setMessage("Server error while adding account.");
-    }
-  };
+  }
 
   return (
     <Box className="admin-container">
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
-        <header className="admin-header" style={{borderBottom: '0px'}}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                <img 
-                  alt="Sweet Ledger Logo"
-                  src={logo} 
-                  className="header-logo"
-                />
-                <h1 className="admin-title">Administrator Account Management</h1>
+        <header className="admin-header" style={{borderBottom: '0px', justifyContent: 'space-between', width: '100%'}}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
+            <img 
+              alt="Sweet Ledger Logo"
+              src={logo} 
+              style={{ width: '100px', height: 'auto' }}
+              className="header-logo"
+            />
+            <h1 className="admin-title">Administrator Account Management</h1>
+          </div>
+
+          {/* ===== User Section ===== */}
+          <div className="user-section" style={{ marginLeft: 'auto' }}>
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
               </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </header>
-        <Box display="flex" alignItems="center" gap={2}>
-          <Button
-            variant="contained"
-            className="btn"
-            onClick={generateUserReport}
-          >
-            View All Users Report
-          </Button>
-          <Button
-            variant="contained"
-            className="btn"
-            onClick={generateExpiredPasswordsReport}
-          >
-            Expired Passwords Report
-          </Button>
-          <Avatar src={defaultProfile} alt="Profile" />
-        </Box>
       </Box>
 
       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
         <div className="button-container">
-            <Calendar title="Calander" />
-            <span className="tooltiptext">Click here to open the calendar</span>
-          </div>
-          <button className="nav-button" onClick={() => navigate("/administrator")}>
-            🏠 Dashboard
-          </button>
-          <button className="nav-button" onClick={() => { navigate("/accountmanagement");}}>
-            👤 Account Management
-          </button>
-          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart of Accounts
-          </button>
-          <button className="nav-button" onClick={() => navigate("/eventlog")}>
-            📝 Event Log
-          </button>
-        </nav>
+          <Calendar title="Calander" />
+          <span className="tooltiptext">Click here to open the calendar</span>
+        </div>
+        <button className="nav-button" onClick={() => navigate("/administrator")}>
+          🏠 Dashboard
+        </button>
+        <button className="nav-button" onClick={() => { navigate("/accountmanagement");}}>
+          👤 Account Management
+        </button>
+        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+          📋 Chart of Accounts
+        </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+          📝 Event Log
+        </button>
+      </nav>
 
       {/* ===== Main Content ===== */}
       <Box className="admin-content">
         {/* ========== USER MANAGEMENT ========== */}
         <Paper elevation={1} className="admin-section">
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">
-              User Management
-            </Typography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">
+                User Management
+              </Typography>
+                      <Box display="flex" alignItems="center" gap={2}>
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateSystemErrorsReport}>
+            View All System Critical Errors
+            </Button>
+            <Button
+              variant="contained"
+              className="btn"
+              onClick={generateUserReport}
+            >
+              View All Users Report
+            </Button>
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}>
+            View Expired Passwords
+            </Button>
             <Button
               className="btn"
               onClick={() => setShowCreateUser(!showCreateUser)}
             >
               {showCreateUser ? "Cancel" : "Create New User"}
             </Button>
+          </Box>
           </Box>
 
           {/* Create User Form */}
@@ -539,6 +572,28 @@ export default function AccountManagement() {
               </Typography>
               <form onSubmit={handleCreateUser}>
                 <Grid container spacing={2}>
+                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="firstName"
+                      label="First Name *"
+                      value={createUserForm.firstName}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
+                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      name="lastName"
+                      label="Last Name *"
+                      value={createUserForm.lastName}
+                      onChange={handleCreateUserChange}
+                      required
+                    />
+                  </Grid>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -582,7 +637,7 @@ export default function AccountManagement() {
                       value={createUserForm.role}
                       onChange={handleCreateUserChange}
                     >
-                      <MenuItem value="User">User</MenuItem>
+                      <MenuItem value="Accountant">Accountant</MenuItem>
                       <MenuItem value="Manager">Manager</MenuItem>
                       <MenuItem value="Admin">Admin</MenuItem>
                     </Select>
@@ -615,9 +670,9 @@ export default function AccountManagement() {
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id}>
+                  <tr key={u._id}>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <TextField
                           size="small"
                           name="username"
@@ -629,7 +684,7 @@ export default function AccountManagement() {
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <TextField
                           size="small"
                           name="email"
@@ -641,14 +696,14 @@ export default function AccountManagement() {
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <Select
                           size="small"
                           name="role"
                           value={editForm.role}
                           onChange={handleEditChange}
                         >
-                          <MenuItem value="User">User</MenuItem>
+                          <MenuItem value="Accountant">Accountant</MenuItem>
                           <MenuItem value="Manager">Manager</MenuItem>
                           <MenuItem value="Admin">Admin</MenuItem>
                         </Select>
@@ -666,7 +721,7 @@ export default function AccountManagement() {
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <>
                           <Button
                             className="btn"
@@ -693,18 +748,43 @@ export default function AccountManagement() {
                             Edit
                           </Button>
                           <Button
-                            className={`btn ${
-                              u.active ? "deactivate" : "activate"
-                            }`}
+                            className={`btn ${u.active ? "deactivate" : "activate"}`}
                             size="small"
-                            onClick={() => toggleUserStatus(u)}
-                          >
+                            onClick={async () => {
+                              try {
+                                const newActiveStatus = !u.active;
+
+                                const response = await fetch(
+                                 `https://swe-4713-software-application-domain.onrender.com/api/users/${u._id}`,
+                                    {
+                                      method: "PUT",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ active: newActiveStatus, updatedBy: currentUser?.curUsername || "Admin" }),
+                                    }
+                                  );
+
+                                  const data = await response.json();
+
+                                  if (data.success) {
+                                    setUsers(prev =>
+                                    prev.map(user =>
+                                     user._id === u._id ? { ...user, active: newActiveStatus } : user
+                                    )
+                                    );
+                                  } else {
+                                  console.error("Failed to update user status:", data.message);
+                                  }
+                                } catch (err) {
+                              console.error("Error updating user status:", err);
+                            }
+                            }}
+                            >
                             {u.active ? "Deactivate" : "Activate"}
                           </Button>
                           <Button
                             className={`btn ${u.suspended ? "unsuspend" : "suspend"}`}
                             size="small"
-                            onClick={() => openSuspendDialog(u)}
+                            onClick={() => u.suspended ? handleUnsuspendUser(u) : openSuspendDialog(u)}
                           >
                             {u.suspended ? "Unsuspend" : "Suspend"}
                           </Button>
@@ -817,10 +897,10 @@ export default function AccountManagement() {
                   <td>{a.type}</td>
                   <td>{a.subcategory}</td>
                   <td style={{ textAlign: 'right' }}>${a.balance.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          })}</td>
-                  <td>{a.createdBy}</td>
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}</td>
+                  <td>{a.created_by}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
@@ -831,6 +911,39 @@ export default function AccountManagement() {
 
         {message && <p className="status-message">{message}</p>}
       </Box>
+
+      <Dialog open={showSystemErrors} onClose={() => setShowSystemErrors(false)} maxWidth="md" fullWidth>
+        <DialogTitle>System Critical Errors</DialogTitle>
+        <DialogContent dividers>
+          {systemErrorsData.length === 0 ? (
+            <Typography>No system errors found.</Typography>
+          ) : (
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>ID</th>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>Timestamp</th>
+                  <th style={{ textAlign: "left", padding: "0.5rem" }}>Message</th>
+                </tr>
+             </thead>
+              <tbody>
+                {systemErrorsData.map((err) => (
+                  <tr key={err.errorId}>
+                    <td style={{ padding: "0.5rem" }}>{err.errorId}</td>
+                    <td style={{ padding: "0.5rem" }}>{new Date(err.timestamp).toLocaleString()}</td>
+                    <td style={{ padding: "0.5rem" }}>{err.message}</td>
+                 </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowSystemErrors(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* ========== USER REPORT DIALOG ========== */}
       <Dialog open={showUserReport} onClose={() => setShowUserReport(false)} maxWidth="lg" fullWidth>
@@ -851,7 +964,7 @@ export default function AccountManagement() {
               </TableHead>
               <TableBody>
                 {userReportData.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user._id}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
@@ -877,6 +990,53 @@ export default function AccountManagement() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowUserReport(false)} className="btn">
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== Expired Password Dialog ========== */}
+      <Dialog
+        open={showExpiredPasswordReport}
+        onClose={() => setShowExpiredPasswordReport(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Expired Passwords</DialogTitle>
+        <DialogContent>
+          {expiredPasswordsData.length === 0 ? (
+            <div style={{ padding: "1rem", fontSize: "1rem" }}>
+              <strong>There are no users with expired passwords!</strong>
+              <br />
+              Passwords expire every 30 days.
+            </div>
+          ) : (
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Username</strong></TableCell>
+                    <TableCell><strong>Email</strong></TableCell>
+                    <TableCell><strong>Message</strong></TableCell>
+                 </TableRow>
+                </TableHead>
+                <TableBody>
+                  {expiredPasswordsData.map(user => (
+                    <TableRow key={user._id}>
+                      <TableCell>{user.username}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                     <TableCell style={{ color: "#c0392b", fontWeight: 600 }}>
+                       Please contact them to reset their password!
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+           </TableContainer>
+         )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowExpiredPasswordReport(false)} className="btn">
             Close
           </Button>
         </DialogActions>
@@ -930,41 +1090,6 @@ export default function AccountManagement() {
         </DialogActions>
       </Dialog>
 
-      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
-      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Expired Passwords Report</DialogTitle>
-        <DialogContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Username</strong></TableCell>
-                  <TableCell><strong>Email</strong></TableCell>
-                  <TableCell><strong>Role</strong></TableCell>
-                  <TableCell><strong>Password Age (Days)</strong></TableCell>
-                  <TableCell><strong>Last Changed</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {expiredPasswordsData.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role}</TableCell>
-                    <TableCell>{user.passwordAge}</TableCell>
-                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* ========== SEND EMAIL DIALOG ========== */}
       <Dialog open={showEmailDialog} onClose={() => setShowEmailDialog(false)} maxWidth="sm" fullWidth>

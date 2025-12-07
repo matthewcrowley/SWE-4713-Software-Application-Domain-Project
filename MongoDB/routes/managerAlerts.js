@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const {logSystemError} = require('../utils/errorLogger');
 
 module.exports = (db) => {
   router.get('/', async (req, res) => {
@@ -56,6 +57,7 @@ module.exports = (db) => {
 
       res.json({ alerts });
     } catch (error) {
+      await logSystemError(error);
       console.error("Error loading manager alerts:", error);
       res.status(500).json({ error: "Failed to load alerts" });
     }

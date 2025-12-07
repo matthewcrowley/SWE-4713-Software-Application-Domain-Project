@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { socket } from "./socket";
+//DO NOT DELETE THIS LINE OR COMMENT - import { socket } from "./socket";
 import { useEffect } from "react";
 import "./style.css";
 import NewUser from "./NewUser";
@@ -25,10 +25,12 @@ function App() {
   var role = " "; // Placeholder for user role management
   var curUsername; 
 
+  {/*}
   useEffect(() => {
   const handleConnect = () => {
     console.log("Connected to Socket.io:", socket.id);
   };
+
 
   const handleNewAdjustingEntry = (data) => {
     console.log("Received new adjusting entry:", data);
@@ -43,6 +45,8 @@ function App() {
     socket.off("new-adjusting-entry", handleNewAdjustingEntry);
   };
 }, []);
+
+*/}
 
   // ===== Login Page Component =====
   function LoginPage({ setIsLoggedIn }) {
@@ -79,7 +83,7 @@ function App() {
       console.log("Hashed password:", hashed);
 
       try {
-          const response = await fetch("http://localhost:3000/api/users");
+          const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
           const data = await response.json();
           const user = data.find((u) => u.username === username);  
           
@@ -89,6 +93,13 @@ function App() {
           }
           
           if (user && (user.passwordHash == hashed)) {
+            const THIRTY_DAYS = 30*24*60*60*1000;
+            const passwordAge = new Date() - new Date(user.passwordUpdatedAt);
+
+            if (passwordAge > THIRTY_DAYS) {
+            setMessage("Your password has expired. Please reset your password.");
+            return;
+          }
             role = user.role;
             curUsername = user.username;
             setIsLoggedIn(true);
@@ -96,7 +107,7 @@ function App() {
 
             // POST current user info to /api/curUser
             try {
-              const curUserResponse = await fetch("http://localhost:3000/api/curUser", {
+              const curUserResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -130,17 +141,17 @@ function App() {
           } else {
 
             // Wrong credentials — track failed attempts
-            const failedAttempts = JSON.parse(localStorage.getItem("failedAttempts")) || {};
+            const failedAttempts = JSON.parse(sessionStorage.getItem("failedAttempts")) || {};
             failedAttempts[username] = (failedAttempts[username] || 0) + 1;
 
             if (failedAttempts[username] >= 3) {
               // Suspend user
-              const suspendedUsers = JSON.parse(localStorage.getItem("suspendedUsers")) || {};
+              const suspendedUsers = JSON.parse(sessionStorage.getItem("suspendedUsers")) || {};
               suspendedUsers[username] = true;
-              localStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
+              sessionStorage.setItem("suspendedUsers", JSON.stringify(suspendedUsers));
               setMessage("Account suspended after 3 failed login attempts.");
 
-              await fetch(`http://localhost:3000/api/users/${username}`, {
+              await fetch(`https://swe-4713-software-application-domain.onrender.com/api/users/${username}`, {
               method: "PUT",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ suspended: true }),
@@ -148,7 +159,7 @@ function App() {
             }
             else 
             {   
-                localStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
+                sessionStorage.setItem("failedAttempts", JSON.stringify(failedAttempts));
                 setMessage(`Invalid username or password. (${failedAttempts[username]} of 3 attempts used)`);
             }
           }

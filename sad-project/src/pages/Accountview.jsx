@@ -21,7 +21,7 @@ export default function Accountview() {
   useEffect(() => {
         const fetchCurrentUser = async () => {
           try {
-            const response = await fetch("http://localhost:3000/api/curUser");
+            const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
             const data = await response.json();
             setCurrentUser(data.currentUser || []);
               
@@ -36,7 +36,7 @@ export default function Accountview() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/users");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
         const data = await response.json();
         setUsers(data || []);
       } catch (error) {
@@ -52,7 +52,7 @@ export default function Accountview() {
   // Fetch accounts
   useEffect(() => {
       setLoading(true);
-      fetch('http://localhost:3000/api/accounts')
+      fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts')
         .then(res => {
           if (!res.ok) throw new Error('Failed to fetch accounts');
           return res.json();
@@ -74,6 +74,10 @@ export default function Accountview() {
   const handleBack = () => {
     window.history.back();
   };
+  
+  const handleLogout = () => {
+    navigate("/");
+  };
 
   return (
     <div className="admin-container">
@@ -81,20 +85,24 @@ export default function Accountview() {
       {/* ===== Header Section ===== */}
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <img src={logo} alt="SweetLedger Logo" style={{ width: '50px', height: '50px', borderRadius: '8px' }} />
+          <img src={logo} alt="SweetLedger Logo" style={{ width: '100px', height: 'auto' }} />
           <h5 className="admin-title">
             Account View
           </h5>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            className="btn"
-            onClick={() => setMessage("No Current Expired Passwords")}
-          >
-            Generate Expired Passwords Report
-          </button>
-          <div className="avatar">
+
+        {/* ===== User Section ===== */}
+        <div className="user-section" style={{ marginLeft: 'auto' }}>
+          <span className="welcome-text">Welcome,</span>
+          <div>
+            <div className="username">
+                {currentUser?.curUsername}
+            </div>
+            <span className="admin-badge">{currentUser?.role}</span>
           </div>
+          <button className="logout-button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </div>
 

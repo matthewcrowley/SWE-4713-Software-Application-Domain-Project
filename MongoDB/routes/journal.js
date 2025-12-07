@@ -4,6 +4,7 @@ const multer = require('multer');
 const path = require('path');
 const { ObjectId } = require('mongodb');
 const { getDB } = require('../db');
+const {logSystemError} = require('../utils/errorLogger');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -44,6 +45,7 @@ router.get('/', async (req, res) => {
     
     res.status(200).json(journalEntries);
   } catch (error) {
+    await logSystemError(error);
     console.error('Error fetching journal entries:', error);
     res.status(500).json({ error: 'Failed to fetch journal entries' });
   }
@@ -68,6 +70,7 @@ router.get('/:id', async (req, res) => {
     
     res.status(200).json(journalEntry);
   } catch (error) {
+    await logSystemError(error);
     console.error('Error fetching journal entry:', error);
     res.status(500).json({ error: 'Failed to fetch journal entry' });
   }
@@ -150,6 +153,7 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
       attachments
     });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error creating journal entry:', error);
     res.status(500).json({ error: 'Failed to create journal entry: ' + error.message });
   }
@@ -272,6 +276,7 @@ router.put('/:id/approve', async (req, res) => {
       journalEntryNumber: journalEntry.journalEntryNumber
     });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error approving journal entry:', error);
     res.status(500).json({ 
       error: 'Failed to approve journal entry: ' + error.message 
@@ -336,6 +341,7 @@ router.put('/:id/reject', async (req, res) => {
       message: 'Journal entry rejected' 
     });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error rejecting journal entry:', error);
     res.status(500).json({ error: 'Failed to reject journal entry' });
   }
@@ -381,6 +387,7 @@ router.delete('/:id', async (req, res) => {
       message: 'Journal entry deleted successfully' 
     });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error deleting journal entry:', error);
     res.status(500).json({ error: 'Failed to delete journal entry' });
   }

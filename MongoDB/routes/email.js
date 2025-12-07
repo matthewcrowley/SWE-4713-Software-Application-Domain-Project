@@ -1,36 +1,31 @@
+require('dotenv').config();
 const express = require('express');
 const dbRoute = express.Router();
-const mailer = require('nodemailer');
+const sgMail = require('@sendgrid/mail');
+const { logSystemError } = require('../utils/errorLogger');
 
-const transport = mailer.createTransport({
-  host: 'smtp.sendgrid.net',
-  port: 465,
-  secure: true,
-  auth: {
-    user: 'apikey',
-    pass: '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'
-  }
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-dbRoute.post('/', async (q, r) => {
-  const { email, username, subject, message } = q.body;
+dbRoute.post('/', async (req, res) => {
+  const { email, username, subject, message } = req.body;
 
   if (!email || !subject || !message) {
-    return r.status(400).json({ success: false, message: "Missing required fields." });
+    return res.status(400).json({ success: false, message: "Missing required fields." });
   }
 
   try {
-    await transport.sendMail({
-    from: '"SweetLedger Admin" <matthewcrowley2002@gmail.com>',
-    to: email,
-    subject,
-    text: `Hi,\n\n${message}`,
-  });
+    await sgMail.send({
+      to: email,
+      from: 'matthewcrowley2002@gmail.com',
+      subject,
+      text: `Hi ${username || ''},\n\n${message}`,
+    });
 
-    r.json({success: true});
+    res.json({ success: true });
   } catch (error) {
-    console.error("Error sending Email:", error);
-    r.status(500).json({success: false, message: "Email failed to send."});
+    await logSystemError(error);
+    console.error("There was an error sending the email:", error.response ? error.response.body : error);
+    res.status(500).json({ success: false, message: "The email failed to send." });
   }
 });
 

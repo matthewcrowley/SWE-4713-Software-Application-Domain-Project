@@ -40,7 +40,7 @@ const Reports = () => {
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || null);
       } catch (err) {
@@ -56,8 +56,8 @@ const Reports = () => {
       setLoading(true);
       try {
         const [accountsRes, journalRes] = await Promise.all([
-          fetch('http://localhost:3000/api/accounts'),
-          fetch('http://localhost:3000/api/journal-entries')
+          fetch('https://swe-4713-software-application-domain.onrender.com/api/accounts'),
+          fetch('https://swe-4713-software-application-domain.onrender.com/api/journal-entries')
         ]);
 
         if (!accountsRes.ok || !journalRes.ok) {
@@ -82,9 +82,17 @@ const Reports = () => {
 
   // ===== Report Generation Functions =====
   const generateTrialBalance = () => {
-    const filteredEntries = journalEntries.filter(entry => 
-      new Date(entry.date) <= new Date(reportDate)
-    );
+    const filteredEntries = journalEntries.filter(entry => {
+      if (!entry.date) return false;
+
+      const entryDate = new Date(entry.date);
+      entryDate.setHours(0,0,0,0);
+
+      const reportDt = new Date(reportDate);
+      reportDt.setHours(23,59,59,999);
+
+      return entryDate <= reportDt;
+    });
 
     const accountBalances = {};
     
@@ -111,14 +119,25 @@ const Reports = () => {
       });
     });
 
-    // Calculate final debit/credit columns for trial balance
+    // Replace account.balance with calculated totals
     const trialBalanceData = Object.values(accountBalances)
-      .filter(acc => acc.debit > 0 || acc.credit > 0 || acc.balance !== 0)
-      .map(acc => ({
-        ...acc,
-        trialBalanceDebit: acc.normalSide === 'L' ? acc.balance : 0,
-        trialBalanceCredit: acc.normalSide === 'R' ? Math.abs(acc.balance) : 0
-      }))
+      .filter(acc => acc.debit > 0 || acc.credit > 0) // ignore initial account.balance
+      .map(acc => {
+        let trialBalanceDebit = 0;
+        let trialBalanceCredit = 0;
+
+        if (acc.normalSide === 'L') {
+          trialBalanceDebit = acc.debit - acc.credit; // net balance
+        } else if (acc.normalSide === 'R') {
+          trialBalanceCredit = acc.credit - acc.debit; // net balance
+        }
+
+        return {
+          ...acc,
+          trialBalanceDebit: trialBalanceDebit > 0 ? trialBalanceDebit : 0,
+          trialBalanceCredit: trialBalanceCredit > 0 ? trialBalanceCredit : 0
+        };
+      })
       .sort((a, b) => a.accountNumber - b.accountNumber);
 
     const totalDebit = trialBalanceData.reduce((sum, acc) => sum + acc.trialBalanceDebit, 0);
@@ -200,9 +219,19 @@ const Reports = () => {
   };
 
   const generateBalanceSheet = () => {
-    const filteredEntries = journalEntries.filter(entry => 
-      new Date(entry.date) <= new Date(reportDate)
-    );
+    const filteredEntries = journalEntries.filter(entry => {
+      if (!entry.date) return false;
+
+      const entryDate = new Date(entry.date);
+      entryDate.setHours(0,0,0,0);
+      console.log(entry.date, new Date(entry.date));
+
+      const reportDt = new Date(reportDate);
+      reportDt.setHours(23,59,59,999);
+      console.log(reportDate, reportDt);
+
+      return entryDate <= reportDt;
+    });
 
     const assets = [];
     const liabilities = [];
@@ -231,35 +260,68 @@ const Reports = () => {
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         } else if (account.type === 'Liability') {
           liabilities.push({
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         } else if (account.type === 'Equity') {
           equity.push({
             accountNumber: account.account_number,
             accountName: account.account_name,
             subcategory: account.subcategory,
-            amount: finalBalance
+            amount: balance
           });
         }
       }
     });
 
      // Add retained earnings to equity section
-    const retainedEarningsReport = generateRetainedEarnings();
-    const retainedEarningsAmount = retainedEarningsReport.endingRE || 0;
+    let revenues = 0;
+    let expenses = 0;
+    let dividends = 0;
 
+    filteredEntries.forEach(entry => {
+      entry.entries.forEach(line => {
+        const account = accounts.find(a => a.account_number === line.accountId);
+        if (!account) return;
+
+        if (account.type === "Revenue" || account.type === "Income") {
+          revenues += parseFloat(line.credit || 0) - parseFloat(line.debit || 0);
+        }
+
+        if (account.type === "Expense") {
+          expenses += parseFloat(line.debit || 0) - parseFloat(line.credit || 0);
+        }
+
+        if (account.type === "Dividend") {
+          dividends += parseFloat(line.debit || 0);
+        }
+      });
+    });
+
+    // Beginning retained earnings from chart of accounts
+    const retainedEarningsAccount = accounts.find(
+      acc => acc.account_name.toLowerCase().includes("retained earnings")
+    );
+
+    const beginningRE = retainedEarningsAccount
+      ? parseFloat(retainedEarningsAccount.balance) || 0
+      : 0;
+
+    // Final retained earnings up to the balance sheet date
+    const endingRE = beginningRE + (revenues - expenses) - dividends;
+
+    // Add to equity section
     equity.push({
-      accountNumber: 'RE',
+      accountNumber: retainedEarningsAccount?.account_number || 'RE',
       accountName: 'Retained Earnings',
       subcategory: 'Equity',
-      amount: retainedEarningsAmount
+      amount: endingRE
     });
 
     var totalAssets = assets.reduce((sum, a) => sum + a.amount, 0);
@@ -290,7 +352,7 @@ const Reports = () => {
     };
   };
 
-  const generateRetainedEarnings = () => {
+  const generateRetainedEarnings = (reportDate) => {
     const start = startDate || '1900-01-01';
     const end = endDate;
 
@@ -336,6 +398,11 @@ const Reports = () => {
     };
   };
 
+  // Handle Generate Report
+  const handleLogout = () => {
+    navigate("/");
+  };
+
   // ===== Handle Generate Report =====
   const handleGenerateReport = () => {
     setError('');
@@ -367,12 +434,12 @@ const Reports = () => {
     setGeneratedReport(report);
   };
 
-  // ===== Print Report =====
+  // Print Report 
   const handlePrint = () => {
     window.print();
   };
 
-  // ===== Email Report =====
+  // Email Report
   const handleSendEmail = async () => {
     if (!emailForm.email || !emailForm.subject) {
       setEmailMessage('Please fill in all required fields');
@@ -380,15 +447,15 @@ const Reports = () => {
     }
 
     try {
-      const reportHTML = document.getElementById('report-content').innerHTML;
+      const reportText = document.getElementById('report-content').innerText;
       
-      const response = await fetch('http://localhost:3000/api/email', {
+      const response = await fetch('https://swe-4713-software-application-domain.onrender.com/api/email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: emailForm.email,
           subject: emailForm.subject,
-          message: emailForm.message + '\n\n' + reportHTML
+          message: emailForm.message + '\n\n' + reportText
         })
       });
 
@@ -410,7 +477,7 @@ const Reports = () => {
     }
   };
 
-  // ===== Save Report =====
+  // Save Report
   const handleSaveReport = () => {
     const reportContent = document.getElementById('report-content').innerText;
     const blob = new Blob([reportContent], { type: 'text/plain' });
@@ -424,7 +491,7 @@ const Reports = () => {
     URL.revokeObjectURL(url);
   };
 
-  // ===== Render Report =====
+  // Render Report
   const renderReport = () => {
     if (!generatedReport) return null;
 
@@ -472,7 +539,18 @@ const Reports = () => {
                   {acc.accountNumber} 
                   </Link>
                   </TableCell>
-                  <TableCell>{acc.accountName}</TableCell>
+                  <TableCell>
+                    <Link
+                      to={`/ledger/${acc.accountNumber}`}
+                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
+                      style={{
+                            color: "#1976d2",
+                            cursor: "pointer",
+                            }}
+                  > 
+                  {acc.accountName} 
+                  </Link>
+                  </TableCell>
                   <TableCell align="right">
                     {acc.trialBalanceDebit > 0 
                       ? `$${acc.trialBalanceDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -488,10 +566,10 @@ const Reports = () => {
               <TableRow className="total-row">
                 <TableCell colSpan={2}><strong>Total</strong></TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.totals.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.totals.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -513,8 +591,8 @@ const Reports = () => {
                       to={`/ledger/${rev.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
                             cursor: "pointer",
+                            color: "#1976d2"
                             }}
                   > 
                     {rev.accountName}
@@ -528,7 +606,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Revenue</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -546,7 +624,7 @@ const Reports = () => {
                       to={`/ledger/${exp.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -561,7 +639,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Expenses</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.expenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -572,7 +650,7 @@ const Reports = () => {
                 <TableRow className="total-row">
                   <TableCell><strong>Net Income</strong></TableCell>
                   <TableCell align="right">
-                    <strong className={generatedReport.totals.netIncome < 0 ? 'negative-amount' : 'positive-amount'}>
+                    <strong className={generatedReport.totals.netIncome < 0 ? 'negative-amount' : 'positive-amount'} style={{borderBottom: '3px double black', paddingBottom: '2px'}}>
                       ${Math.abs(generatedReport.totals.netIncome).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       {generatedReport.totals.netIncome < 0 && ' (Loss)'}
                     </strong>
@@ -598,7 +676,7 @@ const Reports = () => {
                       to={`/ledger/${asset.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -613,7 +691,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Assets</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.assets.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.assets.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -631,7 +709,7 @@ const Reports = () => {
                       to={`/ledger/${liability.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -646,7 +724,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Liabilities</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.liabilities.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.liabilities.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -664,7 +742,7 @@ const Reports = () => {
                       to={`/ledger/${eq.accountNumber}`}
                       onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
                       style={{
-                            color: "black",
+                            color: "#1976d2",
                             cursor: "pointer",
                             }}
                       >
@@ -679,7 +757,7 @@ const Reports = () => {
                 <TableRow className="subtotal-row">
                   <TableCell><strong>Total Equity</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '1px solid black', paddingBottom: '2px'}}>${generatedReport.totals.equity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -690,7 +768,7 @@ const Reports = () => {
                 <TableRow className="total-row">
                   <TableCell><strong>Total Liabilities and Equity</strong></TableCell>
                   <TableCell align="right">
-                    <strong>${generatedReport.totals.liabilitiesAndEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.totals.liabilitiesAndEquity.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -715,15 +793,21 @@ const Reports = () => {
                 </TableCell>
               </TableRow>
               <TableRow>
+                <TableCell>Total Net Income</TableCell>
+                <TableCell align="right">
+                 <strong style={{ borderBottom: '1px solid black', paddingBottom: '2px' }}>${generatedReport.netIncome.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                </TableCell>
+              </TableRow>
+              <TableRow>
                 <TableCell>Less: Dividends</TableCell>
                 <TableCell align="right">
                   ${generatedReport.dividends.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
               </TableRow>
               <TableRow className="total-row">
-                <TableCell><strong>Ending Retained Earnings</strong></TableCell>
+                <TableCell><strong>Retained Earnings, Ending</strong></TableCell>
                 <TableCell align="right">
-                  <strong>${generatedReport.endingRE.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <strong style={{borderBottom: '3px double black', paddingBottom: '2px'}}>${generatedReport.endingRE.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -751,9 +835,26 @@ const Reports = () => {
       {/* Header */}
       <header className="reports-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
+          <img src={logo}
+           alt="Sweet Ledger Logo" 
+           style={{ width: '100px', height: 'auto' }}
+           className="header-logo" />
           <h1 className="reports-title">Financial Reports</h1>
         </div>
+
+        {/* ===== User Section ===== */}
+            <div className="user-section">
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
       </header>
 
       {/* Navigation */}

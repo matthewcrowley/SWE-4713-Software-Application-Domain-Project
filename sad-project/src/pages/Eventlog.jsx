@@ -14,15 +14,11 @@ const Eventlog = () => {
   const [sortedLogs, setSortedLogs] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
-  const handleGenerateReport = () => {
-    console.log('Generating report...');
-  };
-
-  // Fetch current user
+  // Fetch the current user
   useEffect(() => {
     const fetchCurrentUser = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/curUser");
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
         const data = await response.json();
         setCurrentUser(data.currentUser || null);
       } catch (err) {
@@ -34,10 +30,10 @@ const Eventlog = () => {
 
   // Fetch event logs
   useEffect(() => {
-  fetch('http://localhost:3000/api/eventlog')
+  fetch('https://swe-4713-software-application-domain.onrender.com/api/eventlog')
     .then((res) => res.json())
     .then((data) => {
-      console.log("Eventlog API response:", data); // <- Check this
+      console.log("Eventlog API response:", data);
       setLogs(data);
       setLoading(false);
     })
@@ -47,6 +43,9 @@ const Eventlog = () => {
     });
 }, []);
 
+const handleLogout = () => {
+    navigate("/");
+  };
 
   // Sort logs by timestamp
   useEffect(() => {
@@ -99,19 +98,26 @@ const Eventlog = () => {
     <div className="admin-container">
       <HelpButton />
       <header className="admin-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src={logo} alt="Sweet Ledger Logo" className="header-logo" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'space-between', width: '100%' }}>
+          <img src={logo} 
+          alt="Sweet Ledger Logo" 
+          style={{ width: '100px', height: 'auto' }}
+          className="header-logo" />
           <h1 className="admin-title">Event Log</h1>
-        </div>
 
-        <div className="header-actions">
-          <Button
-            className="generate-report-btn"
-            onClick={handleGenerateReport}
-            variant="contained"
-          >
-            Generate Expired Passwords Report
-          </Button>
+          {/* ===== User Section ===== */}
+          <div className="user-section" style={{ marginLeft: 'auto' }}>
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
+              </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -156,7 +162,9 @@ const Eventlog = () => {
 				</nav>
 
       <div className="admin-section">
-        <h2>Event Log</h2>
+        <div className="header-actions" style={{justifyContent:'space-between'}}>
+          <h2>Event Log</h2>
+        </div>
         <p>View all account changes, including before and after states.</p>
 
         {loading ? (
@@ -171,7 +179,7 @@ const Eventlog = () => {
         <th>User ID</th>
         <th>Action</th>
         <th
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer'}}
           onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
         >
           Timestamp {sortOrder === 'asc' ? '▲' : '▼'}
@@ -181,46 +189,189 @@ const Eventlog = () => {
       </tr>
     </thead>
     <tbody>
-      {sortedLogs.map((log) => (
+      {sortedLogs.map((log) => {
+
+          // Unified normalization per log type
+          let before = null;
+          let after = null;
+
+          if (log.targetType === 'journalEntry') {
+            before = log.before || null;
+            after = log.after || null;
+          } else if (log.targetType === 'userCreated') {
+            before = log.beforeImage || null;
+            after = log.afterImage || null;
+          }
+          else if (log.targetType === 'accountUpdated') {
+            before = log.beforeImage || null;
+            after = log.afterImage || null;
+          }
+          else if (log.targetType === 'accountCreated') {
+            before = log.before || null;   // will be null for new accounts
+            after = log.after || null;
+          }
+
+          const targetColors = {
+            "Journal Entry Approved": '#d1e7dd',      
+            "New user registered": '#ffe5d9',        
+            "Account Updated": '#cfe2ff', 
+            "Journal Entry Submitted": '#cececeff', 
+            "Journal Entry Rejected": '#f8d7da', 
+            "Account Created": '#def7ebff',
+          };
+
+        return (
         <tr key={log._id}>
           <td>{log._id}</td>
-          <td>{log.userId}</td>
-          <td>{log.action}</td>
+          <td>{log.user}</td>
+          <td style={{ display: 'inline-block', padding: '4px 12px', borderRadius: '10px', backgroundColor: targetColors[log.action],
+          color: '#000000ff', fontWeight: 'bold', fontSize: '0.9rem', textAlign: 'center', marginTop: '1rem', alignSelf: 'center'
+          }}>
+            {log.action}
+          </td>
           <td>{new Date(log.timestamp).toLocaleString()}</td>
 
           {/* Before snapshot */}
           <td>
-            {log.before ? (
+          {before ? (
+            log.targetType === 'journalEntry' ? (
               <div>
-                <div><strong>First Name:</strong> {log.before.firstName}</div>
-                <div><strong>Last Name:</strong> {log.before.lastName}</div>
-                <div><strong>DOB:</strong> {log.before.dob}</div>
-                <div><strong>Address:</strong> {log.before.address}</div>
-                <div><strong>Email:</strong> {log.before.email}</div>
-                <div><strong>Username:</strong> {log.before.username}</div>
+                <div><strong>Date:</strong> {before.date}</div>
+                <div><strong>Description:</strong> {before.description}</div>
+                <div><strong>Status:</strong> {before.status}</div>
+                <div><strong>Created By:</strong> {before.createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {before.entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At: </strong>{before.createdAt}</div>
               </div>
-            ) : (
-              <em>New Account</em>
-            )}
-          </td>
+            ) : log.targetType === 'accountUpdated' ? (
+              <div>
+                <div><strong>Account Number:</strong> {before.account_number}</div>
+                <div><strong>Account Name:</strong> {before.account_name}</div>
+                <div><strong>Type:</strong> {before.type}</div>
+                <div><strong>Subtype:</strong> {before.subcategory}</div>
+                <div><strong>Debits:</strong> {before.debits}</div>
+                <div><strong>Credits:</strong> {before.credits}</div>
+                <div><strong>Balance:</strong> ${before.balance?.toLocaleString()}</div>
+                <div><strong>Created By:</strong> {before.created_by}</div>
+                <div><strong>Comments:</strong> {before.comments}</div>
+                <div><strong>Date Created:</strong> {before.timestamp}</div>
+              </div>
+            ): (
+              // fallback for other types (like user accounts)
+              <div>
+                <div><strong>First Name:</strong> {before.firstName}</div>
+                <div><strong>Last Name:</strong> {before.lastName}</div>
+                <div><strong>Email:</strong> {before.email}</div>
+                <div><strong>Username:</strong> {before.username}</div>
+              </div>
+            )
+          ) : (
+            <em></em>
+          )}
+        </td>
 
-          {/* After snapshot */}
-          <td>
-  { (log.after || log.afterImage) ? (
-    <div>
-      <div><strong>First Name:</strong> {(log.after || log.afterImage)?.firstName}</div>
-      <div><strong>Last Name:</strong> {(log.after || log.afterImage)?.lastName}</div>
-      <div><strong>DOB:</strong> {(log.after || log.afterImage)?.dob}</div>
-      <div><strong>Address:</strong> {(log.after || log.afterImage)?.address}</div>
-      <div><strong>Email:</strong> {(log.after || log.afterImage)?.email}</div>
-      <div><strong>Username:</strong> {(log.after || log.afterImage)?.username}</div>
-    </div>
-  ) : (
-    <em>No After Snapshot</em>
-  )}
-</td>
+        <td>
+          {after ? (
+            log.targetType === 'journalEntry' ? (
+              <div>
+                <div><strong>Date:</strong> {after.date}</div>
+                <div><strong>Description:</strong> {after.description}</div>
+                <div><strong>Status:</strong> {after.status}</div>
+                <div><strong>Created By:</strong> {after.createdBy}</div>
+                <div>
+                  <strong>Entries:</strong>
+                  <ul>
+                    {after.entries?.map((e, idx) => (
+                      <li key={idx}>
+                        <strong>Account Number:</strong> {e.accountId}
+                        <div style={{ marginLeft: '1rem' }}>
+                          Debit: $
+                          {e.debit?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}
+                        </div>
+                        <div style={{ marginLeft: '1rem' }}>
+                          Credit: $
+                          {e.credit?.toLocaleString('en-US', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                          })}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div><strong>Created At:</strong> {after.createdAt}</div>
+                {after.comment != null && <div><strong>Comment:</strong> {after.comment || 'Rejected'}</div>}
+                {after.reviewedBy != null && <div><strong>Reviewed By:</strong> {after.reviewedBy}</div>}
+                {after.reviewedAt != null && <div><strong>Reviewed At:</strong> {after.reviewedAt}</div>}
+              </div>
+            ) : log.targetType === 'userCreated' ? (
+              <div>
+                <div><strong>First Name:</strong> {after.firstName}</div>
+                <div><strong>Last Name:</strong> {after.lastName}</div>
+                <div><strong>Address:</strong> {after.address}</div>
+                <div><strong>DOB:</strong> {after.dob}</div>
+                <div><strong>Email:</strong> {after.email}</div>
+                <div><strong>Username:</strong> {after.username}</div>
+                <div><strong>ID:</strong> {after._id}</div>
+              </div>
+            ) : log.targetType === 'accountUpdated' ? (
+              <div>
+                <div><strong>Account Number:</strong> {after.account_number}</div>
+                <div><strong>Account Name:</strong> {after.account_name}</div>
+                <div><strong>Type:</strong> {after.type}</div>
+                <div><strong>Subtype:</strong> {after.subcategory}</div>
+                <div><strong>Debits:</strong> {after.debits}</div>
+                <div><strong>Credits:</strong> {after.credits}</div>
+                <div><strong>Balance:</strong> ${after.balance?.toLocaleString()}</div>
+                <div><strong>Created By:</strong> {after.created_by}</div>
+                <div><strong>Comments:</strong> {after.comments}</div>
+                <div><strong>Date Created:</strong> {after.timestamp}</div>
+              </div>
+            ) : log.targetType === 'accountCreated' ? (
+            <div>
+              <div><strong>Account Number:</strong> {after.account_number}</div>
+              <div><strong>Account Name:</strong> {after.account_name}</div>
+              <div><strong>Type:</strong> {after.type}</div>
+              <div><strong>Subtype:</strong> {after.subcategory}</div>
+              <div><strong>Debits:</strong> {after.debits}</div>
+              <div><strong>Credits:</strong> {after.credits}</div>
+              <div><strong>Balance:</strong> ${after.balance?.toLocaleString()}</div>
+              <div><strong>Created By:</strong> {after.created_by}</div>
+              <div><strong>Description:</strong> {after.description}</div>
+              <div><strong>Date Created:</strong> {after.timestamp}</div>
+            </div>
+            ) : (
+              <em>Deleted Record</em>
+            )
+          ) : (
+            <em></em>
+          )}
+        </td>
+
         </tr>
-      ))}
+      );
+    }
+    )}
     </tbody>
   </table>
 )}

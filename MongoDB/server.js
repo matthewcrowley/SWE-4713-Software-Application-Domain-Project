@@ -1,7 +1,10 @@
+require('dotenv').config();
+
 const express = require('express');
 const http = require('http');
-const {Server} = require('socket.io');
+// DONT DELETE THIS COMMENT OR THE LINE - const {Server} = require('socket.io');
 const cors = require('cors');
+const fetch = require('node-fetch');
 const app = express();
 const {connectToDB, getDB} = require('./db');
 const registerRoutes = require('./routes/register');
@@ -12,15 +15,18 @@ const chartOfAccountsRoute = require('./routes/chartofaccounts');
 const journalEntriesRoute = require('./routes/journalentries');
 const ledgerRoutes = require('./routes/ledger');
 const curUserRoutes = require('./routes/curUser');
-const { updateAccount } = require('./eventLogger');
+const {updateAccount} = require('./eventLogger');
 const financialRatiosRoute = require('./routes/financialRatios');
 const managerAlertsRoute = require('./routes/managerAlerts');
-
+const resetPasswordRoutes = require("./routes/resetPassword");
+const errorRoutes = require('./routes/errors');
+const fs = require('fs');
+if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
 
 let db;
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://sweetledger.com', 'https://www.sweetledger.com',],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 }));
@@ -39,35 +45,59 @@ app.use('/api/ledger', ledgerRoutes);
 app.use('/api/curUser', curUserRoutes);
 app.use('/api/financial-ratios', financialRatiosRoute);
 app.use('/api/manager-alerts', managerAlertsRoute);
+app.use("/api", resetPasswordRoutes);
+app.use('/api/errors', errorRoutes);
+app.use("/uploads", express.static("uploads"));
 
 
 connectToDB()
   .then(() => {
     db = getDB();
     app.locals.db = db;
-    const server = http.createServer(app);
-    const io = new Server(server, {
-      cors: {
-        origin: 'http://localhost:5173',
-        methods: ['GET', 'POST'],
-        credentials: true
-      }
-    });
+    console.log('MongoDB connection established.');
 
-    app.set('io', io);
-
-    io.on('connection', (socket) => {
-      console.log('User connected:', socket.id);
-      socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
-      });
-    });
-
-    server.listen(3000, () => {
+    app.listen(3000, () => {
       console.log('Server listening on port 3000');
+
+      checkPasswordExpiry();
     });
   })
   .catch((err) => console.error('Failed to connect to DB:', err));
+
+  const checkPasswordExpiry = async () => {
+    try {
+      const users = await db.collection("users").find({}).toArray();
+      const now = new Date();
+
+      for (const user of users) {
+        if (!user.lastPasswordUpdate || !user.email) continue;
+
+        const passwordAgeDays = (now - new Date(user.lastPasswordUpdate)) / (1000*60*60*24);
+
+        if (Math.floor(passwordAgeDays) === 27) {
+          try {
+            await fetch("https://swe-4713-software-application-domain.onrender.com/api/email", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: user.email,
+                username: user.username,
+                subject: "SweetLedger Password Expiration Warning",
+                message: "Hello! This is a friendly reminder that your password is set to expire in exactly 3 days. Please update your password!"
+              })
+            });
+            console.log(`Sent an expiration email to ${user.username}`);
+          } catch (err) {
+            console.error(`Failed to send an email to ${user.username}:`, err);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("There was an error checking the password expirations:", err);
+    }
+    setInterval(checkPasswordExpiry, 24 * 60 * 60 * 1000);
+    checkPasswordExpiry();
+  };
 
   app.use((q, res, next) => {
   q.user = { id: 'Sweetledger Admin' };

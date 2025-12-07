@@ -4,7 +4,7 @@ const { getDB } = require('../db');
 const {ObjectId} = require('mongodb');
 const multer = require('multer');
 const upload = multer();
-
+const {logSystemError} = require('../utils/errorLogger');
 
 //Get all journal entries
 router.get('/', async (req, res) => {
@@ -13,6 +13,7 @@ router.get('/', async (req, res) => {
     const entries = await db.collection('journal').find().toArray();
     res.json(entries);
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching journal entries:', err);
     res.status(500).json({ message: 'Failed to fetch journal entries.' });
   }
@@ -31,6 +32,7 @@ router.get('/:id', async (req, res) => {
 
     res.json(entry);
   } catch (err) {
+    await logSystemError(err);
     console.error('Error fetching entry by ID:', err);
     res.status(500).json({ message: 'Failed to fetch journal entry.' });
   }
@@ -81,11 +83,35 @@ router.post('/', upload.array('attachments', 10), async (req, res) => {
         date: newEntry.date,
       });
     }
+
+    const journalEntry = await db.collection('journal').findOne({ _id: result.insertedId });
+
+    await db.collection('eventlogs').insertOne({
+      user: journalEntry.createdBy || 'Manager',
+      action: 'Journal Entry Submitted',
+      targetType: 'journalEntry',
+      targetId: journalEntry._id,
+      details: `Pending journal entry: ${newEntry.description}`,
+      timestamp: new Date(),
+
+      before: "",
+
+      after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "pending",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+        },
+    });
     res.status(201).json({
       message: 'Journal entry created successfully.',
       id: result.insertedId,
     });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error creating journal entry:', err);
     res.status(500).json({ error: 'Failed to create journal entry.' });
   }
@@ -95,6 +121,7 @@ router.put('/:id/approve', async (req, res) => {
   try {
     const db = getDB();
     const { id } = req.params;
+    const currentUser = req.headers['current-user'] || 'Manager';
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
@@ -120,11 +147,11 @@ router.put('/:id/approve', async (req, res) => {
     );
 
    // Post entries to ledger only if accountId exists
-    const ledgerEntries = journalEntry.entries
+    const ledgerEntries = await Promise.all(journalEntry.entries
       .filter(entry => entry.accountId && entry.accountId.trim() !== '')
-      .map(entry => {
+      .map(async entry => {
         // fetch account info from chart_of_accounts
-        const account = db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
+        const account = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
         return {
           date: journalEntry.date,
@@ -138,7 +165,7 @@ router.put('/:id/approve', async (req, res) => {
           postedAt: new Date(),
           postedBy: req.user?.id || 'Manager',
         };
-      });
+      }));
 
     // Only insert if there are valid entries
     if (ledgerEntries.length > 0) {
@@ -147,10 +174,15 @@ router.put('/:id/approve', async (req, res) => {
 
     // Update account balances
     for (const entry of journalEntry.entries) {
-      const account = await db.collection('chart_of_accounts').findOne({ accountNumber: entry.accountId });
+      const account = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
 
       if (account) {
+         // Save "before" snapshot
+        const beforeImage = { ...account };
+
         let newBalance = account.balance || 0;
+        let newDebits = account.debits || 0;
+        let newCredits = account.credits || 0;
 
         if (['Asset', 'Expense'].includes(account.type)) {
           newBalance += entry.debit - entry.credit;
@@ -158,29 +190,72 @@ router.put('/:id/approve', async (req, res) => {
           newBalance += entry.credit - entry.debit;
         }
 
+        newDebits += entry.debit;
+        newCredits += entry.credit;
+
         await db.collection('chart_of_accounts').updateOne(
-          { accountNumber: entry.accountId },
+          { account_number: entry.accountId },
           {
             $set: {
               balance: newBalance,
+              debits: newDebits,
+              credits: newCredits,
               updatedAt: new Date(),
             },
           }
         );
+
+        // Save "after" snapshot
+        const updatedAccount = await db.collection('chart_of_accounts').findOne({ account_number: entry.accountId });
+        const afterImage = { ...updatedAccount };
+
+        // Insert into eventlogs collection
+        await db.collection('eventlogs').insertOne({
+          user: req.user?.id || 'Manager',
+          action: `Account Updated`,
+          targetType: 'accountUpdated',
+          documentId: entry.accountId,
+          before: beforeImage,
+          after: afterImage,
+          timestamp: new Date(),
+        });
       }
     }
 
     await db.collection('eventlogs').insertOne({
-      userId: req.user?.id || 'Manager',
-      action: 'APPROVE',
+      user: currentUser || 'Manager',
+      action: 'Journal Entry Approved',
       targetType: 'journalEntry',
       targetId: id,
       details: `Approved journal entry: ${journalEntry.description}`,
       timestamp: new Date(),
+
+      before: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "pending",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+        },
+
+        after: {
+          _id: journalEntry._id,
+          date: journalEntry.date,
+          description: journalEntry.description,
+          status: "approved",
+          createdBy: journalEntry.createdBy,
+          entries: journalEntry.entries,
+          createdAt: journalEntry.createdAt,
+          reviewedAt: journalEntry.reviewedAt,
+          reviewedBy: journalEntry.reviewedBy,
+        },
     });
 
     res.status(200).json({ message: 'Journal entry approved and posted to ledger' });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error approving journal entry:', error.stack || error);
     res.status(500).json({ error: 'Failed to approve journal entry' });
   }
@@ -191,6 +266,7 @@ router.put('/:id/reject', async (req, res) => {
     const db = getDB();
     const { id } = req.params;
     const { comment } = req.body;
+    const currentUser = req.headers['current-user'] || 'Manager';
 
     if (!ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid journal entry ID' });
@@ -220,22 +296,20 @@ router.put('/:id/reject', async (req, res) => {
     );
 
     await db.collection('eventlogs').insertOne({
-        userId: req.user?.id || 'Manager',
-        action: 'REJECT',
+        user: currentUser || 'Manager',
+        action: 'Journal Entry Rejected',
         targetType: 'journalEntry',
         targetId: id,
-        details: `Changed journal entry status from '${journalEntry.status}' to '${updatedEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
+        details: `Changed journal entry status from '${journalEntry.status}'. Reason: ${comment || 'No reason provided.'}`,
         
         before: {
           _id: journalEntry._id,
           date: journalEntry.date,
           description: journalEntry.description,
-          status: journalEntry.status,
+          status: "pending",
           createdBy: journalEntry.createdBy,
           entries: journalEntry.entries,
           createdAt: journalEntry.createdAt,
-          reviewedAt: journalEntry.reviewedAt,
-          reviewedBy: journalEntry.reviewedBy,
         },
 
         after: {
@@ -246,6 +320,7 @@ router.put('/:id/reject', async (req, res) => {
           createdBy: journalEntry.createdBy,
           entries: journalEntry.entries,
           createdAt: journalEntry.createdAt,
+          comment: journalEntry.comment,
           reviewedAt: journalEntry.reviewedAt,
           reviewedBy: journalEntry.reviewedBy,
         },
@@ -255,6 +330,7 @@ router.put('/:id/reject', async (req, res) => {
 
     res.status(200).json({ message: 'Journal entry rejected' });
   } catch (error) {
+    await logSystemError(error);
     console.error('Error rejecting journal entry:', error);
     res.status(500).json({ error: 'Failed to reject journal entry' });
   }
@@ -277,6 +353,7 @@ router.put('/:id', async (req, res) => {
 
     res.json({ message: 'Journal entry updated successfully.' });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error updating journal entry:', err);
     res.status(500).json({ message: 'Failed to update journal entry.' });
   }
@@ -296,6 +373,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ message: 'Journal entry deleted successfully.' });
   } catch (err) {
+    await logSystemError(err);
     console.error('Error deleting journal entry:', err.stack || error);
     res.status(500).json({ message: 'Failed to delete journal entry.' });
   }
