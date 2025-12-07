@@ -267,6 +267,7 @@ export default function Manager({ setIsLoggedIn }) {
     fetchRatios();
   }, []);
 
+  // Buttons for services
   const services = [
     {
       title: "Account Management",

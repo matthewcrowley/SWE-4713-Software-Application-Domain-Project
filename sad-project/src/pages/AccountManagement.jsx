@@ -22,9 +22,8 @@ import {
   TableRow,
   Chip,
 } from "@mui/material";
-import defaultProfile from "../assets/defaultprofile.png";
 import "./AccountManagement.css";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import HelpButton from "../components/HelpButton";
 import Calendar from "../components/Calendar";
 import logo from "../assets/sweetledger.jpeg";
@@ -42,20 +41,18 @@ export default function AccountManagement() {
   });
 
   // Fetch current user
-    useEffect(() => {
-          const fetchCurrentUser = async () => {
-            try {
-              const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
-              const data = await response.json();
-              setCurrentUser(data.currentUser || []);
-                
-            } catch (err) {
-              console.warn("Could not fetch /api/curUser:", err);
-            }
-          };
-          fetchCurrentUser();
-        }, []);
-        
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/curUser");
+        const data = await response.json();
+        setCurrentUser(data.currentUser || []);
+      } catch (err) {
+        console.warn("Could not fetch /api/curUser:", err);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   // New state for creating users
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -100,6 +97,24 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   });
 
   const [accounts, setAccounts] = useState([]);
+  const [accountForm, setAccountForm] = useState({
+    accountName: "",
+    accountNumber: "",
+    description: "",
+    normalSide: "Debit",
+    category: "",
+    subcategory: "",
+    initialBalance: "",
+    debit: "",
+    credit: "",
+    balance: "",
+    dateAdded: "",
+    userId: "",
+    order: "",
+    statement: "BS",
+    comment: "",
+  });
+
   const navigate = useNavigate();
 
   const formatMoney = (value) => {
@@ -139,7 +154,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   }, []);
 
   const startEdit = (user) => {
-    setEditingUser(user.id);
+    setEditingUser(user._id);
     setEditForm({ username: user.username, email: user.email, role: user.role });
   };
 
@@ -148,7 +163,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     navigate("/");
   };
 
@@ -167,9 +181,9 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
 
       if (data.success) {
         setUsers((prev) =>
-          prev.map((u) => (u.id === editingUser ? { ...u, ...editForm } : u))
+          prev.map((u) => (u._id === editingUser ? { ...u, ...editForm } : u))
         );
-        setMessage(`User ID ${editingUser} updated successfully`);
+        setMessage(`User updated successfully`);
         setEditingUser(null);
       } else {
         setMessage("Failed to update user: " + data.message);
@@ -183,7 +197,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   const toggleUserStatus = async (user) => {
     try {
       const response = await fetch(
-        `https://swe-4713-software-application-domain.onrender.com/api/users/${user.id}/status`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -198,9 +212,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           prev.map((u) => (u._id === user._id ? { ...u, active: !u.active } : u))
         );
         setMessage(
-          `User ${user.username} is now ${
-            !user.active ? "true" : "false"
-          }`
+          `User ${user.username} is now ${!user.active ? "Active" : "Inactive"}`
         );
       } else {
         setMessage("Failed to update status: " + data.message);
@@ -238,13 +250,17 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       const data = await response.json();
 
       if (data.success) {
-        setUsers([...users, { ...createUserForm, id: data.userId, active: true }]);
+        // Refresh the user list
+        const usersResponse = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+        const usersData = await usersResponse.json();
+        setUsers(usersData || []);
+        
         setMessage(`User ${createUserForm.username} created successfully with role ${createUserForm.role}`);
         setCreateUserForm({
           username: "",
           email: "",
           password: "",
-          role: "",
+          role: "User",
         });
         setShowCreateUser(false);
       } else {
@@ -259,19 +275,19 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   // Generate User Report
   const generateUserReport = async () => {
     try {
-    const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
-    const data = await response.json();
+      const response = await fetch("https://swe-4713-software-application-domain.onrender.com/api/users");
+      const data = await response.json();
 
-    if (Array.isArray(data)) {
-      setUserReportData(data);
-      setShowUserReport(true);
-    } else {
-      setMessage("Failed to generate user report");
+      if (Array.isArray(data)) {
+        setUserReportData(data);
+        setShowUserReport(true);
+      } else {
+        setMessage("Failed to generate user report");
+      }
+    } catch (error) {
+      console.error("Error generating report:", error);
+      setMessage("Server error while generating report.");
     }
-  } catch (error) {
-    console.error("Error generating report:", error);
-    setMessage("Server error while generating report.");
-  }
   };
 
   // Open suspend dialog
@@ -294,7 +310,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
 
     try {
       const response = await fetch(
-        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser.id}/suspend`,
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${suspendUser._id}/suspend`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -307,7 +323,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       if (data.success) {
         setUsers((prev) =>
           prev.map((u) =>
-            u.id === suspendUser.id
+            u._id === suspendUser._id
               ? { ...u, suspended: true, suspendedUntil: suspendForm.expiryDate }
               : u
           )
@@ -321,6 +337,37 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
     } catch (error) {
       console.error("Error suspending user:", error);
       setMessage("Server error while suspending user.");
+    }
+  };
+
+  // Handle unsuspend user - NEW FUNCTION
+  const handleUnsuspendUser = async (user) => {
+    try {
+      const response = await fetch(
+        `https://swe-4713-software-application-domain.onrender.com/api/users/${user._id}/unsuspend`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setUsers((prev) =>
+          prev.map((u) =>
+            u._id === user._id
+              ? { ...u, suspended: false, suspendedUntil: null }
+              : u
+          )
+        );
+        setMessage(`User ${user.username} has been unsuspended`);
+      } else {
+        setMessage("Failed to unsuspend user: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error unsuspending user:", error);
+      setMessage("Server error while unsuspending user.");
     }
   };
 
@@ -341,7 +388,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
   // Open email dialog
   const openEmailDialog = (user) => {
     setEmailForm({
-      userId: user.id,
+      userId: user._id,
       username: user.username,
       email: user.email,
       subject: "",
@@ -448,50 +495,50 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
       {/* ===== Header Section ===== */}
       <Box className="admin-header">
         <header className="admin-header" style={{borderBottom: '0px', justifyContent: 'space-between', width: '100%'}}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
-                <img 
-                  alt="Sweet Ledger Logo"
-                  src={logo} 
-                  style={{ width: '100px', height: 'auto' }}
-                  className="header-logo"
-                />
-                <h1 className="admin-title">Administrator Account Management</h1>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem'}}>
+            <img 
+              alt="Sweet Ledger Logo"
+              src={logo} 
+              style={{ width: '100px', height: 'auto' }}
+              className="header-logo"
+            />
+            <h1 className="admin-title">Administrator Account Management</h1>
+          </div>
 
-              {/* ===== User Section ===== */}
-              <div className="user-section" style={{ marginLeft: 'auto' }}>
-                <span className="welcome-text">Welcome,</span>
-                <div>
-                  <div className="username">
-                      {currentUser?.curUsername}
-                  </div>
-                  <span className="admin-badge">{currentUser?.role}</span>
-                </div>
-                <button className="logout-button" onClick={handleLogout}>
-                  Logout
-                </button>
+          {/* ===== User Section ===== */}
+          <div className="user-section" style={{ marginLeft: 'auto' }}>
+            <span className="welcome-text">Welcome,</span>
+            <div>
+              <div className="username">
+                {currentUser?.curUsername}
               </div>
+              <span className="admin-badge">{currentUser?.role}</span>
+            </div>
+            <button className="logout-button" onClick={handleLogout}>
+              Logout
+            </button>
+          </div>
         </header>
       </Box>
 
       <nav className="dashboard-nav" style={{ backgroundColor: '#ebebeb75', borderBottom: '1px solid #ccc' }}>
         <div className="button-container">
-            <Calendar title="Calander" />
-            <span className="tooltiptext">Click here to open the calendar</span>
-          </div>
-          <button className="nav-button" onClick={() => navigate("/administrator")}>
-            🏠 Dashboard
-          </button>
-          <button className="nav-button" onClick={() => { navigate("/accountmanagement");}}>
-            👤 Account Management
-          </button>
-          <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
-            📋 Chart of Accounts
-          </button>
-          <button className="nav-button" onClick={() => navigate("/eventlog")}>
-            📝 Event Log
-          </button>
-        </nav>
+          <Calendar title="Calander" />
+          <span className="tooltiptext">Click here to open the calendar</span>
+        </div>
+        <button className="nav-button" onClick={() => navigate("/administrator")}>
+          🏠 Dashboard
+        </button>
+        <button className="nav-button" onClick={() => { navigate("/accountmanagement");}}>
+          👤 Account Management
+        </button>
+        <button className="nav-button" onClick={() => navigate("/chartofaccounts")}>
+          📋 Chart of Accounts
+        </button>
+        <button className="nav-button" onClick={() => navigate("/eventlog")}>
+          📝 Event Log
+        </button>
+      </nav>
 
       {/* ===== Main Content ===== */}
       <Box className="admin-content">
@@ -614,9 +661,9 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id}>
+                  <tr key={u._id}>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <TextField
                           size="small"
                           name="username"
@@ -628,7 +675,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <TextField
                           size="small"
                           name="email"
@@ -640,7 +687,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <Select
                           size="small"
                           name="role"
@@ -665,7 +712,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                       )}
                     </td>
                     <td>
-                      {editingUser === u.id ? (
+                      {editingUser === u._id ? (
                         <>
                           <Button
                             className="btn"
@@ -703,7 +750,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                           <Button
                             className={`btn ${u.suspended ? "unsuspend" : "suspend"}`}
                             size="small"
-                            onClick={() => openSuspendDialog(u)}
+                            onClick={() => u.suspended ? handleUnsuspendUser(u) : openSuspendDialog(u)}
                           >
                             {u.suspended ? "Unsuspend" : "Suspend"}
                           </Button>
@@ -729,6 +776,68 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           <Typography variant="h6" gutterBottom>
             Account Management
           </Typography>
+          <form className="account-form" onSubmit={handleAddAccount}>
+            <Grid container spacing={2}>
+              {[
+                "accountName",
+                "accountNumber",
+                "description",
+                "category",
+                "subcategory",
+                "initialBalance",
+                "debit",
+                "credit",
+                "balance",
+                "userId",
+                "order",
+                "comment",
+              ].map((field) => (
+                <Grid item xs={12} sm={6} md={4} key={field}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    name={field}
+                    label={field.replace(/([A-Z])/g, " $1")}
+                    value={accountForm[field]}
+                    onChange={handleAccountChange}
+                  />
+                </Grid>
+              ))}
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="normalSide"
+                  value={accountForm.normalSide}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="Debit">Debit</MenuItem>
+                  <MenuItem value="Credit">Credit</MenuItem>
+                </Select>
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={4}>
+                <Select
+                  fullWidth
+                  size="small"
+                  name="statement"
+                  value={accountForm.statement}
+                  onChange={handleAccountChange}
+                >
+                  <MenuItem value="IS">Income Statement</MenuItem>
+                  <MenuItem value="BS">Balance Sheet</MenuItem>
+                  <MenuItem value="RE">Retained Earnings</MenuItem>
+                </Select>
+              </Grid>
+            </Grid>
+
+            <Box mt={2}>
+              <Button className="btn" type="submit">
+                Add Account
+              </Button>
+            </Box>
+          </form>
 
           <Typography variant="h6" mt={3}>
             Existing Accounts
@@ -749,22 +858,15 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
             <tbody>
               {accounts.map((a, i) => (
                 <tr key={i}>
-                  <td>
-                    <Link
-                      to={`/ledger/${a.account_number}`}
-                      onClick={(e) => e.stopPropagation()} // prevents table clicks from blocking navigation
-                      style={{ textDecoration: "none", color: "#1976d2", cursor: "pointer", fontWeight: 500,}}>
-                        {a.account_number}
-                    </Link> 
-                  </td>
+                  <td>{a.account_number}</td>
                   <td>{a.account_name}</td>
                   <td>{a.type}</td>
                   <td>{a.subcategory}</td>
                   <td style={{ textAlign: 'right' }}>${a.balance.toLocaleString('en-US', {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2
-                          })}</td>
-                  <td>{a.created_by}</td>
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                  })}</td>
+                  <td>{a.createdBy}</td>
                   <td>{a.timestamp}</td>
                   <td>{a.comments}</td>
                 </tr>
@@ -795,7 +897,7 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
               </TableHead>
               <TableBody>
                 {userReportData.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow key={user._id}>
                     <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.role}</TableCell>
@@ -917,6 +1019,42 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
           </Button>
           <Button onClick={handleSuspendUser} className="btn" style={{ backgroundColor: '#ff9800' }}>
             Suspend User
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
+      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Expired Passwords Report</DialogTitle>
+        <DialogContent>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Username</strong></TableCell>
+                  <TableCell><strong>Email</strong></TableCell>
+                  <TableCell><strong>Role</strong></TableCell>
+                  <TableCell><strong>Password Age (Days)</strong></TableCell>
+                  <TableCell><strong>Last Changed</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {expiredPasswordsData.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>{user.username}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.role}</TableCell>
+                    <TableCell>{user.passwordAge}</TableCell>
+                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
+            Close
           </Button>
         </DialogActions>
       </Dialog>
