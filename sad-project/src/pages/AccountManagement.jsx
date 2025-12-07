@@ -553,31 +553,36 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         {/* ========== USER MANAGEMENT ========== */}
         <Paper elevation={1} className="admin-section">
           <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">
-              User Management
-            </Typography>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Button
-                variant="contained"
-                className="btn"
-                onClick={generateUserReport}
-              >
-                View All Users Report
-              </Button>
-              <Button
-                variant="contained"
-                className="btn"
-                onClick={generateExpiredPasswordsReport}
-              >
-                Expired Passwords Report
-              </Button>
-              <Button
-                className="btn"
-                onClick={() => setShowCreateUser(!showCreateUser)}
-              >
-                {showCreateUser ? "Cancel" : "Create New User"}
-              </Button>
-            </Box>
+              <Typography variant="h6">
+                User Management
+              </Typography>
+                      <Box display="flex" alignItems="center" gap={2}>
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}>
+            View All System Critical Errors
+            </Button>
+            <Button
+              variant="contained"
+              className="btn"
+              onClick={generateUserReport}
+            >
+              View All Users Report
+            </Button>
+            <Button 
+            variant="contained"
+            className="btn"
+            onClick={generateExpiredPasswordsReport}>
+            View Expired Passwords
+            </Button>
+            <Button
+              className="btn"
+              onClick={() => setShowCreateUser(!showCreateUser)}
+            >
+              {showCreateUser ? "Cancel" : "Create New User"}
+            </Button>
+          </Box>
           </Box>
 
           {/* Create User Form */}
@@ -742,12 +747,37 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
                             Edit
                           </Button>
                           <Button
-                            className={`btn ${
-                              u.active ? "deactivate" : "activate"
-                            }`}
+                            className={`btn ${u.active ? "deactivate" : "activate"}`}
                             size="small"
-                            onClick={() => toggleUserStatus(u)}
-                          >
+                            onClick={async () => {
+                              try {
+                                const newActiveStatus = !u.active;
+
+                                const response = await fetch(
+                                 `https://swe-4713-software-application-domain.onrender.com/api/users/${u._id}`,
+                                    {
+                                      method: "PUT",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ active: newActiveStatus }),
+                                    }
+                                  );
+
+                                  const data = await response.json();
+
+                                  if (data.success) {
+                                    setUsers(prev =>
+                                    prev.map(user =>
+                                     user._id === u._id ? { ...user, active: newActiveStatus } : user
+                                    )
+                                    );
+                                  } else {
+                                  console.error("Failed to update user status:", data.message);
+                                  }
+                                } catch (err) {
+                              console.error("Error updating user status:", err);
+                            }
+                            }}
+                            >
                             {u.active ? "Deactivate" : "Activate"}
                           </Button>
                           <Button
@@ -1026,41 +1056,6 @@ const [showExpiredPasswordReport, setShowExpiredPasswordReport] = useState(false
         </DialogActions>
       </Dialog>
 
-      {/* ========== EXPIRED PASSWORDS REPORT DIALOG ========== */}
-      <Dialog open={showExpiredPasswordsReport} onClose={() => setShowExpiredPasswordsReport(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Expired Passwords Report</DialogTitle>
-        <DialogContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Username</strong></TableCell>
-                  <TableCell><strong>Email</strong></TableCell>
-                  <TableCell><strong>Role</strong></TableCell>
-                  <TableCell><strong>Password Age (Days)</strong></TableCell>
-                  <TableCell><strong>Last Changed</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {expiredPasswordsData.map((user) => (
-                  <TableRow key={user._id}>
-                    <TableCell>{user.username}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.role}</TableCell>
-                    <TableCell>{user.passwordAge}</TableCell>
-                    <TableCell>{new Date(user.passwordLastChanged).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowExpiredPasswordsReport(false)} className="btn">
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* ========== SEND EMAIL DIALOG ========== */}
       <Dialog open={showEmailDialog} onClose={() => setShowEmailDialog(false)} maxWidth="sm" fullWidth>
