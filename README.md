@@ -39,12 +39,13 @@ If you the reader would like to get a better understanding of SweetLedger's deve
 - [Material UI](https://mui.com/material-ui/)
 
 ## Documentation
-- [Project Proposal](./Documents/Proposalpreparationguidelines1.pdf)
-- [Software Project Management Plan](./Documents/SweetledgerSPMP.pdf)
-- [Software Requirements Specifications](./Documents/SweetledgerSRS.pdf)
-- [Software Design Document](./Documents/Sweetledger-SDD.pdf)
-- [User Manual Document]()
-- [Usability Testing Document](./Documents/SweetledgerUsabilityTestingDocument.pdf)
+- [Project Proposal](./Documents/ProjectProposalSweetLedger.pdf)
+- [Software Project Management Plan](./Documents/SPMPSweetLedger.pdf)
+- [Software Requirements Specifications](./Documents/SRSSweetLedger.pdf)
+- [Software Design Document](./Documents/SDDSweetLedger.pdf)
+- [User Manual Document](./Documents/UserManualSweetLedger.pdf)
+- [Unit Tests Document](./Documents/STSSweetLedger.pdf)
+- [Usability Testing Document](./Documents/UsabilityTestsSweetLedger.pdf)
 
 ## Special Thanks
 We would like to give a special thanks to our mentor for this project, Dr. Ermias Mamo. SweetLedger would not be what it is today without his extensive industry experience, advice, and care. Thank you Dr. Mamo!
