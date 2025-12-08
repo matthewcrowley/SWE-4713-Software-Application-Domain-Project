@@ -5,6 +5,8 @@ Check out our project at [sweetledger.com](https://sweetledger.com)!
 
 Check out our [Recorded Demonstration of SweetLedger](https://youtu.be/M4d4z2JljsU?si=knK3UGubqk9vLLRx)!
 
+Check out our [Trello Board](https://trello.com/b/Ktaa1XgR)!
+
 CURRENT STAGE: Release Candidate Stage
 
 ## Table of Contents
