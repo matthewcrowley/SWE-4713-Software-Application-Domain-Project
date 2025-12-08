@@ -318,7 +318,7 @@ export default function Administrator({ setIsLoggedIn }) {
                 const status = getRatioStatus(key, safeValue);
 
                 return displayValue > 0 && (
-                  <div key={key} className={`ratio-card ratio-${status}`}>
+                  <div data-testid='ratiocard' key={key} className={`ratio-card ratio-${status}`}>
                     <div className="ratio-title">{formatKey(key)}</div>
                     <div className="ratio-value">{displayValue}</div>
                     <div className={`ratio-indicator ${status}`}></div>

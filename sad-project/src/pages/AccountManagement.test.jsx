@@ -59,25 +59,25 @@ describe('Account Management Page', () => {
 
     it('Renders user management table components', () => {
         console.debug(prettyDOM())
-        expect(screen.getByRole("button", { name: /Create New User/i})).toBeInTheDocument();
+        expect(screen.getByRole("button", {name: /Create New User/i})).toBeInTheDocument();
 
-        const editbuttons = screen.getAllByRole("button", { name: /Edit/i});
+        const editbuttons = screen.getAllByRole("button", {name: /Edit/i});
         expect(editbuttons).not.toHaveLength(0);
         console.log(editbuttons.length);
 
-        const deactbuttons = screen.getAllByRole("button", { name: /Deactivate/i});
+        const deactbuttons = screen.getAllByRole("button", {name: /Deactivate/i});
         expect(deactbuttons).not.toHaveLength(0);
         console.log(deactbuttons.length);
 
-        const suspendbuttons = screen.getAllByRole("button", { name: /Suspend/i});
+        const suspendbuttons = screen.getAllByRole("button", {name: /Suspend/i});
         expect(suspendbuttons).not.toHaveLength(0);
         console.log(suspendbuttons.length);
 
-        const emailbuttons = screen.getAllByRole("button", { name: /Email/i});
+        const emailbuttons = screen.getAllByRole("button", {name: /Email/i});
         expect(emailbuttons).not.toHaveLength(0);
         console.log(emailbuttons.length);
-
-
+    })
+    it('renders user management table headers', () => {
         const tableHeads = screen.getAllByRole('columnheader');
         expect(tableHeads[0]).toHaveAccessibleName('Username');
         expect(tableHeads[1]).toHaveAccessibleName('Email');

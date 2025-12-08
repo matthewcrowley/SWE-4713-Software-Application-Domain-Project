@@ -345,7 +345,7 @@ export default function Manager({ setIsLoggedIn }) {
               </div>
               <span className="manager-badge">Manager</span>
             </div>
-            <NotificationsWrapper />
+
             <button className="logout-button" onClick={handleLogout}>
               Logout
             </button>

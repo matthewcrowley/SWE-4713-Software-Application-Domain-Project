@@ -60,7 +60,7 @@ describe('Account Management Page', () => {
     it('Renders major elements', () => {
         const eventLog = screen.queryAllByText('Event Log');
         expect(eventLog.length).toBeGreaterThanOrEqual(1);
-        expect(screen.getByRole('table')).toBeInTheDocument();
+        expect(screen.queryByRole('table')).toBeInTheDocument();
 
     })
 

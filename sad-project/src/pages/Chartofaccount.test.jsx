@@ -66,8 +66,7 @@ describe('Chart of Accounts Page', () => {
 
     it('Render header for Chart of Accounts', async () => {
         expect(screen.getAllByRole('heading', { name: /Chart of Accounts/i})).toHaveLength(3);
-        expect(screen.getByRole("button", {name: /View All Accounts Report/i})).toBeInTheDocument();
-        expect(screen.getByRole("button", {name: /Email Admin or Manager/i})).toBeInTheDocument();
+        expect(screen.getByRole("button", {name: /✉️/i})).toBeInTheDocument();
         expect(screen.getAllByRole("button", {name: '?'})).toHaveLength(2);
 
 
@@ -85,6 +84,8 @@ describe('Chart of Accounts Page', () => {
     it('Render Text & Buttons for Chart of Accounts', () => {
 
         expect(screen.getByRole('button', { name: /Add Account/i})).toBeInTheDocument();
+        expect(screen.getByRole("button", {name: /Accounts Report/i})).toBeInTheDocument();
+
         expect(screen.getByText('Manage your accounts here.')).toBeInTheDocument();
     })
 
