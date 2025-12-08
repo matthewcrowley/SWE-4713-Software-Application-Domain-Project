@@ -3,6 +3,8 @@ Welcome to our Sweetledger repository for our Software Application Domain semest
 
 Check out our project at [sweetledger.com](https://sweetledger.com)!
 
+Check out our [Recorded Demonstration of SweetLedger](https://youtu.be/M4d4z2JljsU?si=knK3UGubqk9vLLRx)!
+
 CURRENT STAGE: Release Candidate Stage
 
 ## Table of Contents
@@ -23,7 +25,7 @@ CURRENT STAGE: Release Candidate Stage
 SweetLedger is a web-based accounting ledger book system. It allows users to utilize a fully functioning digital ledger book that businesses use. The completion of SweetLedger is composed of 5 different sprints, with each sprint building and adding functionalities off of the previous sprint. It is extremely efficient and robust, as the developing team has adopted a "less moving parts" mentality. SweetLedger is available now live on the web in many different versions including desktop and mobile! There are more details of what that means in the following section.
 
 ## Environment
-The backbone of SweetLedger is reliable and strong. We have decided to create SweetLedger using popular technologies and languages such as C#, HTML, JavaScript, and CSS. Our frontend technologies include React and Vite, and we used MongoDB Atlas for our backend database, which is a cloud-based easy-to-setup database. Once we were ready to deploy our project to the internet, we decided to use Render to host the backend, Cloudflare for our domain, and Cloudflare Pages to host our frontend. Also, our email API is provided by SendGrid by Twilio. We are also proud to announce that not only is SweetLedger available on desktop, it is now available on mobile browsers too! This is thanks to Material UI.
+The backbone of SweetLedger is reliable and strong. We have decided to create SweetLedger using popular technologies and languages such as C#, HTML, JavaScript, and CSS. Our frontend technologies include React and Vite, and we used MongoDB Atlas for our backend database, which is a cloud-based easy-to-setup database. Once we were ready to deploy our project to the internet, we decided to use Render to host the backend, Cloudflare for our domain, and Cloudflare Pages to host our frontend. Also, our email API is provided by SendGrid by Twilio. SweetLedger is also very secure, with running on a secure server from Cloudflare and incorporating password hashing for account security. We are also proud to announce that not only is SweetLedger available on desktop, it is now available on mobile browsers too! This is thanks to Material UI.
 
 If you the reader would like to get a better understanding of SweetLedger's development process, please visit our [Trello board](https://trello.com/b/Ktaa1XgR/my-trello-board)! This board highlights key requirements along with the bugs that we tracked along the way. Below is a list of all of the technologies that we used.
 
