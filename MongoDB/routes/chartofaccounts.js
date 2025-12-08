@@ -24,7 +24,6 @@ router.put('/:id', async (q, s) => {
   try {
     const db = getDB();
     const {id} = q.params;
-    // Extract current user BEFORE filtering
     const currentUser = q.body.currentUser || 'Unknown User';
 
     const updateData = {...q.body};
@@ -53,7 +52,6 @@ router.put('/:id', async (q, s) => {
         return object;
       }, {});
 
-    // BEFORE version
     const beforeAccount = await db
       .collection('chart_of_accounts')
       .findOne({ _id: new ObjectId(id) });
@@ -62,18 +60,17 @@ router.put('/:id', async (q, s) => {
       return s.status(404).json({ message: `Account ${id} not found.` });
     }
 
-    // Update account
+    // Update the account
     await db.collection('chart_of_accounts').updateOne(
       { _id: new ObjectId(id) },
       { $set: sanitizedData }
     );
 
-    // AFTER version
     const updatedAccount = await db
       .collection('chart_of_accounts')
       .findOne({ _id: new ObjectId(id) });
 
-    // INSERT EVENT LOG
+    // Insert to the event log
     await db.collection('eventlogs').insertOne({
       action: `Account Updated`,
       targetType: 'accountUpdated',
@@ -84,7 +81,7 @@ router.put('/:id', async (q, s) => {
       timestamp: new Date()
     });
 
-    // Return updated account
+    // Return the updated account
     s.status(200).json(updatedAccount);
 
   } catch (error) {

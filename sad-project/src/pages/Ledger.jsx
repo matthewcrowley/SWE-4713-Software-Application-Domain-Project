@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import React, {useState, useEffect} from 'react';
+import {useParams, useNavigate, useLocation} from 'react-router-dom';
 import {
   Button, TextField, Table, TableHead, TableBody, TableRow, TableCell,
   FormControl, InputLabel, Select, MenuItem, Paper

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import {useState} from "react";
 import "./style.css";
 import logo from "./assets/sweetledger.jpeg";
-import { useNavigate, Link } from "react-router-dom";
+import {useNavigate, Link} from "react-router-dom";
 import HelpButton from "./components/HelpButton";
 
 function ForgotPassword() {

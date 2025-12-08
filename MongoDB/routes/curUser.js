@@ -2,10 +2,8 @@ const express = require('express');
 const dbRoute = express.Router();
 const {logSystemError} = require('../utils/errorLogger');
 
-// Simple in-memory variable to store the current user
 let currentUser = null;
 
-// POST to set the current user
 dbRoute.post('/', async (req, res) => {
   try {
     const { curUsername, role } = req.body;
@@ -25,7 +23,6 @@ dbRoute.post('/', async (req, res) => {
   }
 });
 
-// GET to retrieve the current user
 dbRoute.get('/', (req, res) => {
   if (!currentUser) {
     return res.status(404).json({ success: false, message: 'No user is currently logged in.' });

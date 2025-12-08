@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     console.log('Journal entries fetched:', journalEntries.length);
 
 
-    // If no accounts, return zeros
+    // This is here to default to 0 if the system cant find any accounts
     if (!accounts || accounts.length === 0) {
       return res.json({
         grossProfitMargin: 0,

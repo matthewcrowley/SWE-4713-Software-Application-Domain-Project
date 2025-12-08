@@ -7,7 +7,6 @@ module.exports = (db) => {
     try {
       const alerts = [];
 
-      // 1. Pending journal entries that require approval
       const pendingEntries = await db.collection('journal_entries')
         .find({ status: "Pending Approval" })
         .toArray();
@@ -19,7 +18,6 @@ module.exports = (db) => {
         });
       }
 
-      // 2. Unposted (draft) journal entries
       const drafts = await db.collection('journal_entries')
         .find({ status: "Draft" })
         .toArray();
@@ -31,7 +29,6 @@ module.exports = (db) => {
         });
       }
 
-      // 3. Critical event log notices  
       const criticalEvents = await db.collection('event_log')
         .find({ level: "critical" })
         .toArray();
@@ -43,7 +40,6 @@ module.exports = (db) => {
         });
       }
 
-      // 4. Accounts needing review (example condition)
       const flaggedAccounts = await db.collection('accounts')
         .find({ flagged: true })
         .toArray();

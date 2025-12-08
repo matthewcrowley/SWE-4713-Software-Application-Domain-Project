@@ -1,11 +1,11 @@
-import { BrowserRouter as Router, Routes, Route, useNavigate, Navigate } from "react-router-dom";
-import { useState } from "react";
+import {BrowserRouter as Router, Routes, Route, useNavigate, Navigate} from "react-router-dom";
+import {useState} from "react";
 //DO NOT DELETE THIS LINE OR COMMENT - import { socket } from "./socket";
 import { useEffect } from "react";
 import "./style.css";
 import NewUser from "./NewUser";
 import ForgotPassword from "./ForgotPassword";
-import { Link } from "react-router-dom";
+import {Link} from "react-router-dom";
 import logo from "./assets/sweetledger.jpeg";
 import Administrator from "./pages/administrator";
 import Manager from "./pages/manager";
@@ -280,7 +280,6 @@ function App() {
           }
         />
 
-        {/* ✅ Account Management Page */}
         <Route
           path="/accountmanagement"
           element={
@@ -295,7 +294,6 @@ function App() {
           }
         />
 
-        {/* View Accounts Page (Read-Only for Regular Users) */}
         <Route
           path="/Accountview"
           element={
@@ -317,7 +315,6 @@ function App() {
           }
         />
 
-        {/* ✅ Journal Entry Routes - with optional highlighting parameter */}
         <Route
           path="/JournalEntries"
           element={
@@ -331,7 +328,6 @@ function App() {
           }
         />
 
-        {/* ✅ Ledger Routes - with account ID parameter */}
         <Route
           path="/ledger"
           element={
@@ -339,7 +335,6 @@ function App() {
           }
           />
 
-        {/* PR Journal entry*/}
         <Route 
           path="/journalentries/:journalEntryId" 
           element={<Journal />} 
@@ -350,7 +345,6 @@ function App() {
             isLoggedIn ? <Ledger /> : <Navigate to="/" replace />
           }
         />
-        {/* ✅ Financial Reports Route */}
       <Route
         path="/reports"
         element={

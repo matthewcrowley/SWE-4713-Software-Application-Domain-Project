@@ -328,7 +328,7 @@ const Reports = () => {
     const totalLiabilities = liabilities.reduce((sum, l) => sum + l.amount, 0);
     const totalEquity = equity.reduce((sum, e) => sum + e.amount, 0);
 
-    // ✅ Subtract twice the accumulated depreciation amount from total assets
+    //Subtract twice the accumulated depreciation amount from total assets
     const accumulatedDepAccount = assets.find(a => 
       a.accountName.toLowerCase().includes('accumulated depreciation')
     );
