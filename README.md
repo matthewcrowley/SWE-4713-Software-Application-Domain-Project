@@ -7,7 +7,7 @@ Check out our [Recorded Demonstration of SweetLedger](https://youtu.be/M4d4z2Jlj
 
 Check out our [Trello Board](https://trello.com/b/Ktaa1XgR)!
 
-CURRENT STAGE: Release Candidate Stage
+CURRENT STAGE: End of Life Stage - SweetLedger has been removed from the internet due to upkeep costs. Contact Matthew Crowley at matthewcrowley2002@gmail.com if you wish to obtain access/ownership to SweetLedger.
 
 ## Table of Contents
 - [Team Members](#team-members)
